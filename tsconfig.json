@@ -1,0 +1,32 @@
+{
+    "compilerOptions": {
+        "module": "commonjs",
+        "target": "es5",
+        "lib": ["es2015", "dom"],
+        "strict": true,
+        "baseUrl": "./",
+        "outDir": "build",
+        "sourceMap": true,
+        "declaration": true,
+        "declarationDir": "./dist",
+        "resolveJsonModule": true,
+        "esModuleInterop": true,
+        "removeComments": true,
+        "experimentalDecorators": true,
+        "emitDecoratorMetadata": true,
+        "moduleResolution": "node",
+        "allowSyntheticDefaultImports": true,
+        "importHelpers": true,
+        "typeRoots": ["./types", "./node_modules/@types"],
+        "types": ["reflect-metadata", "jest"]
+    },
+    "include": [
+        "./src/**/*.ts"
+    ],
+    "exclude": [
+        "node_modules", 
+        "**/*.spec.ts", 
+        "**/*.test.ts"
+    ]
+}
+  
