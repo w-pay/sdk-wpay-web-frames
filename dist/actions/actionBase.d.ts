@@ -5,6 +5,7 @@ import IElementsService from 'src/services/types/IElementsService';
 import ILoggingService from 'src/services/types/ILoggingService';
 export default abstract class ActionBase implements IAction {
     actionConfig: IActionResponse;
+    props: any;
     elements: Map<string, ElementControl>;
     protected elementsService: IElementsService;
     logger: ILoggingService;

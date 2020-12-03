@@ -7,5 +7,5 @@ export default class ElementsSDK {
     authService: IAuthorizationService;
     myContainer: Container;
     constructor(apiKey: string, authToken: string, apiBase?: string, logLevel?: LogLevel);
-    createAction(actionType: symbol): IAction;
+    createAction(actionType: symbol, props?: any): IAction;
 }

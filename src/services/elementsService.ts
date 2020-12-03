@@ -25,7 +25,7 @@ export default class ElementsService implements IElementsService {
         this.httpService = httpService;
     }
 
-    public async initialiseAction(actionType: string, useEverdayPay: boolean = false): Promise<IActionResponse> {
+    public async initialiseAction(actionType: string, useEverdayPay: boolean = false, props: any): Promise<IActionResponse> {
 
         const response: AxiosResponse = await this.httpService.fetch(`${this.apiBase}/customer/elements/${actionType}/init`, {
             method: 'post',
@@ -34,8 +34,12 @@ export default class ElementsService implements IElementsService {
                 'Content-Type': 'application/json',
                 'Authorization': this.authToken,
                 'x-api-key': this.apiKey,
-                'x-wallet-id': '4fa9e893-2fb9-4516-bfc5-6fa8cd903528',
                 'x-everyday-pay-wallet': useEverdayPay
+            },
+            data: {
+                data: {
+                    ...props
+                }
             }
         });
 
@@ -52,7 +56,6 @@ export default class ElementsService implements IElementsService {
                 'Authorization': this.authToken,
                 'x-api-key': this.apiKey,
                 'x-session-id': sessionId,
-                'x-wallet-id': '4fa9e893-2fb9-4516-bfc5-6fa8cd903528',
             }
         });
 

@@ -21,8 +21,9 @@ export default class ElementsSDK {
         this.myContainer.bind<LogLevel>("logLevel").toConstantValue(logLevel || LogLevel.NONE);
     }
 
-    public createAction(actionType: symbol) {
+    public createAction(actionType: symbol, props?: any) {
         const action: IAction = this.myContainer.get<any>(actionType);
+        action.props = props;
         return action;
     }
 }
