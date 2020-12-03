@@ -13,6 +13,10 @@ import ILoggingService from '../services/types/ILoggingService';
 import LoggingService from '../services/loggingService';
 import IHttpService from '../services/types/IHttpService';
 import HttpService from '../services/httpService';
+import IStepUp from '../actions/types/IStepUp';
+import StepUp from '../actions/stepUp';
+import IUpdateCard from '../actions/types/IUpdateCard';
+import UpdateCard from '../actions/updateCard';
 
 // Setup the IOC container
 function create() {
@@ -25,6 +29,8 @@ function create() {
 
     // Bind the symbols for actions
     myContainer.bind<ICaptureCard>(ActionTypes.CaptureCard).to(CaptureCard);
+    myContainer.bind<IStepUp>(ActionTypes.StepUp).to(StepUp);
+    myContainer.bind<IUpdateCard>(ActionTypes.UpdateCard).to(UpdateCard);
 
     return myContainer;
 }
