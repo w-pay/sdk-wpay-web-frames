@@ -36,6 +36,14 @@ export default abstract class ActionBase implements IAction {
         return errors;
     }
 
+    public removeElements() {
+        this.elements.forEach((element) => {
+            element.containerElement.innerHTML = "";
+        });
+
+        this.elements.clear();
+    }
+
     public createElement(elementType: string, targetElementId: string, options?: any): void {
         // Get a handle to the target element to ensure it exists
         let targetElement = document.getElementById(targetElementId);

@@ -11,5 +11,6 @@ export default abstract class ActionBase implements IAction {
     logger: ILoggingService;
     constructor(elementsService: IElementsService, logger: ILoggingService);
     errors(): any[];
+    removeElements(): void;
     createElement(elementType: string, targetElementId: string, options?: any): void;
 }
