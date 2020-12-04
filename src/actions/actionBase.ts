@@ -38,7 +38,7 @@ export default abstract class ActionBase implements IAction {
 
     public removeElements() {
         this.elements.forEach((element) => {
-            element.containerElement.innerHTML = "";
+            element.containerElement.remove();
         });
 
         this.elements.clear();
