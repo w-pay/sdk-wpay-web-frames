@@ -7,8 +7,6 @@ export default class UpdateCard extends ActionBase implements IUpdateCard {
     public async start(useEveryDayPay: boolean) {
         this.logger.log(`Initialising update card action`, LogLevel.INFO)
         this.actionConfig = await this.elementsService.initialiseAction('update-card', useEveryDayPay, this.props);
-
-        console.log(this.actionConfig);
     }
 
     public async validate(): Promise<boolean> {

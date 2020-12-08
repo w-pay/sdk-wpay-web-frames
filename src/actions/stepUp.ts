@@ -7,8 +7,6 @@ export default class StepUp extends ActionBase implements IStepUp {
     public async start(useEveryDayPay: boolean) {
         this.logger.log(`Initialising step up action`, LogLevel.INFO)
         this.actionConfig = await this.elementsService.initialiseAction('step-up', useEveryDayPay, this.props);
-
-        console.log(this.actionConfig);
     }
 
     public async validate(): Promise<boolean> {

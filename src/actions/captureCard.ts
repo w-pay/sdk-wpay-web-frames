@@ -7,8 +7,6 @@ export default class CaptureCard extends ActionBase implements ICaptureCard {
     public async start(useEveryDayPay: boolean) {
         this.logger.log(`Initialising card capture action`, LogLevel.INFO)
         this.actionConfig = await this.elementsService.initialiseAction('capture-card', useEveryDayPay, this.props);
-
-        console.log(this.actionConfig);
     }
 
     public async validate(): Promise<boolean> {
