@@ -14,8 +14,7 @@ export default class AuthorizationService implements IAuthorizationService {
             const response = await fetch(`${this.apiBase}/wow/v1/idm/accounts/token`, {
                 method: 'post',
                 headers: {
-                    "Content-Type": "application/json",
-                    "X-API-Key": 'haTdoUWVhnXm5n75u6d0VG67vCCvKjQC'
+                    "Content-Type": "application/json"
                 },
                 body: JSON.stringify({
                     "username": username,

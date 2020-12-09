@@ -55,8 +55,7 @@ export default class LegacyFrame {
         this.logger.log(`apiHost: ${this.hostUri}`, LogLevel.DEBUG)
         let response = await fetch(`${this.hostUri}/customer/instruments`, {
             headers: {
-                'Authorization': this.authToken,
-                "x-api-key": 'haTdoUWVhnXm5n75u6d0VG67vCCvKjQC'
+                'Authorization': this.authToken
             },
             body: JSON.stringify({
                 data: {
