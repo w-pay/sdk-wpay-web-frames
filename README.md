@@ -2,19 +2,17 @@
 
 To install the dev kit, ensure you have npm installed and run
 
-`npm install woolies-dev-kit --save`
+`npm install @wpay/frames --save`
 
-
-
-> Developer note: The above is the target experience.  Until the package is deployed to an npm repo, please use `npm link` to link the `woolies-dev-kit` module to your project.
+> Developer note: The above is the target experience.  Until the package is deployed to an npm repo, please use `npm link` to link the `@wpay/frames` module to your project.
 > 
-> In the woolies-elements project run
+> In the @wpay/frames project run
 > ```
 > npm link
 > ```
 > In your project run
 > ```
-> npm link woolies-dev-kit
+> npm link @wpay/frames
 > ```
 > You should now be able to use the sdk.
 
@@ -22,23 +20,24 @@ To install the dev kit, ensure you have npm installed and run
 
 - Add the sdk to the page
 
-   `<script src="./node_modules/woolies-dev-kit/dist/index.js" />`
+   `<script src="./node_modules/@wpay/frames/dist/elementsSDK.js" />`
 
 
 - Add a script tag to the page, initialise the SDK and log into the payment platform.
 
    ``` 
    <script>
-      const wooliesApiUri = "https://some_domain/api/v2"
-      const WDK = new WooliesDevKit(wooliesApiUri);
-      WDK.login('username', 'password');
+      let apiKey = 'YOUR_API_KEY';
+      let apiHost = "https://dev.mobile-api.woolworths.com.au/wow/v1/pay/instore";
+      let authorizationToken = 'YOUR_AUTH_TOKEN' // Format: Bearer token_value
+      let sdk = new ELEMENTS.ElementsSDK(apiKey, authorizationToken, apiHost, ELEMENTS.LogLevel.DEBUG);
    </script>
    ```
 
 - Start a new card capture session.
 
     ```
-    WDK.paymentInstrumentService.initCardCapture();
+    let action = sdk.createAction(ELEMENTS.ActionTypes.CaptureCard);
     ```
     This will initialise a new unique card capture session. This call will need to be repeated between subsequent card captures.
 
@@ -53,11 +52,12 @@ To install the dev kit, ensure you have npm installed and run
     <div id="cardElement"></div>
     ```
 
-    After adding your placeholder you can now create your action.  The action will handle all interactions with your elements, including their creation, validation and submission.  When creating an elementm pass in the type of the element you would like to create and the id of the dom element that you would like to attach it to.
+    After adding your placeholder you can now create your action.  The action will handle all interactions with your elements, including their creation, validation and submission.  When creating an element pass in the type of the element you would like to create and the id of the dom element that you would like to attach it to.
 
     ```
     var action = WDK.createAction(WDK.Actions.CaptureCardDetail);
     action.createElement('card-group', 'cardElement');
+    action.start();
     ```
 
     Loading the page should now display the credit card capture element, displaying card, expiry date and CVV.
@@ -68,6 +68,13 @@ To install the dev kit, ensure you have npm installed and run
 
     ```
     <button onClick="function() { action.submit()}">Submit</button>
+    ```
+
+    Once successfully submitted an action needs to be completed.  Do so by calling complete.
+
+    ```
+    action.complete();
+
     ```
 
     If you would like to clear the element(s), you can also call the `clear` function on the action.
@@ -197,17 +204,6 @@ let options = {
         }
     `
 }
-```
-
-
-## Legacy iFrame
-
-If you would like to use the existing iFrame implementation, initialise the api using the legacy strategy.
-
-```
-var wooliesApiUri = "https://some_domain/api/v2"
-var WDK = new WooliesDevKit(wooliesApiUri);
-WDK.login('username', 'password');
 ```
 
 ## Logging
