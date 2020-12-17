@@ -56,7 +56,7 @@ To install the dev kit, ensure you have npm installed and run
 
     ```
     var action = WDK.createAction(WDK.Actions.CaptureCardDetail);
-    action.createElement('card-group', 'cardElement');
+    action.createElement('cardGroup', 'cardElement');
     action.start();
     ```
 
