@@ -55,7 +55,7 @@ To install the dev kit, ensure you have npm installed and run
     After adding your placeholder you can now create your action.  The action will handle all interactions with your elements, including their creation, validation and submission.  When creating an element pass in the type of the element you would like to create and the id of the dom element that you would like to attach it to.
 
     ```
-    var action = WDK.createAction(WDK.Actions.CaptureCardDetail);
+    var action = sdk.createAction(WDK.Actions.CaptureCardDetail);
     action.createElement('cardGroup', 'cardElement');
     action.start();
     ```
