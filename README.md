@@ -34,12 +34,13 @@ To install the dev kit, ensure you have npm installed and run
    </script>
    ```
 
-- Start a new card capture session.
+- Start a new card capture action. The action will handle all interactions with your elements, including their creation, validation and submission.
 
     ```
     let action = sdk.createAction(ELEMENTS.ActionTypes.CaptureCard);
+    action.start();
     ```
-    This will initialise a new unique card capture session. This call will need to be repeated between subsequent card captures.
+    This will initialise a new card capture action. This call will need to be repeated between subsequent card captures.
 
 
 - Add the credit card capture element to the page.
@@ -52,12 +53,10 @@ To install the dev kit, ensure you have npm installed and run
     <div id="cardElement"></div>
     ```
 
-    After adding your placeholder you can now create your action.  The action will handle all interactions with your elements, including their creation, validation and submission.  When creating an element pass in the type of the element you would like to create and the id of the dom element that you would like to attach it to.
+    After adding your placeholder you can now create your frames element.  When creating an element pass in the type of the element you would like to create and the id of the dom element that you would like to attach it to.
 
     ```
-    var action = sdk.createAction(WDK.Actions.CaptureCardDetail);
     action.createElement('cardGroup', 'cardElement');
-    action.start();
     ```
 
     Loading the page should now display the credit card capture element, displaying card, expiry date and CVV.
@@ -67,20 +66,20 @@ To install the dev kit, ensure you have npm installed and run
     Once the user has entered their credit card details, you are going to want to save the details.  To do this, add a Submit button to the page, calling the `submit` function on the action. This will run the card validation, submitting the form if succcessful.
 
     ```
-    <button onClick="function() { action.submit()}">Submit</button>
+    <button onClick="async function() { await action.submit()}">Submit</button>
     ```
 
     Once successfully submitted an action needs to be completed.  Do so by calling complete.
 
     ```
-    action.complete();
+    let captureResult = await action.complete();
 
     ```
 
     If you would like to clear the element(s), you can also call the `clear` function on the action.
 
     ```
-    <button onClick="function() { action.clear()}">Clear</button>
+    <button onClick="async function() { await action.clear()}">Clear</button>
     ```
 
 # Advanced
