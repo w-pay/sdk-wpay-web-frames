@@ -87,6 +87,46 @@ To install the dev kit, ensure you have npm installed and run
 
 ## Multiple elements
 
+The process for using individual elements is much the same as the single grouped element, however split across multiple ekements.
+
+Instead of adding a single, control, use the action to create multiple controls.
+
+```
+action.createElement('CardNo', 'cardCaptureCardNo', options);
+action.createElement('CardExpiry', 'cardCaptureExpiry', options);
+action.createElement('CardCVV', 'cardCaptureCVV', options);
+```
+
+Thats all you need to do.  When you submit the action, the SDK will manage the submission of all of the individual elements for you.
+
+## Error Handling
+
+Things don't always go smoothly, so sometimes there will be errors within the frames that you need to be aware of.
+
+Here is an example of subscribing to the OnValidated event and registering a function to handle the event (updateErrors)
+
+```
+document.getElementById('cardCaptureCardNo').addEventListener(ELEMENTS.ElementEventType.OnValidated, updateErrors);
+```
+
+Update errors might look something like this (Pure JS example):
+
+```
+async function updateErrors() {
+    if (action.errors()) { 
+        document.getElementById('cardCaptureErrors').innerHTML = "<ul>"
+
+        for (error of action.errors()) {
+            document.getElementById('cardCaptureErrors').innerHTML += `<li>${error}</li>`;
+        }
+
+        document.getElementById('cardCaptureErrors').innerHTML += "</ul>"
+    } else {
+        document.getElementById('cardCaptureErrors').innerHTML = "";
+    }
+}
+```
+
 ## Styling & Options
 
 In order to ensure seamless integration with your user experience, styling can either be applied to the container via CSS, or in the case you want to make styling changes inside the frame, be injected into the elements at run time via the options config.
