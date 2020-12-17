@@ -103,7 +103,8 @@ Thats all you need to do.  When you submit the action, the SDK will manage the s
 
 Things don't always go smoothly, so sometimes there will be errors within the frames that you need to be aware of.
 
-Here is an example of subscribing to the OnValidated event and registering a function to handle the event (updateErrors)
+Here is an example of subscribing to the OnValidated event and registering a function to handle the event (updateErrors).  Please note: The event needs to be registered on the 
+placeholder element that the element is injected into.  Registering in the wrong place may mean you miss the event.
 
 ```
 document.getElementById('cardCaptureCardNo').addEventListener(ELEMENTS.ElementEventType.OnValidated, updateErrors);
