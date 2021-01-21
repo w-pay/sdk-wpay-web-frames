@@ -102,10 +102,15 @@ To install the dev kit, ensure you have npm installed and run
    </script>
    ```
 
-- Start a new card step up action.
+- Start a new card step up action referencing your paymentInstrumentID.
 
     ```
-    let action = sdk.createAction(ELEMENTS.ActionTypes.StepUp);
+    let action = sdk.createAction(
+        ELEMENTS.ActionTypes.StepUp,
+        {
+            paymentInstrumentId: <YOUR PAYMENT INSTRUMENT ID>
+        }
+    );
     action.start();
     ```
     This will initialise a new step up action. This call will need to be repeated between subsequent step up token requests.
