@@ -18,6 +18,8 @@ To install the dev kit, ensure you have npm installed and run
 
 # Getting Started
 
+## Example One - Card Capture
+
 - Add the sdk to the page
 
    `<script src="./node_modules/@wpay/frames/dist/elementsSDK.js" />`
@@ -43,7 +45,7 @@ To install the dev kit, ensure you have npm installed and run
     This will initialise a new card capture action. This call will need to be repeated between subsequent card captures.
 
 
-- Add the credit card capture element to the page.
+- Add the credit card capture elements to the page.
 
     The SDK attaches new elements to `div` placeholders within your page using the element `id`.
 
@@ -56,7 +58,7 @@ To install the dev kit, ensure you have npm installed and run
     After adding your placeholder you can now create your frames element.  When creating an element pass in the type of the element you would like to create and the id of the dom element that you would like to attach it to.
 
     ```
-    action.createElement('cardGroup', 'cardElement');
+    action.createElement('CardGroup', 'cardElement');
     ```
 
     Loading the page should now display the credit card capture element, displaying card, expiry date and CVV.
@@ -80,6 +82,66 @@ To install the dev kit, ensure you have npm installed and run
 
     ```
     <button onClick="async function() { await action.clear()}">Clear</button>
+    ```
+
+## Example Two - Step Up token creation
+
+- Add the sdk to the page
+
+   `<script src="./node_modules/@wpay/frames/dist/elementsSDK.js" />`
+
+
+- Add a script tag to the page, initialise the SDK and log into the payment platform.
+
+   ``` 
+   <script>
+      let apiKey = 'YOUR_API_KEY';
+      let apiHost = "https://dev.mobile-api.woolworths.com.au/wow/v1/pay/instore";
+      let authorizationToken = 'YOUR_AUTH_TOKEN' // Format: Bearer token_value
+      let sdk = new ELEMENTS.ElementsSDK(apiKey, authorizationToken, apiHost, ELEMENTS.LogLevel.DEBUG);
+   </script>
+   ```
+
+- Start a new card step up action.
+
+    ```
+    let action = sdk.createAction(ELEMENTS.ActionTypes.StepUp);
+    action.start();
+    ```
+    This will initialise a new step up action. This call will need to be repeated between subsequent step up token requests.
+
+
+- Add the cvv element to the page.
+
+    The SDK attaches new elements to `div` placeholders within your page using the element `id`.
+
+    Add an element to your page.
+
+    ```
+    <div id="cvvElement"></div>
+    ```
+
+    After adding your placeholder you can now create your frames element.  When creating an element pass in the type of the element you would like to create and the id of the dom element that you would like to attach it to.
+
+    ```
+    action.createElement('CardCVV', 'cvvElement');
+    ```
+
+    Loading the page should now display the credit card capture element, displaying card, expiry date and CVV.
+
+- Submitting the page
+
+    Once the user has entered their CVV, you are going to want to submit and create the step up token.  To do this, add a Submit button to the page, calling the `submit` function on the action.
+
+    ```
+    <button onClick="async function() { await action.submit()}">Submit</button>
+    ```
+
+    Once successfully submitted an action needs to be completed.  Do so by calling complete.
+
+    ```
+    let stepUpResult = await action.complete();
+
     ```
 
 # Advanced
