@@ -38,11 +38,11 @@ stages:
         clean: true
 
       - task: Npm@1
-        displayName: 'Install NPM dependencies'
+        displayName: 'npm: ci'
         inputs:
           command: custom
           verbose: false
-          customCommand: install
+          customCommand: ci
 
       - task: Npm@1
         displayName: 'Run tests'
