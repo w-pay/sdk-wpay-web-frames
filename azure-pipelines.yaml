@@ -32,10 +32,10 @@ stages:
       name: wlx-ubuntu1804
     workspace:
       clean: all
-    - template: nodejs/build-publish-feed.yaml@pe-templates
-      parameters:
-        appName: $(appName)
-    - template: /release/common/steps/github-release.yaml@pe-templates
-      parameters:
-        serviceConnection: 'wx-dp-devops'
+  - template: /nodejs/build-publish-feed.yaml@pe-templates
+    parameters:
+      appName: $(appName)
+  - template: /release/common/steps/github-release.yaml@pe-templates
+    parameters:
+      serviceConnection: 'wx-dp-devops'
       
