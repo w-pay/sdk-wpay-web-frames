@@ -13,7 +13,6 @@ pr:
 
 variables:
   nodeVersion: 15.x
-  appName: sdk-wow-pay-web-frames
   feedName: Nodejs-Shared
 
 resources:
@@ -37,7 +36,7 @@ stages:
       clean: true
     - template: /nodejs/build-publish-feed.yaml@pe-templates
       parameters:
-        appName: $(appName)
+        feedName: $(feedName)
     - template: /release/common/steps/github-release.yaml@pe-templates
       parameters:
         serviceConnection: 'wx-dp-devops'
