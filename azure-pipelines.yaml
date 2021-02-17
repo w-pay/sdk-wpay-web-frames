@@ -57,14 +57,14 @@ stages:
           command: custom
           verbose: false
           customCommand: 'run dist'
-          
+
        - task: CopyFiles@2
+         displayName: 'Copy dist build file to dist target folder'
          inputs:
             sourceFolder: '$(Build.SourcesDirectory)'
             contents: 'dist/*'
             CleanTargetFolder: false
             targetFolder: $(Build.ArtifactStagingDirectory)/dist
-            displayName: 'Copy dist build file to dist target folder'
 
 stages:
 - stage: Publish
