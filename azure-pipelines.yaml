@@ -1,0 +1,86 @@
+trigger:
+  batch: true
+  branches:
+    include:
+      - master
+      - bug/*
+      - feature/*
+      - release/*
+
+pr:
+  - master
+  - release/*
+
+variables:
+  nodeVersion: 15.x
+  appName: sdk-wow-pay-web-frames
+  feedName: Nodejs-Shared
+  projectName: Nodejs-Shared
+
+resources:
+  repositories:
+  - repository: pe-templates # shared build/release templates
+    type: git
+    # name: "Platform Engineering/vsts-build-templates"
+    name: "Digital Pay/vsts-build-templates"
+    ref: 'refs/heads/master'
+
+stages:
+- stage: CI
+  jobs:
+  - job: Build_and_Test
+    pool:
+      name: wlx-ubuntu1804
+    workspace:
+      clean: all
+    steps:
+      - checkout: self
+        clean: true
+
+      - task: Npm@1
+        displayName: 'Install NPM dependencies'
+        inputs:
+          command: custom
+          verbose: false
+          customCommand: install
+
+      - task: Npm@1
+        displayName: 'Run tests'
+        inputs:
+          command: custom
+          verbose: false
+          customCommand: run test
+      
+      - task: Npm@1
+        displayName: 'npm: run build'
+        inputs:
+          command: custom
+          verbose: false
+          customCommand: 'run dist'
+       - task: CopyFiles@2
+         inputs:
+            sourceFolder: '$(Build.SourcesDirectory)'
+            contents: 'dist/*'
+            CleanTargetFolder: false
+            targetFolder: $(Build.ArtifactStagingDirectory)/dist
+            displayName: 'Copy dist build file to dist target folder'
+
+stages:
+- stage: Publish
+  jobs:
+  - job: Publish_and_Tag
+    pool:
+      name: wlx-ubuntu1804
+    workspace:
+      clean: all
+    steps:
+      - task: Npm@1
+        inputs:
+          command: publish
+          publishRegistry: useFeed
+          publishFeed: $(projectName)/$(feedName)
+          
+      - template: /release/common/steps/github-release.yaml@pe-templates
+        parameters:
+          serviceConnection: 'wx-dp-devops'
+      
