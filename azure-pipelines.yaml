@@ -63,7 +63,7 @@ stages:
         inputs:
           command: publish
           publishRegistry: useFeed
-          publishFeed: $(projectName)/$(feedName)
+          publishFeed: $(feedName)
 
       - template: /release/common/steps/github-release.yaml@pe-templates
         parameters:
