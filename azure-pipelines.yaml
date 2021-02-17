@@ -15,7 +15,6 @@ variables:
   nodeVersion: 15.x
   appName: sdk-wow-pay-web-frames
   feedName: Nodejs-Shared
-  projectName: Nodejs-Shared
 
 resources:
   repositories:
@@ -33,39 +32,10 @@ stages:
       name: wlx-ubuntu1804
     workspace:
       clean: all
-    steps:
-      - checkout: self
-        clean: true
-
-      - task: Npm@1
-        displayName: 'npm: ci'
-        inputs:
-          command: custom
-          verbose: false
-          customCommand: ci
-
-      # - task: Npm@1
-      #   displayName: 'Run tests'
-      #   inputs:
-      #     command: custom
-      #     verbose: false
-      #     customCommand: run test
-      #     continueOnError: true
-      
-      - task: Npm@1
-        displayName: 'npm: run build'
-        inputs:
-          command: custom
-          verbose: false
-          customCommand: 'run dist'
-      
-      - task: Npm@1
-        inputs:
-          command: publish
-          publishRegistry: useFeed
-          publishFeed: $(feedName)
-
-      - template: /release/common/steps/github-release.yaml@pe-templates
-        parameters:
-          serviceConnection: 'wx-dp-devops'
+    - template: nodejs/build.yaml@pe-templates
+      parameters:
+        appName: $(appName)
+    - template: /release/common/steps/github-release.yaml@pe-templates
+      parameters:
+        serviceConnection: 'wx-dp-devops'
       
