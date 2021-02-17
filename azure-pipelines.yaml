@@ -57,24 +57,7 @@ stages:
           command: custom
           verbose: false
           customCommand: 'run dist'
-
-       - task: CopyFiles@2
-         displayName: 'Copy dist build file to dist target folder'
-         inputs:
-            sourceFolder: '$(Build.SourcesDirectory)'
-            contents: 'dist/*'
-            CleanTargetFolder: false
-            targetFolder: $(Build.ArtifactStagingDirectory)/dist
-
-stages:
-- stage: Publish
-  jobs:
-  - job: Publish_and_Tag
-    pool:
-      name: wlx-ubuntu1804
-    workspace:
-      clean: all
-    steps:
+      
       - task: Npm@1
         inputs:
           command: publish
