@@ -57,6 +57,7 @@ stages:
           command: custom
           verbose: false
           customCommand: 'run dist'
+          
        - task: CopyFiles@2
          inputs:
             sourceFolder: '$(Build.SourcesDirectory)'
@@ -79,7 +80,7 @@ stages:
           command: publish
           publishRegistry: useFeed
           publishFeed: $(projectName)/$(feedName)
-          
+
       - template: /release/common/steps/github-release.yaml@pe-templates
         parameters:
           serviceConnection: 'wx-dp-devops'
