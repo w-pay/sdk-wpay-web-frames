@@ -1,6 +1,6 @@
 {
   "name": "@wpay/frames",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Development kit to assist in building clients that use the woolies API",
   "main": "./dist/elementsSDK.js",
   "module": "./dist/elementsSDK.js",
