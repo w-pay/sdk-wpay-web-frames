@@ -136,7 +136,7 @@ export default class ElementControl {
                 this.logger.log(`performAction: Action response ${e.data.action}`, LogLevel.DEBUG);
 
                 if (e.data.action === `${action}Complete`) {
-                    resolve();
+                    resolve(undefined);
                 } else if (e.data.action === `${action}Failed`) {
                     reject(e.data);
                 }
