@@ -11,6 +11,8 @@ export default class ElementControl {
     private exception: any;
     private logger: ILoggingService;
 
+    private onElementFocus = document.createEvent('Event');
+    private onElementBlur = document.createEvent('Event');
     private onElementValidated = document.createEvent('Event');
     private onElementCleared = document.createEvent('Event');
     private onElementSubmitted = document.createEvent('Event');
@@ -44,6 +46,12 @@ export default class ElementControl {
                     this.error = undefined;
                     this.containerElement.dispatchEvent(this.onElementValidated);
                     break;
+                case "onFocus":
+                    this.error = undefined;
+                    this.containerElement.dispatchEvent(this.onElementFocus);
+                case "onBlur":                    
+                    this.error = undefined;
+                    this.containerElement.dispatchEvent(this.onElementBlur);
             }
         });
     }
