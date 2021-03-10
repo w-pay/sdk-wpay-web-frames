@@ -59,7 +59,7 @@ export default class CaptureCard extends ActionBase implements ICaptureCard {
         } catch (e) {
             // There was a problem during vaidation
             this.logger.log('CaptureCard: Validation failed', LogLevel.INFO);
-            return false;
+            throw e;
         }
 
         //Validation successful
@@ -96,7 +96,7 @@ export default class CaptureCard extends ActionBase implements ICaptureCard {
             return true;
         } catch (e) {
             this.logger.log('CaptureCard: Submit failed', LogLevel.INFO);
-            return false;
+            throw e;
         }
     }
 
@@ -111,7 +111,7 @@ export default class CaptureCard extends ActionBase implements ICaptureCard {
         } catch (e) {
             this.logger.log('CaptureCard: Complete failed', LogLevel.INFO);
 
-            return false;
+            throw e;
         }
     }
 
@@ -133,7 +133,7 @@ export default class CaptureCard extends ActionBase implements ICaptureCard {
         } catch(ex) {
             this.logger.log('CaptureCard: Clear failed', LogLevel.INFO);
 
-            return false;
+            throw ex;
         }
     }
 }

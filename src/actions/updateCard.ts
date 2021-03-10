@@ -45,7 +45,7 @@ export default class UpdateCard extends ActionBase implements IUpdateCard {
         } catch (e) {
             // There was a problem during vaidation
             this.logger.log('UpdateCard: Validation failed', LogLevel.INFO);
-            return false;
+            throw e;
         }
 
         //Validation successful
@@ -77,7 +77,7 @@ export default class UpdateCard extends ActionBase implements IUpdateCard {
             return true;
         } catch (e) {
             this.logger.log('UpdateCard: Submit failed', LogLevel.INFO);
-            return false;
+            throw e;
         }
     }
 
@@ -92,7 +92,7 @@ export default class UpdateCard extends ActionBase implements IUpdateCard {
         } catch (e) {
             this.logger.log('UpdateCard: Complete failed', LogLevel.INFO);
 
-            return false;
+            throw e;
         }
     }
 
@@ -114,7 +114,7 @@ export default class UpdateCard extends ActionBase implements IUpdateCard {
         } catch(ex) {
             this.logger.log('UpdateCard: Clear failed', LogLevel.INFO);
 
-            return false;
+            throw ex;
         }
     }
 }

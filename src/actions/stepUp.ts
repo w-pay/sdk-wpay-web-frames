@@ -38,7 +38,7 @@ export default class StepUp extends ActionBase implements IStepUp {
         } catch (e) {
             // There was a problem during vaidation
             this.logger.log('StepUp: Validation failed', LogLevel.INFO);
-            return false;
+            throw e;
         }
 
         //Validation successful
@@ -62,7 +62,7 @@ export default class StepUp extends ActionBase implements IStepUp {
             return true;
         } catch (e) {
             this.logger.log('StepUp: Submit failed', LogLevel.INFO);
-            return false;
+            throw e;
         }
     }
 
@@ -77,7 +77,7 @@ export default class StepUp extends ActionBase implements IStepUp {
         } catch (e) {
             this.logger.log('StepUp: Complete failed', LogLevel.INFO);
 
-            return false;
+            throw e;
         }
     }
 
@@ -99,7 +99,7 @@ export default class StepUp extends ActionBase implements IStepUp {
         } catch (ex) {
             this.logger.log('StepUp: Clear failed', LogLevel.INFO);
 
-            return false;
+            throw ex;
         }
     }
 }
