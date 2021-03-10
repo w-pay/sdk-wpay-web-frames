@@ -26,6 +26,8 @@ export default class ElementControl {
         this.onElementCleared.initEvent(ElementEventType.OnCleared, true, true);
         this.onElementValidated.initEvent(ElementEventType.OnValidated, true, true);
         this.onElementSubmitted.initEvent(ElementEventType.OnSubmited, true, true);
+        this.onElementBlur.initEvent(ElementEventType.OnBlur, true, true);
+        this.onElementFocus.initEvent(ElementEventType.OnFocus, true, true);
 
         window.addEventListener(`message`, (e: any) => {
             // If the message has an id then it already has a handler
