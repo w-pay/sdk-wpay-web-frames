@@ -194,6 +194,20 @@ async function updateErrors() {
 }
 ```
 
+## Events - OnFocus & OnBlur
+
+Sometimes you have an advanced use case like turning on and off buttons once all fields are complete which mean that you need to know when controls are visited.  Typically this type of activity would be done using onFocus or onBlur events.
+
+If you would like to listen into these events you can do so by adding an event listener to the placeholder element in much the same way as you do for validation.
+
+e.g.
+document
+    .getElementById('cardCaptureCardNo')
+    .addEventListener(
+        ELEMENTS.ElementEventType.OnBlur,
+        () => { // Do something onBlur }
+    );
+
 ## Styling & Options
 
 In order to ensure seamless integration with your user experience, styling can either be applied to the container via CSS, or in the case you want to make styling changes inside the frame, be injected into the elements at run time via the options config.
@@ -324,3 +338,14 @@ If you would like to see what is going on inside of the SDK, you can enable logg
 - INFO = 100,
 - DEBUG = 200
 
+## Capture Card Options
+
+### Card verification
+
+By default, the card verification is disabled on card capture.  If you would like to capture a card and enforce verification, provide a `verify: true` property when initialising the capture card action.
+
+e.g.
+
+```
+const action = cdk.createAction(ELEMENTS.ActionTypes.CaptureCard, { verify: true });
+```
