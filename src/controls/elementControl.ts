@@ -31,7 +31,8 @@ export default class ElementControl {
 
         window.addEventListener(`message`, (e: any) => {
             // If the message has an id then it already has a handler
-            if (e.data.id) return;
+            // Commented out to test whether validation events would fire on submit
+            // if (e.data.id) return;
 
             // Card group is interested in all message types
             if (this.type != 'CardGroup' && e.data.element != this.type) return;
