@@ -194,6 +194,18 @@ async function updateErrors() {
 }
 ```
 
+Here is a basic mapping of the errors that are returned by the validation
+```
+errorMap: {
+    'Card No. Required': 'Please enter a valid card number.',
+    `Invalid Card No.`: 'Please enter a valid card number.',
+    'Invalid Expiry': 'Please enter a valid expiry.',
+    'Incomplete Expiry': 'Please enter a valid expiry',
+    'Expired card': 'The expiry entered is in the past. Please enter a valid expiry.',
+    'Invalid CVV': 'Please enter a valid CVV.'
+}
+```
+
 ## Events - OnFocus & OnBlur
 
 Sometimes you have an advanced use case like turning on and off buttons once all fields are complete which mean that you need to know when controls are visited.  Typically this type of activity would be done using onFocus or onBlur events.
