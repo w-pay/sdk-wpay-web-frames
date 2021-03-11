@@ -9,7 +9,7 @@ export default class UpdateCard extends ActionBase implements IUpdateCard {
         this.actionConfig = await this.elementsService.initialiseAction('update-card', useEveryDayPay, this.props);
     }
 
-    public async validate(): Promise<boolean> {
+    public async validate(): Promise<void> {
         this.logger.log('Validating elements', LogLevel.INFO);
 
         try {
@@ -50,12 +50,11 @@ export default class UpdateCard extends ActionBase implements IUpdateCard {
 
         //Validation successful
         this.logger.log('UpdateCard: Validation successful', LogLevel.INFO);
-        return true;
     }
 
-    public async submit(): Promise<boolean> {
+    public async submit(): Promise<void> {
         // Validate the elements prior to submitting
-        if (!await this.validate()) return false;
+        await this.validate();
 
         // Elements are all present and valid, proceed to submit
         this.logger.log ('UpdateCard: Submiting elements', LogLevel.INFO);
@@ -73,8 +72,6 @@ export default class UpdateCard extends ActionBase implements IUpdateCard {
             ]);
 
             this.logger.log('UpdateCard: Submit Successful', LogLevel.INFO);
-
-            return true;
         } catch (e) {
             this.logger.log('UpdateCard: Submit failed', LogLevel.INFO);
             throw e;
@@ -96,7 +93,7 @@ export default class UpdateCard extends ActionBase implements IUpdateCard {
         }
     }
 
-    public async clear(): Promise<boolean> {
+    public async clear(): Promise<void> {
         try {
             const promises: Promise<boolean>[] = [];
 
@@ -109,8 +106,6 @@ export default class UpdateCard extends ActionBase implements IUpdateCard {
             await Promise.all(promises);
 
             this.logger.log('UpdateCard: Clear Successful', LogLevel.INFO);
-
-            return true;
         } catch(ex) {
             this.logger.log('UpdateCard: Clear failed', LogLevel.INFO);
 

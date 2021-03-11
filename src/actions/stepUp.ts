@@ -9,7 +9,7 @@ export default class StepUp extends ActionBase implements IStepUp {
         this.actionConfig = await this.elementsService.initialiseAction('step-up', useEveryDayPay, this.props);
     }
 
-    public async validate(): Promise<boolean> {
+    public async validate(): Promise<void> {
         this.logger.log('Validating elements', LogLevel.INFO);
 
         try {
@@ -43,12 +43,11 @@ export default class StepUp extends ActionBase implements IStepUp {
 
         //Validation successful
         this.logger.log('StepUp: Validation successful', LogLevel.INFO);
-        return true;
     }
 
     public async submit(): Promise<boolean> {
         // Validate the elements prior to submitting
-        if (!await this.validate()) return false;
+        await this.validate();
 
         // Elements are all present and valid, proceed to submit
         this.logger.log('StepUp: Submiting elements', LogLevel.INFO);
@@ -81,7 +80,7 @@ export default class StepUp extends ActionBase implements IStepUp {
         }
     }
 
-    public async clear(): Promise<boolean> {
+    public async clear(): Promise<void> {
         try {
             const promises: Promise<boolean>[] = [];
 
@@ -94,8 +93,6 @@ export default class StepUp extends ActionBase implements IStepUp {
             await Promise.all(promises);
 
             this.logger.log('StepUp: Clear Successful', LogLevel.INFO);
-
-            return true;
         } catch (ex) {
             this.logger.log('StepUp: Clear failed', LogLevel.INFO);
 

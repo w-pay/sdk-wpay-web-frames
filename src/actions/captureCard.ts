@@ -9,7 +9,7 @@ export default class CaptureCard extends ActionBase implements ICaptureCard {
         this.actionConfig = await this.elementsService.initialiseAction('capture-card', useEveryDayPay, this.props);
     }
 
-    public async validate(): Promise<boolean> {
+    public async validate(): Promise<void> {
         this.logger.log('Validating elements', LogLevel.INFO);
 
         try {
@@ -64,12 +64,11 @@ export default class CaptureCard extends ActionBase implements ICaptureCard {
 
         //Validation successful
         this.logger.log('CaptureCard: Validation successful', LogLevel.INFO);
-        return true;
     }
 
-    public async submit(): Promise<boolean> {
+    public async submit(): Promise<void> {
         // Validate the elements prior to submitting
-        if (!await this.validate()) return false;
+        await this.validate();
 
         // Elements are all present and valid, proceed to submit
         this.logger.log ('CaptureCard: Submiting elements', LogLevel.INFO);
@@ -92,8 +91,6 @@ export default class CaptureCard extends ActionBase implements ICaptureCard {
             }
 
             this.logger.log('CaptureCard: Submit Successful', LogLevel.INFO);
-
-            return true;
         } catch (e) {
             this.logger.log('CaptureCard: Submit failed', LogLevel.INFO);
             throw e;
@@ -115,7 +112,7 @@ export default class CaptureCard extends ActionBase implements ICaptureCard {
         }
     }
 
-    public async clear(): Promise<boolean> {
+    public async clear(): Promise<void> {
         try {
             const promises: Promise<boolean>[] = [];
 
@@ -128,8 +125,6 @@ export default class CaptureCard extends ActionBase implements ICaptureCard {
             await Promise.all(promises);
 
             this.logger.log('CaptureCard: Clear Successful', LogLevel.INFO);
-
-            return true;
         } catch(ex) {
             this.logger.log('CaptureCard: Clear failed', LogLevel.INFO);
 
