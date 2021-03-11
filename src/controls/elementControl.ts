@@ -50,11 +50,9 @@ export default class ElementControl {
                     this.containerElement.dispatchEvent(this.onElementValidated);
                     break;
                 case "onFocus":
-                    this.error = undefined;
                     this.containerElement.dispatchEvent(this.onElementFocus);
                     break;
-                case "onBlur":                    
-                    this.error = undefined;
+                case "onBlur":             
                     this.containerElement.dispatchEvent(this.onElementBlur);
                     break;
             }
