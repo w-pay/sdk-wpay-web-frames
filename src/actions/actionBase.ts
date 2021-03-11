@@ -68,7 +68,7 @@ export default abstract class ActionBase implements IAction {
 
         // Create container element and attach some standard classes that can be used for styling
         const container = document.createElement('div');
-        container.classList.add('woolies-element', 'element-container');
+        container.classList.add(...['woolies-element', 'element-container']);
 
         // Create the IFrame and attach it to the container
         var iFrame = document.createElement("iframe") as HTMLIFrameElement;
