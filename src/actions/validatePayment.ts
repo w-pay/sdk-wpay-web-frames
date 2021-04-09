@@ -6,6 +6,8 @@ import ILoggingService from "../services/types/ILoggingService";
 import ActionBase from "./actionBase";
 import { IAction } from "./types/IAction";
 
+declare var Cardinal: any;
+
 @injectable()
 export default class ValidatePayment extends ActionBase implements IAction {
 
@@ -47,11 +49,28 @@ export default class ValidatePayment extends ActionBase implements IAction {
             URL: '',
             sessionId: await response.text()
         }
+
+        await this.initialiseCardinal(this.actionConfig.sessionId);
         
         // Setup the cardinal library and profile the device
     }
 
     public complete() {
         // Validate the card initiating issuer vaidation if required
+    }
+
+    private async initialiseCardinal(sessionId: string) {
+        var promise = new Promise((resolve, reject) => {
+            Cardinal.on('payments.setupComplete', async (e: any) => {
+                // At this point, if successful, the device fingerpront has been stored and we have a sessionId
+                resolve(e.sessionId);
+            });
+
+            Cardinal.setup("init", {
+                jwt: sessionId
+            });
+        });
+
+        return await promise;
     }
 }

@@ -13,4 +13,5 @@ export default class ValidatePayment extends ActionBase implements IAction {
     errors(): any[];
     start(): Promise<void>;
     complete(): void;
+    private initialiseCardinal;
 }
