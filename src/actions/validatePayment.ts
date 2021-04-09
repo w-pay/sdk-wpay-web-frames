@@ -1,5 +1,5 @@
 import { inject, injectable } from "inversify";
-import { ServiceTypes } from "src/services";
+import { ServiceTypes } from "../services";
 import IElementsService from "../services/types/IElementsService";
 import IHttpService from "../services/types/IHttpService";
 import ILoggingService from "../services/types/ILoggingService";
