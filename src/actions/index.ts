@@ -6,4 +6,6 @@ const ActionTypes = {
     ValidatePayment: Symbol.for("ValidatePayment")
 }
 
+declare module songbird {}
+
 export  { ActionTypes };

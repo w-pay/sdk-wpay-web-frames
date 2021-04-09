@@ -6,6 +6,8 @@ import ILoggingService from "../services/types/ILoggingService";
 import ActionBase from "./actionBase";
 import { IAction } from "./types/IAction";
 
+import "../resources/staging/songbird";
+
 declare var Cardinal: any;
 
 @injectable()
@@ -36,25 +38,7 @@ export default class ValidatePayment extends ActionBase implements IAction {
 
     public async start() {
         
-
-        // Move all of this to the wallet elements init call
-        const response = await fetch(`${this.gatewayServiceBaseURL}/customer/initialise`, {
-            method: 'POST',
-            headers: {
-                'x-api-key': this.apiKey,
-                'authorization': this.authToken,
-                'x-wallet-id': this.walletId
-            },
-            body: JSON.stringify({})
-        });
-
-        this.actionConfig = {
-            actionId: '',
-            URL: '',
-            sessionId: await response.text()
-        }
-
-        await this.initialiseCardinal(this.actionConfig.sessionId);
+        await this.initialiseCardinal(this.props.sessionId);
         
         // Setup the cardinal library and profile the device
     }
@@ -64,7 +48,20 @@ export default class ValidatePayment extends ActionBase implements IAction {
         // Validate the card initiating issuer vaidation if required
     }
 
+    // private async injectSongbirdJS() {
+    //     const script = document.createElement("script");
+    //     script.type = "text/javascript";
+    //     script.innerText = songbird;
+    //     document.body.appendChild(script);
+    // }
+
     private async initialiseCardinal(sessionId: string) {
+        Cardinal.configure({
+            logging: {
+                level: "on"
+            }
+        });
+        
         var promise = new Promise((resolve, reject) => {
             Cardinal.on('payments.setupComplete', async (e: any) => {
                 // At this point, if successful, the device fingerpront has been stored and we have a sessionId
