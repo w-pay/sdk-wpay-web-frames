@@ -16,7 +16,11 @@ import HttpService from '../services/httpService';
 import IStepUp from '../actions/types/IStepUp';
 import StepUp from '../actions/stepUp';
 import IUpdateCard from '../actions/types/IUpdateCard';
+import IValidateCard from '../actions/types/IValidateCard';
+import IValidatePayment from '../actions/types/IValidatePayment';
 import UpdateCard from '../actions/updateCard';
+import ValidateCard from "../actions/validateCard";
+import ValidatePayment from "..//actions/validatePayment";
 
 // Setup the IOC container
 function create() {
@@ -31,6 +35,8 @@ function create() {
     myContainer.bind<ICaptureCard>(ActionTypes.CaptureCard).to(CaptureCard);
     myContainer.bind<IStepUp>(ActionTypes.StepUp).to(StepUp);
     myContainer.bind<IUpdateCard>(ActionTypes.UpdateCard).to(UpdateCard);
+    myContainer.bind<IValidateCard>(ActionTypes.ValidateCard).to(ValidateCard);
+    myContainer.bind<IValidatePayment>(ActionTypes.ValidatePayment).to(ValidatePayment);
 
     return myContainer;
 }

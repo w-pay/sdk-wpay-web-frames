@@ -22,7 +22,7 @@ To install the dev kit, ensure you have npm installed and run
 
 - Add the sdk to the page
 
-   `<script src="./node_modules/@wpay/frames/dist/elementsSDK.js" />`
+   `<script src="./node_modules/@wpay/frames-sdk/dist/elementsSDK.js"></script>`
 
 
 - Add a script tag to the page, initialise the SDK and log into the payment platform.
