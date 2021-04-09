@@ -20,7 +20,7 @@ import IValidateCard from '../actions/types/IValidateCard';
 import IValidatePayment from '../actions/types/IValidatePayment';
 import UpdateCard from '../actions/updateCard';
 import ValidateCard from "../actions/validateCard";
-import ValidatePayment from "..//actions/validatePayment";
+import ValidatePayment from "../actions/validatePayment";
 
 // Setup the IOC container
 function create() {
