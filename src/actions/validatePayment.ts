@@ -21,6 +21,10 @@ export default class ValidatePayment extends ActionBase implements IAction {
             super(elementsService, logger);
     }
 
+    private gatewayServiceBaseURL = "http://localhost:3020"; 
+    private walletId = "4fa9e893-2fb9-4516-bfc5-6fa8cd903528";
+    private cardinalSessionId = "";
+
     public createElement(elementType: string, targetElement: string, options?: any): void {
         // There is no element to setup so do nothing
     }
@@ -31,15 +35,15 @@ export default class ValidatePayment extends ActionBase implements IAction {
     }
 
     public async start() {
-        const gatewayServiceBaseURL = "http://localhost:3020";
+        
 
         // Move all of this to the wallet elements init call
-        const response = await fetch(`${gatewayServiceBaseURL}/customer/initialise`, {
+        const response = await fetch(`${this.gatewayServiceBaseURL}/customer/initialise`, {
             method: 'POST',
             headers: {
                 'x-api-key': this.apiKey,
                 'authorization': this.authToken,
-                'x-wallet-id': "4fa9e893-2fb9-4516-bfc5-6fa8cd903528"
+                'x-wallet-id': this.walletId
             },
             body: JSON.stringify({})
         });
@@ -55,7 +59,8 @@ export default class ValidatePayment extends ActionBase implements IAction {
         // Setup the cardinal library and profile the device
     }
 
-    public complete() {
+    public async complete() {
+        return await this.verifyEnrollment(this.actionConfig.sessionId)
         // Validate the card initiating issuer vaidation if required
     }
 
@@ -69,6 +74,48 @@ export default class ValidatePayment extends ActionBase implements IAction {
             Cardinal.setup("init", {
                 jwt: sessionId
             });
+        });
+
+        return await promise;
+    }
+
+    async verifyEnrollment(sessionId: string) {
+        const response = await fetch(`${this.gatewayServiceBaseURL}/customer/checkEnrollment`, {
+            method: 'POST',
+            headers: {
+                'x-api-key': this.apiKey,
+                'authorization': this.authToken,
+                'x-wallet-id': this.walletId,
+                'x-session-id': sessionId
+            },
+            body: JSON.stringify({
+                instrumentId: '123456'
+            })
+        });
+
+        const json2 = await response.json();
+
+        const promise = new Promise((resolve, reject) => {
+            Cardinal.on("payments.validated", function (data: any, jwt: string) {
+                console.log(`Issuer authentication complete`);
+                resolve(data);
+            });
+
+            if (json2.status === "PENDING_AUTHENTICATION") {
+                console.log('Issuer authentication required');
+                Cardinal.continue('cca',
+                    {
+                        "AcsUrl": json2.consumerAuthenticationInformation.acsUrl,
+                        "Payload": json2.consumerAuthenticationInformation.pareq,
+                    },
+                    {
+                        "OrderDetails": {
+                            "TransactionId": json2.consumerAuthenticationInformation.authenticationTransactionId
+                        }
+                    });
+            } else {
+                resolve({});
+            }
         });
 
         return await promise;

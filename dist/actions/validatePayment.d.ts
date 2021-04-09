@@ -9,9 +9,13 @@ export default class ValidatePayment extends ActionBase implements IAction {
     private apiKey;
     private httpService;
     constructor(authToken: string, apiBase: string, apiKey: string, httpService: IHttpService, elementsService: IElementsService, logger: ILoggingService);
+    private gatewayServiceBaseURL;
+    private walletId;
+    private cardinalSessionId;
     createElement(elementType: string, targetElement: string, options?: any): void;
     errors(): any[];
     start(): Promise<void>;
-    complete(): void;
+    complete(): Promise<unknown>;
     private initialiseCardinal;
+    verifyEnrollment(sessionId: string): Promise<unknown>;
 }
