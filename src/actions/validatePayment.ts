@@ -53,6 +53,12 @@ export default class ValidatePayment extends ActionBase implements IAction {
     // }
 
     private async initialiseCardinal(sessionId: string) {
+        Cardinal.configure({
+            logging: {
+                level: "on"
+            }
+        });
+        
         var promise = new Promise((resolve, reject) => {
             Cardinal.on('payments.setupComplete', async (e: any) => {
                 // At this point, if successful, the device fingerpront has been stored and we have a sessionId
