@@ -66,9 +66,7 @@ export default class ValidatePayment extends ActionBase implements IAction {
                 Cardinal.off('payments.setupComplete');
             });
 
-            Cardinal.setup("init", {
-                jwt: sessionId
-            });
+            Cardinal.setup("init", {});
         });
 
         return await promise;
