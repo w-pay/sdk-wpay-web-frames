@@ -63,6 +63,7 @@ export default class ValidatePayment extends ActionBase implements IAction {
             Cardinal.on('payments.setupComplete', async (e: any) => {
                 // At this point, if successful, the device fingerpront has been stored and we have a sessionId
                 resolve(e.sessionId);
+                Cardinal.off('payments.setupComplete');
             });
 
             Cardinal.setup("init", {
@@ -93,6 +94,7 @@ export default class ValidatePayment extends ActionBase implements IAction {
             Cardinal.on("payments.validated", function (data: any, jwt: string) {
                 console.log(`Issuer authentication complete`);
                 resolve(data);
+                Cardinal.off("payments.validated");
             });
 
             if (json2.status === "PENDING_AUTHENTICATION") {
