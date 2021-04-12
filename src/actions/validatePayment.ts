@@ -39,8 +39,7 @@ export default class ValidatePayment extends ActionBase implements IAction {
         try {
             if (!this.props.sessionId || this.props.sessionId.length <= 0 || typeof this.props.sessionId !== "string") throw new Error("Invalid sessionId");
             await this.initialiseCardinal(this.props.sessionId);
-            Cardinal.trigger('jwt.update', this.props.sessionId);
-            // Cardinal.start('cca', {}, this.props.sessionId);
+            
         } catch (e) {
             console.log(e);
         }
@@ -78,6 +77,11 @@ export default class ValidatePayment extends ActionBase implements IAction {
                 jwt: sessionId
             });
         });
+
+        await promise;
+
+        // Once initialized, start a new cardinal transaction.  This appears to be the only way to allow multiple Cardinal retries.
+        Cardinal.start('cca', {}, this.props.sessionId);
 
         return await promise;
     }
