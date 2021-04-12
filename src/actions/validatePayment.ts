@@ -58,12 +58,6 @@ export default class ValidatePayment extends ActionBase implements IAction {
     // }
 
     private async initialiseCardinal(sessionId: string) {
-        Cardinal.configure({
-            logging: {
-                level: "on"
-            }
-        });
-        
         var promise = new Promise((resolve, reject) => {
             Cardinal.on('payments.setupComplete', async (e: any) => {
                 console.log('payments.setupComplete');
