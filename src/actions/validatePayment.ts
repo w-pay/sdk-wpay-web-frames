@@ -39,6 +39,7 @@ export default class ValidatePayment extends ActionBase implements IAction {
         try {
             if (!this.props.sessionId || this.props.sessionId.length <= 0 || typeof this.props.sessionId !== "string") throw new Error("Invalid sessionId");
             await this.initialiseCardinal(this.props.sessionId);
+            Cardinal.start('cca', {}, this.props.sessionId);
         } catch (e) {
             console.log(e);
         }
@@ -73,7 +74,7 @@ export default class ValidatePayment extends ActionBase implements IAction {
             });
 
             Cardinal.setup("init", {
-                
+                jwt: sessionId
             });
         });
 
