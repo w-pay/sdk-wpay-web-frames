@@ -6,7 +6,7 @@ import ILoggingService from "../services/types/ILoggingService";
 import ActionBase from "./actionBase";
 import { IAction } from "./types/IAction";
 
-// import "cardinal-commerce-songbird-staging";
+import "cardinal-commerce-songbird-staging";
 declare var Cardinal: any;
 
 @injectable()
@@ -43,7 +43,7 @@ export default class ValidatePayment extends ActionBase implements IAction {
     }
 
     public async complete() {
-        return await this.verifyEnrollment(this.actionConfig.sessionId)
+        return await this.verifyEnrollment(this.props.sessionId)
         // Validate the card initiating issuer vaidation if required
     }
 
