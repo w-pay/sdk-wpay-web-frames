@@ -6,5 +6,3 @@ import { ElementEventType } from './controls/elementEventType';
 
 
 export { ActionTypes, LogLevel, ElementEventType, ElementsSDK };
-
-declare module songbird {}

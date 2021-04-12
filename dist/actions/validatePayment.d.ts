@@ -3,7 +3,6 @@ import IHttpService from "../services/types/IHttpService";
 import ILoggingService from "../services/types/ILoggingService";
 import ActionBase from "./actionBase";
 import { IAction } from "./types/IAction";
-import "cardinal-commerce-songbird-staging";
 export default class ValidatePayment extends ActionBase implements IAction {
     private authToken;
     private apiBase;
