@@ -73,7 +73,7 @@ export default class ValidatePayment extends ActionBase implements IAction {
             });
 
             Cardinal.setup("init", {
-                jwt: sessionId
+                
             });
         });
 
