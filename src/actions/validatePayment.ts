@@ -36,10 +36,8 @@ export default class ValidatePayment extends ActionBase implements IAction {
     }
 
     public async start() {
-        
+        if (!this.props.sessionId || this.props.sessionId.length <= 0 || typeof this.props.sessionId !== "string") throw new Error("Invalid sessionId");
         await this.initialiseCardinal(this.props.sessionId);
-        
-        // Setup the cardinal library and profile the device
     }
 
     public async complete() {
@@ -55,14 +53,6 @@ export default class ValidatePayment extends ActionBase implements IAction {
     // }
 
     private async initialiseCardinal(sessionId: string) {
-        console.log(`Initializing Cardinal. SessionId: ${sessionId}`);
-
-        Cardinal.configure({
-            logging: {
-                level: "on"
-            }
-        });
-        
         var promise = new Promise((resolve, reject) => {
             Cardinal.on('payments.setupComplete', async (e: any) => {
                 // At this point, if successful, the device fingerpront has been stored and we have a sessionId
