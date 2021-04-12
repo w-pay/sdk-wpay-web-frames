@@ -66,7 +66,9 @@ export default class ValidatePayment extends ActionBase implements IAction {
                 Cardinal.off('payments.setupComplete');
             });
 
-            Cardinal.setup("init", {});
+            Cardinal.setup("init", {
+                jwt: sessionId
+            });
         });
 
         return await promise;
@@ -106,7 +108,8 @@ export default class ValidatePayment extends ActionBase implements IAction {
                         "OrderDetails": {
                             "TransactionId": json2.consumerAuthenticationInformation.authenticationTransactionId
                         }
-                    });
+                    },
+                    sessionId);
             } else {
                 resolve({});
             }
