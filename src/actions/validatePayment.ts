@@ -7,7 +7,6 @@ import ActionBase from "./actionBase";
 import { IAction } from "./types/IAction";
 
 import "cardinal-commerce-songbird-staging";
-
 declare var Cardinal: any;
 
 @injectable()
