@@ -55,7 +55,7 @@ export default class ValidatePayment extends ActionBase implements IAction {
                 level: "on"
             }
         });
-        
+
         var promise = new Promise((resolve, reject) => {
             Cardinal.on('payments.setupComplete', async (e: any) => {
                 // At this point, if successful, the device fingerpront has been stored and we have a sessionId
@@ -68,12 +68,12 @@ export default class ValidatePayment extends ActionBase implements IAction {
             });
         });
 
-        await promise;
+        const initResponse = await promise;
 
         // Once initialized, start a new cardinal transaction.  This appears to be the only way to allow multiple Cardinal retries.
         Cardinal.start('cca', { "Authorization": { "AuthorizeAccount": false }}, this.props.sessionId);
 
-        return await promise;
+        return initResponse;
     }
 
     async verifyEnrollment(sessionId: string) {
