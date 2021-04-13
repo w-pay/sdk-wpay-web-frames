@@ -24,7 +24,6 @@ export default class ValidatePayment extends ActionBase implements IAction {
 
     private gatewayServiceBaseURL = "http://localhost:3020"; 
     private walletId = "4fa9e893-2fb9-4516-bfc5-6fa8cd903528";
-    private cardinalSessionId = "";
 
     public createElement(elementType: string, targetElement: string, options?: any): void {
         // There is no element to setup so do nothing
@@ -46,16 +45,9 @@ export default class ValidatePayment extends ActionBase implements IAction {
     }
 
     public async complete() {
-        return await this.verifyEnrollment(this.props.sessionId)
         // Validate the card initiating issuer vaidation if required
+        return await this.verifyEnrollment(this.props.sessionId);
     }
-
-    // private async injectSongbirdJS() {
-    //     const script = document.createElement("script");
-    //     script.type = "text/javascript";
-    //     script.innerText = songbird;
-    //     document.body.appendChild(script);
-    // }
 
     private async initialiseCardinal(sessionId: string) {
         var promise = new Promise((resolve, reject) => {
