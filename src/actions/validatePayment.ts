@@ -50,6 +50,12 @@ export default class ValidatePayment extends ActionBase implements IAction {
     }
 
     private async initialiseCardinal(sessionId: string) {
+        Cardinal.configure({
+            logging: {
+                level: "on"
+            }
+        });
+        
         var promise = new Promise((resolve, reject) => {
             Cardinal.on('payments.setupComplete', async (e: any) => {
                 // At this point, if successful, the device fingerpront has been stored and we have a sessionId
@@ -84,7 +90,7 @@ export default class ValidatePayment extends ActionBase implements IAction {
             })
         });
 
-        const json2 = await response.json();
+        const reponse = await response.json();
 
         const promise = new Promise((resolve, reject) => {
             Cardinal.on("payments.validated", function (data: any, jwt: string) {
@@ -93,16 +99,16 @@ export default class ValidatePayment extends ActionBase implements IAction {
                 Cardinal.off("payments.validated");
             });
 
-            if (json2.status === "PENDING_AUTHENTICATION") {
+            if (reponse.status === "PENDING_AUTHENTICATION") {
                 console.log('Issuer authentication required');
                 Cardinal.continue('cca',
                     {
-                        "AcsUrl": json2.consumerAuthenticationInformation.acsUrl,
-                        "Payload": json2.consumerAuthenticationInformation.pareq,
+                        "AcsUrl": reponse.consumerAuthenticationInformation.acsUrl,
+                        "Payload": reponse.consumerAuthenticationInformation.pareq,
                     },
                     {
                         "OrderDetails": {
-                            "TransactionId": json2.consumerAuthenticationInformation.authenticationTransactionId
+                            "TransactionId": reponse.consumerAuthenticationInformation.authenticationTransactionId
                         }
                     },
                     sessionId);
