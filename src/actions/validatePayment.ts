@@ -114,6 +114,7 @@ export default class ValidatePayment extends ActionBase implements IAction {
                     },
                     sessionId);
             } else {
+                console.log('Issuer authentication not required');
                 resolve(reponse);
             }
         });
