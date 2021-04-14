@@ -95,6 +95,7 @@ export default class ValidatePayment extends ActionBase implements IAction {
         const promise = new Promise((resolve, reject) => {
             Cardinal.on("payments.validated", function (data: any, jwt: string) {
                 console.log(`Issuer authentication complete`);
+                console.log(jwt);
                 resolve(data);
                 Cardinal.off("payments.validated");
             });
