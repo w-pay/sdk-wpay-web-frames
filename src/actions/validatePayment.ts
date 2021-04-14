@@ -114,7 +114,7 @@ export default class ValidatePayment extends ActionBase implements IAction {
                     },
                     sessionId);
             } else {
-                resolve({});
+                resolve(reponse);
             }
         });
 
