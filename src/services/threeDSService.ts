@@ -1,26 +1,28 @@
 import { inject, injectable } from "inversify";
-import { LogLevel } from "src/customer";
-import ValidatePaymentsResponse from "src/domain/validatePaymentResponse";
+import { LogLevel } from "../customer";
+import ValidatePaymentsResponse from "../domain/validatePaymentResponse";
 import { ServiceTypes } from ".";
 import IElementsService from "./types/IElementsService";
 import IHttpService from "./types/IHttpService";
 import ILoggingService from "./types/ILoggingService";
+import IThreeDSService from "./types/IThreeDSService";
 
 declare var Cardinal:any;
 
 @injectable()
-export default class ThreeDSService {
-    constructor(@inject("authToken") private authToken: string,
-    @inject("apiBase") private apiBase: string,
-    @inject("apiKey") private apiKey: string,
-    @inject(ServiceTypes.HttpService) private httpService: IHttpService,
-    @inject(ServiceTypes.ElementsService) elementsService: IElementsService,
-    @inject(ServiceTypes.LoggingService) private logger: ILoggingService) {}
+export default class ThreeDSService implements IThreeDSService {
+    constructor(
+        @inject("authToken") private authToken: string,
+        @inject("apiBase") private apiBase: string,
+        @inject("apiKey") private apiKey: string,
+        @inject(ServiceTypes.HttpService) private httpService: IHttpService,
+        @inject(ServiceTypes.ElementsService) elementsService: IElementsService,
+        @inject(ServiceTypes.LoggingService) private logger: ILoggingService) {}
 
     private gatewayServiceBaseURL = "http://localhost:3020"; 
     private walletId = "4fa9e893-2fb9-4516-bfc5-6fa8cd903528";
 
-    private async initialiseCardinal(sessionId: string) {
+    public async initialiseCardinal(sessionId: string): Promise<string> {
         if (this.logger.getLevel() >= LogLevel.DEBUG) {
             Cardinal.configure({
                 logging: {
@@ -29,7 +31,7 @@ export default class ThreeDSService {
             });
         }
 
-        var promise = new Promise((resolve, reject) => {
+        var promise = new Promise<string>((resolve, reject) => {
             Cardinal.on('payments.setupComplete', async (e: any) => {
                 // At this point, if successful, the device fingerpront has been stored and we have a cardinal sessionId
                 resolve(e.sessionId);
@@ -49,7 +51,7 @@ export default class ThreeDSService {
         return initResponse;
     }
 
-    async verifyEnrollment(sessionId: string, paymentInstrumentId: string): Promise<ValidatePaymentsResponse> {
+    public async verifyEnrollment(sessionId: string, paymentInstrumentId: string): Promise<ValidatePaymentsResponse> {
         const response = await fetch(`${this.gatewayServiceBaseURL}/customer/3ds/session/enrolment`, {
             method: 'POST',
             headers: {

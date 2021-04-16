@@ -21,6 +21,8 @@ import IValidatePayment from '../actions/types/IValidatePayment';
 import UpdateCard from '../actions/updateCard';
 import ValidateCard from "../actions/validateCard";
 import ValidatePayment from "../actions/validatePayment";
+import IThreeDSService from "../services/types/IThreeDSService";
+import ThreeDSService from "../services/threeDSService";
 
 // Setup the IOC container
 function create() {
@@ -29,6 +31,7 @@ function create() {
     // Bind symbols for services
     myContainer.bind<ILoggingService>(ServiceTypes.LoggingService).to(LoggingService);
     myContainer.bind<IElementsService>(ServiceTypes.ElementsService).to(ElementsService);
+    myContainer.bind<IThreeDSService>(ServiceTypes.ThreeDSService).to(ThreeDSService);
     myContainer.bind<IHttpService>(ServiceTypes.HttpService).to(HttpService);
 
     // Bind the symbols for actions
