@@ -101,7 +101,7 @@ export default class ValidatePayment extends ActionBase implements IAction {
                         type: "3DS",
                         instrumentId: this.props.paymentInstrumentId,
                         token: data.Payment.ProcessorTransactionId,
-                        refernce: sessionId,
+                        reference: sessionId,
 
                     }
                 });
@@ -130,7 +130,7 @@ export default class ValidatePayment extends ActionBase implements IAction {
                         type: "3DS-frictionless",
                         instrumentId: this.props.paymentInstrumentId,
                         token: payload.challengeResponseToken,
-                        refernce: sessionId,
+                        reference: sessionId,
 
                     }
                  });
