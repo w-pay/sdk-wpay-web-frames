@@ -77,7 +77,7 @@ export default class ValidatePayment extends ActionBase implements IAction {
     }
 
     async verifyEnrollment(sessionId: string): Promise<ValidatePaymentsResponse> {
-        const response = await fetch(`${this.gatewayServiceBaseURL}/customer/3ds/session/enrolment/`, {
+        const response = await fetch(`${this.gatewayServiceBaseURL}/customer/3ds/session/enrolment`, {
             method: 'POST',
             headers: {
                 'x-api-key': this.apiKey,
