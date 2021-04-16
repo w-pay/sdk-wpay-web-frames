@@ -76,7 +76,7 @@ export default class ValidatePayment extends ActionBase implements IAction {
         return initResponse;
     }
 
-    async verifyEnrollment(sessionId: string) {
+    async verifyEnrollment(sessionId: string): Promise<ValidatePaymentsResponse> {
         const response = await fetch(`${this.gatewayServiceBaseURL}/customer/checkEnrollment`, {
             method: 'POST',
             headers: {
@@ -90,35 +90,62 @@ export default class ValidatePayment extends ActionBase implements IAction {
             })
         });
 
-        const reponse = await response.json();
+        const payload = await response.json();
 
-        const promise = new Promise((resolve, reject) => {
-            Cardinal.on("payments.validated", function (data: any, jwt: string) {
+        const promise = new Promise<ValidatePaymentsResponse>((resolve, reject) => {
+            Cardinal.on("payments.validated", (data: any, jwt: string) => {
                 console.log(`Issuer authentication complete`);
-                console.log(jwt);
-                resolve(data);
+                resolve({ 
+                    threeDSData: data,
+                    challengResponse: {
+                        type: "3DS",
+                        instrumentId: this.props.paymentInstrumentId,
+                        token: data.Payment.ProcessorTransactionId,
+                        refernce: sessionId,
+
+                    }
+                });
                 Cardinal.off("payments.validated");
             });
 
-            if (reponse.status === "PENDING_AUTHENTICATION") {
-                console.log('Issuer authentication required');
+            if (payload.status === "PENDING_AUTHENTICATION") {
+                console.log(`${payload.status}: Issuer authentication required`);
                 Cardinal.continue('cca',
                     {
-                        "AcsUrl": reponse.consumerAuthenticationInformation.acsUrl,
-                        "Payload": reponse.consumerAuthenticationInformation.pareq,
+                        "AcsUrl": payload.consumerAuthenticationInformation.acsUrl,
+                        "Payload": payload.consumerAuthenticationInformation.pareq,
                     },
                     {
                         "OrderDetails": {
-                            "TransactionId": reponse.consumerAuthenticationInformation.authenticationTransactionId
+                            "TransactionId": payload.consumerAuthenticationInformation.authenticationTransactionId
                         }
                     },
                     sessionId);
-            } else {
-                console.log('Issuer authentication not required');
-                resolve(reponse);
+            } 
+            else if (payload.status === "AUTHENTICATION_SUCCESSFUL") {
+                console.log(`${payload.status}: Issuer authentication not required`);
+                resolve({ 
+                    threeDSData: payload,
+                    challengResponse: {
+                        type: "3DS-frictionless",
+                        instrumentId: this.props.paymentInstrumentId,
+                        token: payload.challengeResponseToken,
+                        refernce: sessionId,
+
+                    }
+                 });
+            }
+            else {
+                console.log(`${payload.status || "UNKNOWN"}: There was a problem authenticating`);
+                resolve({ threeDSData: payload });
             }
         });
 
         return await promise;
     }
+}
+
+class ValidatePaymentsResponse {
+    public threeDSData?: string;
+    public challengResponse?: any;
 }

@@ -15,7 +15,12 @@ export default class ValidatePayment extends ActionBase implements IAction {
     createElement(elementType: string, targetElement: string, options?: any): void;
     errors(): any[];
     start(): Promise<void>;
-    complete(): Promise<unknown>;
+    complete(): Promise<ValidatePaymentsResponse>;
     private initialiseCardinal;
-    verifyEnrollment(sessionId: string): Promise<unknown>;
+    verifyEnrollment(sessionId: string): Promise<ValidatePaymentsResponse>;
 }
+declare class ValidatePaymentsResponse {
+    threeDSData?: string;
+    challengResponse?: any;
+}
+export {};
