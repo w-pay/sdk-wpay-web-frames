@@ -97,7 +97,7 @@ export default class ValidatePayment extends ActionBase implements IAction {
                 console.log(`Issuer authentication complete`);
                 resolve({ 
                     threeDSData: data,
-                    challengResponse: {
+                    challengeResponse: {
                         type: "3DS",
                         instrumentId: this.props.paymentInstrumentId,
                         token: data.Payment.ProcessorTransactionId,
@@ -126,7 +126,7 @@ export default class ValidatePayment extends ActionBase implements IAction {
                 console.log(`${payload.status}: Issuer authentication not required`);
                 resolve({ 
                     threeDSData: payload,
-                    challengResponse: {
+                    challengeResponse: {
                         type: "3DS-frictionless",
                         instrumentId: this.props.paymentInstrumentId,
                         token: payload.challengeResponseToken,
@@ -147,5 +147,5 @@ export default class ValidatePayment extends ActionBase implements IAction {
 
 class ValidatePaymentsResponse {
     public threeDSData?: string;
-    public challengResponse?: any;
+    public challengeResponse?: any;
 }

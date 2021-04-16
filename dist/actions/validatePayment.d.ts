@@ -21,6 +21,6 @@ export default class ValidatePayment extends ActionBase implements IAction {
 }
 declare class ValidatePaymentsResponse {
     threeDSData?: string;
-    challengResponse?: any;
+    challengeResponse?: any;
 }
 export {};
