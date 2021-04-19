@@ -57,7 +57,9 @@ export default class ThreeDSService implements IThreeDSService {
                 'x-api-key': this.apiKey,
                 'authorization': this.authToken,
                 'x-wallet-id': this.walletId,
-                'x-session-id': sessionId
+                'x-session-id': sessionId,
+                'Content-Type': 'application/json'
+
             },
             body: JSON.stringify({
                 data: {
