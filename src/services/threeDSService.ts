@@ -87,7 +87,7 @@ export default class ThreeDSService implements IThreeDSService {
                 Cardinal.off("payments.validated");
             });
 
-            if (payload.status === "PENDING_AUTHENTICATION") {
+            if (payload.data.threeDSData.status === "PENDING_AUTHENTICATION") {
                 this.logger.log(`${payload.status}: Issuer authentication required`, LogLevel.DEBUG);
                 Cardinal.continue('cca',
                     {
@@ -101,21 +101,21 @@ export default class ThreeDSService implements IThreeDSService {
                     },
                     sessionId);
             } 
-            else if (payload.status === "AUTHENTICATION_SUCCESSFUL") {
+            else if (payload.data.threeDSData.status === "AUTHENTICATION_SUCCESSFUL") {
                 this.logger.log(`${payload.status}: Issuer authentication not required`, LogLevel.DEBUG);
                 resolve({ 
-                    threeDSData: payload,
+                    threeDSData: payload.data.threeDSData,
                     challengeResponse: {
                         type: "3DS-frictionless",
                         instrumentId: paymentInstrumentId,
-                        token: payload.challengeResponseToken,
+                        token: payload.data.challengeResponseToken,
                         reference: sessionId,
 
                     }
                  });
             }
             else {
-                this.logger.log(`${payload.status || "UNKNOWN"}: There was a problem authenticating`, LogLevel.DEBUG);
+                this.logger.log(`${payload.data.threeDSData.status || "UNKNOWN"}: There was a problem authenticating`, LogLevel.DEBUG);
                 resolve({ threeDSData: payload });
             }
         });
