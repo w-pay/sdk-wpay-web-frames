@@ -73,6 +73,7 @@ export default class ThreeDSService implements IThreeDSService {
         const promise = new Promise<ValidatePaymentsResponse>((resolve, reject) => {
             Cardinal.on("payments.validated", (data: any, jwt: string) => {
                 this.logger.log(`Issuer authentication complete`, LogLevel.DEBUG);
+                if (!data.Payment) reject({});
 
                 resolve({ 
                     threeDSData: data,
