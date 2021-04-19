@@ -60,7 +60,9 @@ export default class ThreeDSService implements IThreeDSService {
                 'x-session-id': sessionId
             },
             body: JSON.stringify({
-                instrumentId: '123456'
+                data: {
+                    sessionId
+                }
             })
         });
 
