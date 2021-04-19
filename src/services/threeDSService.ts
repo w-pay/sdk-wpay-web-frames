@@ -73,7 +73,6 @@ export default class ThreeDSService implements IThreeDSService {
         const promise = new Promise<ValidatePaymentsResponse>((resolve, reject) => {
             Cardinal.on("payments.validated", (data: any, jwt: string) => {
                 this.logger.log(`Issuer authentication complete`, LogLevel.DEBUG);
-                if (!data.Payment) reject({});
 
                 resolve({ 
                     threeDSData: data,
@@ -92,12 +91,12 @@ export default class ThreeDSService implements IThreeDSService {
                 this.logger.log(`${payload.status}: Issuer authentication required`, LogLevel.DEBUG);
                 Cardinal.continue('cca',
                     {
-                        "AcsUrl": payload.consumerAuthenticationInformation.acsUrl,
-                        "Payload": payload.consumerAuthenticationInformation.pareq,
+                        "AcsUrl": payload.data.threeDSData.consumerAuthenticationInformation.acsUrl,
+                        "Payload": payload.data.threeDSData.consumerAuthenticationInformation.pareq,
                     },
                     {
                         "OrderDetails": {
-                            "TransactionId": payload.consumerAuthenticationInformation.authenticationTransactionId
+                            "TransactionId": payload.data.threeDSData.consumerAuthenticationInformation.authenticationTransactionId
                         }
                     },
                     sessionId);
