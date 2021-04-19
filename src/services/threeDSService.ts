@@ -74,6 +74,8 @@ export default class ThreeDSService implements IThreeDSService {
             Cardinal.on("payments.validated", (data: any, jwt: string) => {
                 this.logger.log(`Issuer authentication complete`, LogLevel.DEBUG);
 
+                this.logger.log(JSON.stringify(data), LogLevel.DEBUG);
+
                 resolve({ 
                     threeDSData: data,
                     challengeResponse: {
