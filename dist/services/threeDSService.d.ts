@@ -10,8 +10,7 @@ export default class ThreeDSService implements IThreeDSService {
     private httpService;
     private logger;
     constructor(authToken: string, apiBase: string, apiKey: string, httpService: IHttpService, elementsService: IElementsService, logger: ILoggingService);
-    private gatewayServiceBaseURL;
     private walletId;
-    initialiseCardinal(sessionId: string): Promise<string>;
+    initializeCardinal(sessionId: string): Promise<string>;
     verifyEnrollment(sessionId: string, paymentInstrumentId: string): Promise<ValidatePaymentsResponse>;
 }

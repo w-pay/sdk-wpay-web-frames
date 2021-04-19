@@ -30,7 +30,7 @@ export default class ValidatePayment extends ActionBase implements IAction {
     public async start() {
         try {
             if (!this.props.sessionId || this.props.sessionId.length <= 0 || typeof this.props.sessionId !== "string") throw new Error("Invalid sessionId");
-            await this.threeDSService.initialiseCardinal(this.props.sessionId);
+            await this.threeDSService.initializeCardinal(this.props.sessionId);
             
         } catch (e) {
             this.logger.log(e, LogLevel.ERROR);

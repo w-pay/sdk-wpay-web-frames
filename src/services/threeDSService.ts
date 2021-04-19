@@ -19,10 +19,9 @@ export default class ThreeDSService implements IThreeDSService {
         @inject(ServiceTypes.ElementsService) elementsService: IElementsService,
         @inject(ServiceTypes.LoggingService) private logger: ILoggingService) {}
 
-    private gatewayServiceBaseURL = "http://localhost:3020"; 
     private walletId = "4fa9e893-2fb9-4516-bfc5-6fa8cd903528";
 
-    public async initialiseCardinal(sessionId: string): Promise<string> {
+    public async initializeCardinal(sessionId: string): Promise<string> {
         if (this.logger.getLevel() >= LogLevel.DEBUG) {
             Cardinal.configure({
                 logging: {
@@ -52,7 +51,7 @@ export default class ThreeDSService implements IThreeDSService {
     }
 
     public async verifyEnrollment(sessionId: string, paymentInstrumentId: string): Promise<ValidatePaymentsResponse> {
-        const response = await fetch(`${this.gatewayServiceBaseURL}/customer/3ds/session/enrolment`, {
+        const response = await fetch(`${this.apiBase}/customer/3ds/session/enrolment`, {
             method: 'POST',
             headers: {
                 'x-api-key': this.apiKey,
