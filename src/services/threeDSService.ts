@@ -122,6 +122,10 @@ export default class ThreeDSService implements IThreeDSService {
             }
         });
 
-        return await promise;
+        const result = await promise;
+
+        Cardinal.off("payments.validated");
+
+        return result;
     }
 }
