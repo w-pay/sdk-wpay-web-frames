@@ -33,6 +33,8 @@ export default class ThreeDSService implements IThreeDSService {
         var promise = new Promise<string>((resolve, reject) => {
             Cardinal.on('payments.setupComplete', async (e: any) => {
                 // At this point, if successful, the device fingerpront has been stored and we have a cardinal sessionId
+                this.logger.log(e, LogLevel.DEBUG);
+                
                 resolve(e.sessionId);
                 Cardinal.off('payments.setupComplete');
             });
@@ -45,9 +47,9 @@ export default class ThreeDSService implements IThreeDSService {
         const initResponse = await promise;
 
         // Once initialized, start a new cardinal transaction.  This appears to be the only way to allow multiple Cardinal retries.
-        // Cardinal.start('cca', {}, sessionId);
+        Cardinal.start('cca', {}, sessionId);
 
-        Cardinal.trigger('jwt.update', sessionId);
+        // Cardinal.trigger('jwt.update', sessionId);
 
         return initResponse;
     }
