@@ -2,8 +2,8 @@ import ActionBase from "./actionBase";
 import { IAction } from "./types/IAction";
 
 export default class ValidateCard extends ActionBase implements IAction {
-    public createElement(elementType: string, targetElement: string, options?: any): void {
-        // There is no element to setup so do nothing
+    public createFramesControl(framesControlType: string, targetElement: string, options?: any): void {
+        // There are no frames to setup so do nothing
     }
 
     public errors(): any[] {

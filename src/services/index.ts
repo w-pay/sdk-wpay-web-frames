@@ -1,5 +1,5 @@
 const ServiceTypes = {
-    ElementsService: Symbol.for("ElementsService"),
+    FramesService: Symbol.for("FramesService"),
     ThreeDSService: Symbol.for("ThreeDSService"),
     PaymentInstrumentService: Symbol.for("PaymentInstrumentService"),
     PaymentRequestService: Symbol.for("PaymentRequestService"),

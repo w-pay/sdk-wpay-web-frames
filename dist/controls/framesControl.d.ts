@@ -1,5 +1,5 @@
 import ILoggingService from 'src/services/types/ILoggingService';
-export default class ElementControl {
+export default class FramesControl {
     type: string;
     frameElement: HTMLIFrameElement;
     containerElement: HTMLElement;

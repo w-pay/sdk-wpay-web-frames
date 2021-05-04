@@ -1,13 +1,12 @@
 import IActionResponse from 'src/actions/types/IActionResponse';
 import { injectable, inject } from 'inversify';
-import IElementsService from './types/IElementsService';
+import IElementsService from './types/IFramesService';
 import { ServiceTypes } from '.';
-import ILoggingService from './types/ILoggingService';
 import IHttpService from './types/IHttpService';
 import { AxiosResponse } from 'axios';
 
 @injectable()
-export default class ElementsService implements IElementsService {
+export default class FramesService implements IElementsService {
     private apiBase!: string;
     private httpService!: IHttpService;
     private authToken!: string;

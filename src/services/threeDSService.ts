@@ -1,11 +1,12 @@
 import { inject, injectable } from "inversify";
-import { LogLevel } from "../customer";
 import ValidatePaymentsResponse from "../domain/validatePaymentResponse";
 import { ServiceTypes } from ".";
-import IElementsService from "./types/IElementsService";
+import IFramesService from "./types/IFramesService";
 import IHttpService from "./types/IHttpService";
 import ILoggingService from "./types/ILoggingService";
 import IThreeDSService from "./types/IThreeDSService";
+import { LogLevel } from "../domain/logLevel";
+import FramesService from "./framesService";
 
 declare var Cardinal:any;
 
@@ -16,7 +17,7 @@ export default class ThreeDSService implements IThreeDSService {
         @inject("apiBase") private apiBase: string,
         @inject("apiKey") private apiKey: string,
         @inject(ServiceTypes.HttpService) private httpService: IHttpService,
-        @inject(ServiceTypes.ElementsService) elementsService: IElementsService,
+        @inject(ServiceTypes.FramesService) FramesService: IFramesService,
         @inject(ServiceTypes.LoggingService) private logger: ILoggingService) {}
 
     private walletId = "4fa9e893-2fb9-4516-bfc5-6fa8cd903528";

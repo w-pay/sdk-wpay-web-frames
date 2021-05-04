@@ -3,7 +3,7 @@ const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 
 module.exports = {
     entry: {
-        elementsSDK: path.join(__dirname, '/src/customer/index.ts')
+        framesSDK: path.join(__dirname, '/src/index.ts')
     },
     plugins: [
         new CleanWebpackPlugin()
@@ -12,7 +12,7 @@ module.exports = {
         globalObject: "this",
         path: path.join(__dirname, '/dist'),
         filename: '[name].js',
-        library: 'ELEMENTS',
+        library: 'FRAMES',
         libraryTarget: 'umd'
     },
     module: {

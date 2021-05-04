@@ -1,9 +1,9 @@
 import ILoggingService from 'src/services/types/ILoggingService';
 import { LogLevel } from '../domain/logLevel';
-import { ElementEventType } from './elementEventType';
+import { FramesEventType } from '../domain/framesEventType';
 import { v4 } from 'uuid';
 
-export default class ElementControl {
+export default class FramesControl {
     public type: string;
     public frameElement: HTMLIFrameElement;
     public containerElement: HTMLElement;
@@ -11,11 +11,11 @@ export default class ElementControl {
     private exception: any;
     private logger: ILoggingService;
 
-    private onElementFocus = document.createEvent('Event');
-    private onElementBlur = document.createEvent('Event');
-    private onElementValidated = document.createEvent('Event');
-    private onElementCleared = document.createEvent('Event');
-    private onElementSubmitted = document.createEvent('Event');
+    private onFrameFocus = document.createEvent('Event');
+    private onFrameBlur = document.createEvent('Event');
+    private onFrameValidated = document.createEvent('Event');
+    private onFrameCleared = document.createEvent('Event');
+    private onFrameSubmitted = document.createEvent('Event');
 
     constructor (type: string, containerElement: HTMLElement, frameElement: HTMLIFrameElement, logger: ILoggingService) {
         this.type = type;
@@ -23,11 +23,11 @@ export default class ElementControl {
         this.containerElement = containerElement;
         this.logger = logger;
 
-        this.onElementCleared.initEvent(ElementEventType.OnCleared, true, true);
-        this.onElementValidated.initEvent(ElementEventType.OnValidated, true, true);
-        this.onElementSubmitted.initEvent(ElementEventType.OnSubmited, true, true);
-        this.onElementBlur.initEvent(ElementEventType.OnBlur, true, true);
-        this.onElementFocus.initEvent(ElementEventType.OnFocus, true, true);
+        this.onFrameCleared.initEvent(FramesEventType.OnCleared, true, true);
+        this.onFrameValidated.initEvent(FramesEventType.OnValidated, true, true);
+        this.onFrameSubmitted.initEvent(FramesEventType.OnSubmited, true, true);
+        this.onFrameBlur.initEvent(FramesEventType.OnBlur, true, true);
+        this.onFrameFocus.initEvent(FramesEventType.OnFocus, true, true);
 
         window.addEventListener(`message`, (e: any) => {
             // If the message has an id then it already has a handler
@@ -35,25 +35,25 @@ export default class ElementControl {
             // if (e.data.id) return;
 
             // Card group is interested in all message types
-            if (this.type != 'CardGroup' && e.data.element != this.type) return;
+            if (this.type != 'CardGroup' && e.data.frame != this.type) return;
 
             this.logger.log(`FrameMessage: ${JSON.stringify(e.data)}`, LogLevel.DEBUG);
 
             // Otherwise it was initiated by the frame, so handle it here.  At this stage validation is the only reason the frame would send a message
             switch(e.data.action) {
-                case "validateElementFailed": 
+                case "validateFrameFailed": 
                     this.error = e.data;
-                    this.containerElement.dispatchEvent(this.onElementValidated);
+                    this.containerElement.dispatchEvent(this.onFrameValidated);
                     break;
-                case "validateElementComplete": 
+                case "validateFrameComplete": 
                     this.error = undefined;
-                    this.containerElement.dispatchEvent(this.onElementValidated);
+                    this.containerElement.dispatchEvent(this.onFrameValidated);
                     break;
                 case "onFocus":
-                    this.containerElement.dispatchEvent(this.onElementFocus);
+                    this.containerElement.dispatchEvent(this.onFrameFocus);
                     break;
                 case "onBlur":             
-                    this.containerElement.dispatchEvent(this.onElementBlur);
+                    this.containerElement.dispatchEvent(this.onFrameBlur);
                     break;
             }
         });
@@ -82,7 +82,7 @@ export default class ElementControl {
         let result = true;
         this.error = undefined;
 
-        await this.performAction("clearElement").catch((ex: any) => {
+        await this.performAction("clearFrame").catch((ex: any) => {
             this.error = ex;
             result = false
         });
@@ -94,7 +94,7 @@ export default class ElementControl {
         let result = true;
         this.error = undefined;
 
-        await this.performAction("validateElement").catch((ex: any) => {
+        await this.performAction("validateFrame").catch((ex: any) => {
             this.error = ex;
             result = false;
         });
@@ -106,7 +106,7 @@ export default class ElementControl {
         let result = true;
         this.error = undefined;
         
-        await this.performAction("submitElement").catch((ex: any) => {
+        await this.performAction("submitFrame").catch((ex: any) => {
             this.error = ex;
             result = false;
         });
@@ -117,7 +117,7 @@ export default class ElementControl {
     private async performAction(action: string): Promise<void> {
         if (!this.frameElement.contentWindow) {
             return Promise.reject({
-                "action": "elementActionFailed",
+                "action": "frameActionFailed",
                 "error": "IFrame not mounted to DOM"
             });
         }
@@ -128,7 +128,7 @@ export default class ElementControl {
         
         const message = {
             id: v4(),
-            element: this.type,
+            frame: this.type,
             action: action
         };
 

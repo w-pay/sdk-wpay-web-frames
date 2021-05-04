@@ -1,4 +1,4 @@
-import ElementControl from '../controls/elementControl';
+import FramesControl from '../controls/framesControl';
 import ActionBase from './actionBase';
 import ICaptureCard from './types/ICaptureCard';
 import { LogLevel } from '../domain/logLevel';
@@ -6,34 +6,34 @@ import { LogLevel } from '../domain/logLevel';
 export default class CaptureCard extends ActionBase implements ICaptureCard {
     public async start(useEveryDayPay: boolean) {
         this.logger.log(`Initialising card capture action`, LogLevel.INFO)
-        this.actionConfig = await this.elementsService.initialiseAction('capture-card', useEveryDayPay, this.props);
+        this.actionConfig = await this.framesService.initialiseAction('capture-card', useEveryDayPay, this.props);
     }
 
     public async validate(): Promise<void> {
-        this.logger.log('Validating elements', LogLevel.INFO);
+        this.logger.log('Validating frames', LogLevel.INFO);
 
         try {
-            if (this.elements.has('CardGroup')) {
-                await (this.elements.get('CardGroup') as ElementControl).validate().then(
+            if (this.frames.has('CardGroup')) {
+                await (this.frames.get('CardGroup') as FramesControl).validate().then(
                     (result) => {
-                        if (!result) throw 'One or more elements failed validation';
+                        if (!result) throw 'One or more frames failed validation';
                     });
                 } else {
-                // First, check to ensure that we have all of the elements that we need
-                let missingElements = [];
+                // First, check to ensure that we have all of the frames that we need
+                let missingFrames = [];
 
-                const cardNo = this.elements.get('CardNo');
-                if (cardNo === undefined) missingElements.push('cardNo');
+                const cardNo = this.frames.get('CardNo');
+                if (cardNo === undefined) missingFrames.push('cardNo');
 
-                const cardExpiry = this.elements.get('CardExpiry');
-                if (cardExpiry === undefined) missingElements.push('CardExpiry');
+                const cardExpiry = this.frames.get('CardExpiry');
+                if (cardExpiry === undefined) missingFrames.push('CardExpiry');
 
-                const cardCVV = this.elements.get('CardCVV');
-                if (cardCVV === undefined) missingElements.push('CardCVV');
+                const cardCVV = this.frames.get('CardCVV');
+                if (cardCVV === undefined) missingFrames.push('CardCVV');
 
-                // Check to see if there are any elements missing - used elements rather than missing elements length to satisfy compiler that undefined had been handled
+                // Check to see if there are any frames missing
                 if (!cardNo || !cardExpiry || !cardCVV) {
-                    throw `Missing required elements: ${missingElements.join(', ')}`;
+                    throw `Missing required frames: ${missingFrames.join(', ')}`;
                 }
 
                 let success = true;
@@ -54,7 +54,7 @@ export default class CaptureCard extends ActionBase implements ICaptureCard {
                             })
                 ]);
 
-                if (!success) throw 'One or more elements failed validation';
+                if (!success) throw 'One or more frames failed validation';
             }
         } catch (e) {
             // There was a problem during vaidation
@@ -67,22 +67,21 @@ export default class CaptureCard extends ActionBase implements ICaptureCard {
     }
 
     public async submit(): Promise<void> {
-        // Validate the elements prior to submitting
+        // Validate the frames prior to submitting
         await this.validate();
 
-        // Elements are all present and valid, proceed to submit
-        this.logger.log ('CaptureCard: Submiting elements', LogLevel.INFO);
+        // Frames are all present and valid, proceed to submit
+        this.logger.log ('CaptureCard: Submiting frames', LogLevel.INFO);
 
         try {
-            // can cast elements are not undefined as check was done as part of validation
-            if (this.elements.has('CardGroup')) {
-                await (this.elements.get('CardGroup') as ElementControl).submit();
+            if (this.frames.has('CardGroup')) {
+                await (this.frames.get('CardGroup') as FramesControl).submit();
             } else {
-                const cardNo = this.elements.get('CardNo') as ElementControl;
-                const cardExpiry = this.elements.get('CardExpiry') as ElementControl;
-                const cardCVV = this.elements.get('CardCVV') as ElementControl;
+                const cardNo = this.frames.get('CardNo') as FramesControl;
+                const cardExpiry = this.frames.get('CardExpiry') as FramesControl;
+                const cardCVV = this.frames.get('CardCVV') as FramesControl;
 
-                // Submit all parts and wait for them to return
+                // Submit all frames and wait for them to return
                 await Promise.all([
                     cardNo.submit(),
                     cardExpiry.submit(),
@@ -100,7 +99,7 @@ export default class CaptureCard extends ActionBase implements ICaptureCard {
     public async complete(): Promise<any> {
         this.logger.log(`CaptureCard: Completing card capture action`, LogLevel.INFO);
         try {
-            const response = await this.elementsService.completeAction('capture-card', this.actionConfig.sessionId, this.actionConfig.actionId);
+            const response = await this.framesService.completeAction('capture-card', this.actionConfig.sessionId, this.actionConfig.actionId);
 
             this.logger.log('CaptureCard: Complete Successful', LogLevel.INFO);
 
@@ -116,12 +115,12 @@ export default class CaptureCard extends ActionBase implements ICaptureCard {
         try {
             const promises: Promise<boolean>[] = [];
 
-            // Call clear on all elements
-            this.elements.forEach((element) => {
-                promises.push(element.clear());
+            // Call clear on all frames
+            this.frames.forEach(control => {
+                promises.push(control.clear());
             });
         
-            // Wait for all elements to clear
+            // Wait for all frames to clear
             await Promise.all(promises);
 
             this.logger.log('CaptureCard: Clear Successful', LogLevel.INFO);

@@ -1,34 +1,32 @@
 import { IAction } from 'src/actions/types/IAction';
-import ElementControl from '../controls/elementControl';
+import FramesControl from '../controls/framesControl';
 import { inject, injectable } from 'inversify';
 import { ServiceTypes } from '../services';
 import IActionResponse from './types/IActionResponse';
-import IElementsService from 'src/services/types/IElementsService';
-import ILoggingService from 'src/services/types/ILoggingService';``
+import IFramesService from 'src/services/types/IFramesService';
+import ILoggingService from 'src/services/types/ILoggingService';
 
 @injectable()
 export default abstract class ActionBase implements IAction {
     public actionConfig!: IActionResponse;
     public props: any;
-    public elements = new Map<string, ElementControl>();
+    public frames = new Map<string, FramesControl>();
     
-    protected elementsService!: IElementsService;
     public logger!: ILoggingService;
 
     constructor(
-        @inject(ServiceTypes.ElementsService) elementsService: IElementsService,
+        @inject(ServiceTypes.FramesService) public framesService: IFramesService,
         @inject(ServiceTypes.LoggingService) logger: ILoggingService
     ) {
-        this.elementsService = elementsService;
         this.logger = logger;
     }
 
     public errors(): any[] {
         let errors: any[] = [];
 
-        this.elements.forEach((element => {
-            if (element.error) {
-                let errorObject = element.error;
+        this.frames.forEach((control => {
+            if (control.error) {
+                let errorObject = control.error;
                 errors.push(errorObject.error);
             }
         }));
@@ -37,19 +35,19 @@ export default abstract class ActionBase implements IAction {
     }
 
     public removeElements() {
-        this.elements.forEach((element) => {
-            element.containerElement.remove();
+        this.frames.forEach(control => {
+            control.containerElement.remove();
         });
 
-        this.elements.clear();
+        this.frames.clear();
     }
 
-    public createElement(elementType: string, targetElementId: string, options?: any): void {
+    public createFramesControl(framesControlType: string, targetElementId: string, options?: any): void {
         // Get a handle to the target element to ensure it exists
         let targetElement = document.getElementById(targetElementId);
         if (!targetElement) throw "Target element not found";
 
-        let src = `${this.actionConfig.URL}?actionId=${this.actionConfig.actionId}&type=${elementType}`;
+        let src = `${this.actionConfig.URL}?actionId=${this.actionConfig.actionId}&type=${framesControlType}`;
 
         // Tack logLevel onto options
         if (options) {
@@ -71,7 +69,7 @@ export default abstract class ActionBase implements IAction {
         container.classList.add('woolies-element', 'element-container');
 
         // Create the IFrame and attach it to the container
-        var iFrame = document.createElement("iframe") as HTMLIFrameElement;
+        var iFrame = document.createElement("iframe");
         iFrame.src = src;
         iFrame.frameBorder = "0";
         iFrame.scrolling = "no";
@@ -79,9 +77,9 @@ export default abstract class ActionBase implements IAction {
 
         container.appendChild(iFrame);
 
-        // Create a new element control for managing the frame content moving forward
-        let elementControl = new ElementControl(elementType, container, iFrame, this.logger);
-        this.elements.set(elementType, elementControl);
+        // Create a new frames control for managing the frame content moving forward
+        let framesControl = new FramesControl(framesControlType, container, iFrame, this.logger);
+        this.frames.set(framesControlType, framesControl);
         
         // Add the container to the target element
         targetElement.appendChild(container);

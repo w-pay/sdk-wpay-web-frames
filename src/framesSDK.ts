@@ -2,11 +2,11 @@ import 'reflect-metadata';
 
 import container from "./container";
 
-import { LogLevel } from '../domain/logLevel';
+import { LogLevel } from './domain/logLevel';
 import { Container } from 'inversify';
 import { IAction } from 'src/actions/types/IAction';
 
-export default class ElementsSDK {
+export default class FramesSDK {
     public myContainer: Container;
 
     constructor(apiKey: string, authToken:string, apiBase?: string, logLevel?: LogLevel) {
@@ -18,7 +18,7 @@ export default class ElementsSDK {
         this.myContainer.bind<LogLevel>("logLevel").toConstantValue(logLevel || LogLevel.NONE);
     }
 
-    public createAction(actionType: symbol, props?: any) {
+    public createAction(actionType: symbol, props: any = {}) {
         const action: IAction = this.myContainer.get<any>(actionType);
         action.props = props;
         return action;

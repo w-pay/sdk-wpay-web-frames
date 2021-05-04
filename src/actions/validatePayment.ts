@@ -1,29 +1,29 @@
 import { inject, injectable } from "inversify";
 import { ServiceTypes } from "../services";
-import IElementsService from "../services/types/IElementsService";
 import ILoggingService from "../services/types/ILoggingService";
 import ActionBase from "./actionBase";
 import { IAction } from "./types/IAction";
 
 import "cardinal-commerce-songbird-staging";
-import { LogLevel } from "../customer";
 import IThreeDSService from "../services/types/IThreeDSService";
+import { LogLevel } from "../domain/logLevel";
+import IFramesService from "../services/types/IFramesService";
 
 @injectable()
 export default class ValidatePayment extends ActionBase implements IAction {
     constructor(
-        @inject(ServiceTypes.ElementsService) elementsService: IElementsService,
+        @inject(ServiceTypes.FramesService) framesService: IFramesService,
         @inject(ServiceTypes.ThreeDSService) private threeDSService: IThreeDSService,
         @inject(ServiceTypes.LoggingService) logger: ILoggingService) {
-            super(elementsService, logger);
+            super(framesService, logger);
     }
 
-    public createElement(elementType: string, targetElement: string, options?: any): void {
-        // There is no element to setup so do nothing
+    public createFramesControl(framesControlType: string, targetElement: string, options?: any): void {
+        // There are no frames to setup so do nothing
     }
 
     public errors(): any[] {
-        // Return any cardinal errors
+        // TODO: Return any cardinal errors
         return [];
     }
 
@@ -41,6 +41,4 @@ export default class ValidatePayment extends ActionBase implements IAction {
         // Validate the card initiating issuer vaidation if required
         return await this.threeDSService.verifyEnrollment(this.props.sessionId, this.props.paymentInstrumentId);
     }
-
-    
 }

@@ -1,5 +1,5 @@
-export enum ElementEventType {
-    OnElementEvent = "*",
+export declare enum FramesEventType {
+    OnFramesEvent = "*",
     OnSubmited = "ElementSubmitted",
     OnCleared = "ElementCleared",
     OnValidated = "ElementValidated",

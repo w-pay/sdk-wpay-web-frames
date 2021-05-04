@@ -1,9 +1,8 @@
-import myContainer from "../../../src/customer/container";
+import myContainer from "../../../src/container";
 import { ActionTypes } from "../../../src/actions";
 import ElementsService from '../../../src/services/elementsService';
 import { injectable, decorate } from 'inversify';
 import CaptureCard from '../../../src/actions/captureCard';
-import ElementControl from '../../../src/controls/elementControl';
 import { LogLevel } from "../../../src/domain/logLevel";
 
 jest.mock('../../../src/services/elementsService');
