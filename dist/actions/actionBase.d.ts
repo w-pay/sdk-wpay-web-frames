@@ -1,15 +1,15 @@
 import { IAction } from 'src/actions/types/IAction';
 import FramesControl from '../controls/framesControl';
 import IActionResponse from './types/IActionResponse';
-import IElementsService from 'src/services/types/IElementsService';
+import IFramesService from 'src/services/types/IFramesService';
 import ILoggingService from 'src/services/types/ILoggingService';
 export default abstract class ActionBase implements IAction {
+    framesService: IFramesService;
     actionConfig: IActionResponse;
-    props: any;
+    options: any;
     frames: Map<string, FramesControl>;
-    protected elementsService: IElementsService;
     logger: ILoggingService;
-    constructor(elementsService: IElementsService, logger: ILoggingService);
+    constructor(framesService: IFramesService, logger: ILoggingService);
     errors(): any[];
     removeElements(): void;
     createFramesControl(framesControlType: string, targetElementId: string, options?: any): void;

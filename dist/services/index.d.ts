@@ -1,5 +1,5 @@
 declare const ServiceTypes: {
-    ElementsService: symbol;
+    FramesService: symbol;
     ThreeDSService: symbol;
     PaymentInstrumentService: symbol;
     PaymentRequestService: symbol;

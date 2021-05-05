@@ -6,7 +6,7 @@ import { LogLevel } from '../domain/logLevel';
 export default class CaptureCard extends ActionBase implements ICaptureCard {
     public async start(useEveryDayPay: boolean) {
         this.logger.log(`Initialising card capture action`, LogLevel.INFO)
-        this.actionConfig = await this.framesService.initialiseAction('capture-card', useEveryDayPay, this.props);
+        this.actionConfig = await this.framesService.initialiseAction('capture-card', useEveryDayPay, this.options);
     }
 
     public async validate(): Promise<void> {

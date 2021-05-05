@@ -1,8 +1,8 @@
 export declare enum FramesEventType {
     OnFramesEvent = "*",
-    OnSubmited = "ElementSubmitted",
-    OnCleared = "ElementCleared",
-    OnValidated = "ElementValidated",
-    OnBlur = "ElementBlur",
-    OnFocus = "ElementFocus"
+    OnSubmited = "FrameSubmitted",
+    OnCleared = "FrameCleared",
+    OnValidated = "FrameValidated",
+    OnBlur = "FrameBlur",
+    OnFocus = "FrameFocus"
 }

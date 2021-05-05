@@ -29,8 +29,8 @@ export default class ValidatePayment extends ActionBase implements IAction {
 
     public async start() {
         try {
-            if (!this.props.sessionId || this.props.sessionId.length <= 0 || typeof this.props.sessionId !== "string") throw new Error("Invalid sessionId");
-            await this.threeDSService.initializeCardinal(this.props.sessionId);
+            if (!this.options.sessionId || this.options.sessionId.length <= 0 || typeof this.options.sessionId !== "string") throw new Error("Invalid sessionId");
+            await this.threeDSService.initializeCardinal(this.options.sessionId);
             
         } catch (e) {
             this.logger.log(e, LogLevel.ERROR);
@@ -39,6 +39,6 @@ export default class ValidatePayment extends ActionBase implements IAction {
 
     public async complete() {
         // Validate the card initiating issuer vaidation if required
-        return await this.threeDSService.verifyEnrollment(this.props.sessionId, this.props.paymentInstrumentId);
+        return await this.threeDSService.verifyEnrollment(this.options.sessionId, this.options.paymentInstrumentId);
     }
 }

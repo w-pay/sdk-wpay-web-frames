@@ -6,21 +6,23 @@ import { LogLevel } from './domain/logLevel';
 import { Container } from 'inversify';
 import { IAction } from 'src/actions/types/IAction';
 
-export default class FramesSDK {
-    public myContainer: Container;
+var myContainer: Container
 
-    constructor(apiKey: string, authToken:string, apiBase?: string, logLevel?: LogLevel) {
+export default class FramesSDK {
+    myContainer = container.create();
+
+    constructor(sdkOptions: any) {
         this.myContainer = container.create();
 
-        this.myContainer.bind<string>("authToken").toConstantValue(authToken);
-        this.myContainer.bind<string>("apiKey").toConstantValue(apiKey);
-        this.myContainer.bind<string>("apiBase").toConstantValue(apiBase || "http://localhost:3000");
-        this.myContainer.bind<LogLevel>("logLevel").toConstantValue(logLevel || LogLevel.NONE);
+        this.myContainer.bind<string>("authToken").toConstantValue(sdkOptions.authToken);
+        this.myContainer.bind<string>("apiKey").toConstantValue(sdkOptions.apiKey);
+        this.myContainer.bind<string>("apiBase").toConstantValue(sdkOptions.apiBase || "http://localhost:3000");
+        this.myContainer.bind<LogLevel>("logLevel").toConstantValue(sdkOptions.logLevel || LogLevel.NONE);
     }
 
-    public createAction(actionType: symbol, props: any = {}) {
+    public createAction(actionType: symbol, actionOptions: any = {}) {
         const action: IAction = this.myContainer.get<any>(actionType);
-        action.props = props;
+        action.options = actionOptions;
         return action;
     }
 }

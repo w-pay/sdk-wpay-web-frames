@@ -6,11 +6,11 @@ export default class FramesControl {
     eventHandlers: Map<string, Function[]>;
     private exception;
     private logger;
-    private onElementFocus;
-    private onElementBlur;
-    private onElementValidated;
-    private onElementCleared;
-    private onElementSubmitted;
+    private onFrameFocus;
+    private onFrameBlur;
+    private onFrameValidated;
+    private onFrameCleared;
+    private onFrameSubmitted;
     constructor(type: string, containerElement: HTMLElement, frameElement: HTMLIFrameElement, logger: ILoggingService);
     isValid(): boolean;
     get error(): any;

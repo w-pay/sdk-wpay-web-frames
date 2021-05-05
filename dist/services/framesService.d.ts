@@ -1,7 +1,7 @@
 import IActionResponse from 'src/actions/types/IActionResponse';
-import IElementsService from './types/IElementsService';
+import IElementsService from './types/IFramesService';
 import IHttpService from './types/IHttpService';
-export default class ElementsService implements IElementsService {
+export default class FramesService implements IElementsService {
     private apiBase;
     private httpService;
     private authToken;

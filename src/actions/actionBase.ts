@@ -9,7 +9,7 @@ import ILoggingService from 'src/services/types/ILoggingService';
 @injectable()
 export default abstract class ActionBase implements IAction {
     public actionConfig!: IActionResponse;
-    public props: any;
+    public options: any;
     public frames = new Map<string, FramesControl>();
     
     public logger!: ILoggingService;

@@ -47,11 +47,6 @@ export default class ThreeDSService implements IThreeDSService {
 
         const initResponse = await promise;
 
-        // Once initialized, start a new cardinal transaction.  This appears to be the only way to allow multiple Cardinal retries.
-        Cardinal.start('cca', {}, sessionId);
-
-        // Cardinal.trigger('jwt.update', sessionId);
-
         return initResponse;
     }
 

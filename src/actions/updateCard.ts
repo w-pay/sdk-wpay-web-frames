@@ -6,7 +6,7 @@ import { LogLevel } from '../domain/logLevel';
 export default class UpdateCard extends ActionBase implements IUpdateCard {
     public async start(useEveryDayPay: boolean) {
         this.logger.log(`Initialising update card action`, LogLevel.INFO)
-        this.actionConfig = await this.framesService.initialiseAction('update-card', useEveryDayPay, this.props);
+        this.actionConfig = await this.framesService.initialiseAction('update-card', useEveryDayPay, this.options);
     }
 
     public async validate(): Promise<void> {
