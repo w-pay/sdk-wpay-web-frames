@@ -89,24 +89,24 @@ export default class ThreeDSService implements IThreeDSService {
                 Cardinal.off("payments.validated");
             });
 
-            if (payload.data.threeDSData.status === "PENDING_AUTHENTICATION") {
+            if (payload.data.enrollmentResponse.status === "PENDING_AUTHENTICATION") {
                 this.logger.log(`${payload.status}: Issuer authentication required`, LogLevel.DEBUG);
                 Cardinal.continue('cca',
                     {
-                        "AcsUrl": payload.data.threeDSData.consumerAuthenticationInformation.acsUrl,
-                        "Payload": payload.data.threeDSData.consumerAuthenticationInformation.pareq,
+                        "AcsUrl": payload.data.enrollmentResponse.consumerAuthenticationInformation.acsUrl,
+                        "Payload": payload.data.enrollmentResponse.consumerAuthenticationInformation.pareq,
                     },
                     {
                         "OrderDetails": {
-                            "TransactionId": payload.data.threeDSData.consumerAuthenticationInformation.authenticationTransactionId
+                            "TransactionId": payload.data.enrollmentResponse.consumerAuthenticationInformation.authenticationTransactionId
                         }
                     },
                     sessionId);
             } 
-            else if (payload.data.threeDSData.status === "AUTHENTICATION_SUCCESSFUL") {
+            else if (payload.data.enrollmentResponse.status === "AUTHENTICATION_SUCCESSFUL") {
                 this.logger.log(`${payload.status}: Issuer authentication not required`, LogLevel.DEBUG);
                 resolve({ 
-                    threeDSData: payload.data.threeDSData,
+                    threeDSData: payload.data.enrollmentResponse,
                     challengeResponse: {
                         type: "3DS-frictionless",
                         instrumentId: paymentInstrumentId,
@@ -117,7 +117,7 @@ export default class ThreeDSService implements IThreeDSService {
                  });
             }
             else {
-                this.logger.log(`${payload.data.threeDSData.status || "UNKNOWN"}: There was a problem authenticating`, LogLevel.DEBUG);
+                this.logger.log(`${payload.data.enrollmentResponse.status || "UNKNOWN"}: There was a problem authenticating`, LogLevel.DEBUG);
                 resolve({ threeDSData: payload });
             }
         });
