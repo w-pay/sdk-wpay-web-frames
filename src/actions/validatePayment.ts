@@ -4,7 +4,6 @@ import ILoggingService from "../services/types/ILoggingService";
 import ActionBase from "./actionBase";
 import { IAction } from "./types/IAction";
 
-import "cardinal-commerce-songbird-staging";
 import IThreeDSService from "../services/types/IThreeDSService";
 import { LogLevel } from "../domain/logLevel";
 import IFramesService from "../services/types/IFramesService";
@@ -28,6 +27,8 @@ export default class ValidatePayment extends ActionBase implements IAction {
     }
 
     public async start() {
+        await import("cardinal-commerce-songbird-staging");
+
         try {
             if (!this.options.sessionId || this.options.sessionId.length <= 0 || typeof this.options.sessionId !== "string") throw new Error("Invalid sessionId");
             await this.threeDSService.initializeCardinal(this.options.sessionId);
