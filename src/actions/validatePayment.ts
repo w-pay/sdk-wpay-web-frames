@@ -8,6 +8,8 @@ import IThreeDSService from "../services/types/IThreeDSService";
 import { LogLevel } from "../domain/logLevel";
 import IFramesService from "../services/types/IFramesService";
 
+import loadSongbird from "../resources/songbord-staging";
+
 @injectable()
 export default class ValidatePayment extends ActionBase implements IAction {
     constructor(
@@ -27,7 +29,9 @@ export default class ValidatePayment extends ActionBase implements IAction {
     }
 
     public async start() {
-        await import("cardinal-commerce-songbird-staging");
+        // TODO: Make this configurable
+        
+        loadSongbird();
 
         try {
             if (!this.options.sessionId || this.options.sessionId.length <= 0 || typeof this.options.sessionId !== "string") throw new Error("Invalid sessionId");
