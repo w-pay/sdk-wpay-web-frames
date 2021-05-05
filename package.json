@@ -2,8 +2,8 @@
   "name": "@wpay/frames",
   "version": "1.0.2",
   "description": "Development kit to assist in building clients that use the woolies API",
-  "main": "./dist/elementsSDK.js",
-  "module": "./dist/elementsSDK.js",
+  "main": "./dist/framesSDK.js",
+  "module": "./dist/framesSDK.js",
   "typings": "./dist/index.d.ts",
   "files": [
     "dist"
