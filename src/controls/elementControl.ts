@@ -11,23 +11,11 @@ export default class ElementControl {
     private exception: any;
     private logger: ILoggingService;
 
-    private onElementFocus = document.createEvent('Event');
-    private onElementBlur = document.createEvent('Event');
-    private onElementValidated = document.createEvent('Event');
-    private onElementCleared = document.createEvent('Event');
-    private onElementSubmitted = document.createEvent('Event');
-
     constructor (type: string, containerElement: HTMLElement, frameElement: HTMLIFrameElement, logger: ILoggingService) {
         this.type = type;
         this.frameElement = frameElement;
         this.containerElement = containerElement;
         this.logger = logger;
-
-        this.onElementCleared.initEvent(ElementEventType.OnCleared, true, true);
-        this.onElementValidated.initEvent(ElementEventType.OnValidated, true, true);
-        this.onElementSubmitted.initEvent(ElementEventType.OnSubmited, true, true);
-        this.onElementBlur.initEvent(ElementEventType.OnBlur, true, true);
-        this.onElementFocus.initEvent(ElementEventType.OnFocus, true, true);
 
         window.addEventListener(`message`, (e: any) => {
             // If the message has an id then it already has a handler
@@ -43,17 +31,21 @@ export default class ElementControl {
             switch(e.data.action) {
                 case "validateElementFailed": 
                     this.error = e.data;
-                    this.containerElement.dispatchEvent(this.onElementValidated);
+                    const validateElementFailedEvent = new CustomEvent(ElementEventType.OnValidated, { detail: e.data });
+                    this.containerElement.dispatchEvent(validateElementFailedEvent);
                     break;
                 case "validateElementComplete": 
                     this.error = undefined;
-                    this.containerElement.dispatchEvent(this.onElementValidated);
+                    const validateElementCompleteEvent = new CustomEvent(ElementEventType.OnValidated, { detail: e.data });
+                    this.containerElement.dispatchEvent(validateElementCompleteEvent);
                     break;
                 case "onFocus":
-                    this.containerElement.dispatchEvent(this.onElementFocus);
+                    const onFocusEvent = new CustomEvent(ElementEventType.OnFocus, { detail: e.data });
+                    this.containerElement.dispatchEvent(onFocusEvent);
                     break;
                 case "onBlur":             
-                    this.containerElement.dispatchEvent(this.onElementBlur);
+                    const onBlurEvent = new CustomEvent(ElementEventType.OnBlur, { detail: e.data });
+                    this.containerElement.dispatchEvent(onBlurEvent);
                     break;
             }
         });

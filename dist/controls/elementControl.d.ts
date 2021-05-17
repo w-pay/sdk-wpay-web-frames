@@ -6,11 +6,6 @@ export default class ElementControl {
     eventHandlers: Map<string, Function[]>;
     private exception;
     private logger;
-    private onElementFocus;
-    private onElementBlur;
-    private onElementValidated;
-    private onElementCleared;
-    private onElementSubmitted;
     constructor(type: string, containerElement: HTMLElement, frameElement: HTMLIFrameElement, logger: ILoggingService);
     isValid(): boolean;
     get error(): any;
