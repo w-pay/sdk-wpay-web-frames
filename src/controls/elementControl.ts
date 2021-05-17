@@ -43,7 +43,8 @@ export default class ElementControl {
                     const onFocusEvent = new CustomEvent(ElementEventType.OnFocus, { detail: e.data });
                     this.containerElement.dispatchEvent(onFocusEvent);
                     break;
-                case "onBlur":             
+                case "onBlur":   
+                    console.log(e.data);
                     const onBlurEvent = new CustomEvent(ElementEventType.OnBlur, { detail: e.data });
                     this.containerElement.dispatchEvent(onBlurEvent);
                     break;
