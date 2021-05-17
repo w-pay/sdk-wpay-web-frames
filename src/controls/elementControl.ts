@@ -31,20 +31,20 @@ export default class ElementControl {
             switch(e.data.action) {
                 case "validateElementFailed": 
                     this.error = e.data;
-                    const validateElementFailedEvent = new CustomEvent(ElementEventType.OnValidated, { detail: e.data });
+                    const validateElementFailedEvent = new CustomEvent(ElementEventType.OnValidated);
                     this.containerElement.dispatchEvent(validateElementFailedEvent);
                     break;
                 case "validateElementComplete": 
                     this.error = undefined;
-                    const validateElementCompleteEvent = new CustomEvent(ElementEventType.OnValidated, { detail: e.data });
+                    const validateElementCompleteEvent = new CustomEvent(ElementEventType.OnValidated);
                     this.containerElement.dispatchEvent(validateElementCompleteEvent);
                     break;
                 case "onFocus":
-                    const onFocusEvent = new CustomEvent(ElementEventType.OnFocus, { detail: e.data });
+                    const onFocusEvent = new CustomEvent(ElementEventType.OnFocus);
                     this.containerElement.dispatchEvent(onFocusEvent);
                     break;
                 case "onBlur":   
-                    const onBlurEvent = new CustomEvent(ElementEventType.OnBlur, { detail: e.data });
+                    const onBlurEvent = new CustomEvent(ElementEventType.OnBlur);
                     this.containerElement.dispatchEvent(onBlurEvent);
                     break;
             }
