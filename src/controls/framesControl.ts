@@ -11,23 +11,11 @@ export default class FramesControl {
     private exception: any;
     private logger: ILoggingService;
 
-    private onFrameFocus = document.createEvent('Event');
-    private onFrameBlur = document.createEvent('Event');
-    private onFrameValidated = document.createEvent('Event');
-    private onFrameCleared = document.createEvent('Event');
-    private onFrameSubmitted = document.createEvent('Event');
-
     constructor (type: string, containerElement: HTMLElement, frameElement: HTMLIFrameElement, logger: ILoggingService) {
         this.type = type;
         this.frameElement = frameElement;
         this.containerElement = containerElement;
         this.logger = logger;
-
-        this.onFrameCleared.initEvent(FramesEventType.OnCleared, true, true);
-        this.onFrameValidated.initEvent(FramesEventType.OnValidated, true, true);
-        this.onFrameSubmitted.initEvent(FramesEventType.OnSubmited, true, true);
-        this.onFrameBlur.initEvent(FramesEventType.OnBlur, true, true);
-        this.onFrameFocus.initEvent(FramesEventType.OnFocus, true, true);
 
         window.addEventListener(`message`, (e: any) => {
             // If the message has an id then it already has a handler
@@ -43,17 +31,21 @@ export default class FramesControl {
             switch(e.data.action) {
                 case "validateFrameFailed": 
                     this.error = e.data;
-                    this.containerElement.dispatchEvent(this.onFrameValidated);
+                    const validateElementFailedEvent = new CustomEvent(FramesEventType.OnValidated, { detail: e.data, bubbles : true });
+                    this.containerElement.dispatchEvent(validateElementFailedEvent);
                     break;
                 case "validateFrameComplete": 
                     this.error = undefined;
-                    this.containerElement.dispatchEvent(this.onFrameValidated);
+                    const validateElementCompleteEvent = new CustomEvent(FramesEventType.OnValidated, { detail: e.data, bubbles : true });
+                    this.containerElement.dispatchEvent(validateElementCompleteEvent);
                     break;
                 case "onFocus":
-                    this.containerElement.dispatchEvent(this.onFrameFocus);
+                    const onFocusEvent = new CustomEvent(FramesEventType.OnFocus, { detail: e.data, bubbles : true });
+                    this.containerElement.dispatchEvent(onFocusEvent);
                     break;
-                case "onBlur":             
-                    this.containerElement.dispatchEvent(this.onFrameBlur);
+                case "onBlur":   
+                    const onBlurEvent = new CustomEvent(FramesEventType.OnBlur, { detail: e.data, bubbles : true });
+                    this.containerElement.dispatchEvent(onBlurEvent);
                     break;
             }
         });
