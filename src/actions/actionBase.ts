@@ -44,10 +44,10 @@ export default abstract class ActionBase implements IAction {
         this.elements.clear();
     }
 
-    public createElement(elementType: string, targetElementId: string, options?: any): void {
+    public createElement(elementType: string, targetElementId: string, options: any = {}): void {
         // Get a handle to the target element to ensure it exists
         let targetElement = document.getElementById(targetElementId);
-        if (!targetElement) throw "Target element not found";
+        if (!targetElement) throw new Error("Target element not found");
 
         let src = `${this.actionConfig.URL}?actionId=${this.actionConfig.actionId}&type=${elementType}`;
 
