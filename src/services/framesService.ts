@@ -1,4 +1,4 @@
-import IActionResponse from 'src/actions/types/IActionResponse';
+import IActionResponse from '../actions/types/IActionResponse';
 import { injectable, inject } from 'inversify';
 import IElementsService from './types/IFramesService';
 import { ServiceTypes } from '.';

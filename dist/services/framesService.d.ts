@@ -1,4 +1,4 @@
-import IActionResponse from 'src/actions/types/IActionResponse';
+import IActionResponse from '../actions/types/IActionResponse';
 import IElementsService from './types/IFramesService';
 import IHttpService from './types/IHttpService';
 export default class FramesService implements IElementsService {

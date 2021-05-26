@@ -4,7 +4,7 @@ import container from "./container";
 
 import { LogLevel } from './domain/logLevel';
 import { Container } from 'inversify';
-import { IAction } from 'src/actions/types/IAction';
+import { IAction } from './actions/types/IAction';
 
 var myContainer: Container
 

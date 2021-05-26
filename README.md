@@ -22,30 +22,32 @@ To install the dev kit, ensure you have npm installed and run
 
 - Add the sdk to the page
 
-   `<script src="./node_modules/@wpay/frames-sdk/dist/elementsSDK.js"></script>`
+   `<script src="./node_modules/@wpay/frames-sdk/dist/framesSDK.js"></script>`
 
 
 - Add a script tag to the page, initialise the SDK and log into the payment platform.
 
    ``` 
    <script>
-      let apiKey = 'YOUR_API_KEY';
-      let apiHost = "https://dev.mobile-api.woolworths.com.au/wow/v1/pay/instore";
-      let authorizationToken = 'YOUR_AUTH_TOKEN' // Format: Bearer token_value
-      let sdk = new ELEMENTS.ElementsSDK(apiKey, authorizationToken, apiHost, ELEMENTS.LogLevel.DEBUG);
+        const sdk = new FRAMES.FramesSDK({
+            apiKey: 'YOUR_API_KEY', 
+            authToken: 'YOUR_AUTH_TOKEN' // Format: Bearer token_value, 
+            apiBase: "https://dev.mobile-api.woolworths.com.au/wow/v1/pay/instore", 
+            logLevel: FRAMES.LogLevel.DEBUG
+        });
    </script>
    ```
 
 - Start a new card capture action. The action will handle all interactions with your elements, including their creation, validation and submission.
 
     ```
-    let action = sdk.createAction(ELEMENTS.ActionTypes.CaptureCard);
+    let action = sdk.createFramesControl(FRAMES.ActionTypes.CaptureCard);
     action.start();
     ```
     This will initialise a new card capture action. This call will need to be repeated between subsequent card captures.
 
 
-- Add the credit card capture elements to the page.
+- Add the credit card capture frames to the page.
 
     The SDK attaches new elements to `div` placeholders within your page using the element `id`.
 
@@ -88,17 +90,19 @@ To install the dev kit, ensure you have npm installed and run
 
 - Add the sdk to the page
 
-   `<script src="./node_modules/@wpay/frames/dist/elementsSDK.js" />`
+   `<script src="./node_modules/@wpay/frames/dist/framesSDK.js" />`
 
 
 - Add a script tag to the page, initialise the SDK and log into the payment platform.
 
    ``` 
    <script>
-      let apiKey = 'YOUR_API_KEY';
-      let apiHost = "https://dev.mobile-api.woolworths.com.au/wow/v1/pay/instore";
-      let authorizationToken = 'YOUR_AUTH_TOKEN' // Format: Bearer token_value
-      let sdk = new ELEMENTS.ElementsSDK(apiKey, authorizationToken, apiHost, ELEMENTS.LogLevel.DEBUG);
+        const sdk = new FRAMES.FramesSDK({
+            apiKey: 'YOUR_API_KEY', 
+            authToken: 'YOUR_AUTH_TOKEN' // Format: Bearer token_value, 
+            apiBase: "https://dev.mobile-api.woolworths.com.au/wow/v1/pay/instore", 
+            logLevel: FRAMES.LogLevel.DEBUG
+        });
    </script>
    ```
 
@@ -106,7 +110,7 @@ To install the dev kit, ensure you have npm installed and run
 
     ```
     let action = sdk.createAction(
-        ELEMENTS.ActionTypes.StepUp,
+        FRAMES.ActionTypes.StepUp,
         {
             paymentInstrumentId: <YOUR PAYMENT INSTRUMENT ID>
         }
@@ -129,7 +133,7 @@ To install the dev kit, ensure you have npm installed and run
     After adding your placeholder you can now create your frames element.  When creating an element pass in the type of the element you would like to create and the id of the dom element that you would like to attach it to.
 
     ```
-    action.createElement('CardCVV', 'cvvElement');
+    action.createFramesControl('CardCVV', 'cvvElement');
     ```
 
     Loading the page should now display the credit card capture element, displaying card, expiry date and CVV.
@@ -158,9 +162,9 @@ The process for using individual elements is much the same as the single grouped
 Instead of adding a single, control, use the action to create multiple controls.
 
 ```
-action.createElement('CardNo', 'cardCaptureCardNo', options);
-action.createElement('CardExpiry', 'cardCaptureExpiry', options);
-action.createElement('CardCVV', 'cardCaptureCVV', options);
+action.createFramesControl('CardNo', 'cardCaptureCardNo', options);
+action.createFramesControl('CardExpiry', 'cardCaptureExpiry', options);
+action.createFramesControl('CardCVV', 'cardCaptureCVV', options);
 ```
 
 Thats all you need to do.  When you submit the action, the SDK will manage the submission of all of the individual elements for you.
@@ -173,7 +177,7 @@ Here is an example of subscribing to the OnValidated event and registering a fun
 placeholder element that the element is injected into.  Registering in the wrong place may mean you miss the event.
 
 ```
-document.getElementById('cardCaptureCardNo').addEventListener(ELEMENTS.ElementEventType.OnValidated, updateErrors);
+document.getElementById('cardCaptureCardNo').addEventListener(FRAMES.FramesEventType.OnValidated, updateErrors);
 ```
 
 Update errors might look something like this (Pure JS example):
@@ -216,15 +220,15 @@ e.g.
 document
     .getElementById('cardCaptureCardNo')
     .addEventListener(
-        ELEMENTS.ElementEventType.OnBlur,
+        Frames.FramesEventType.OnBlur,
         () => { // Do something onBlur }
     );
 
 ## Styling & Options
 
-In order to ensure seamless integration with your user experience, styling can either be applied to the container via CSS, or in the case you want to make styling changes inside the frame, be injected into the elements at run time via the options config.
+In order to ensure seamless integration with your user experience, styling can either be applied to the container via CSS, or in the case you want to make styling changes inside the frame, be injected into the Frames at run time via the options config.
 
-An element has several classes that can be used as targets for styling:
+An frame has several classes that can be used as targets for styling:
 - woolies-element
 - container
 - error (only applied when the element has been validated and reported an error)

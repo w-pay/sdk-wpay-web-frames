@@ -1,4 +1,4 @@
-import ILoggingService from 'src/services/types/ILoggingService';
+import ILoggingService from '../services/types/ILoggingService';
 import { LogLevel } from '../domain/logLevel';
 import { FramesEventType } from '../domain/framesEventType';
 import { v4 } from 'uuid';
