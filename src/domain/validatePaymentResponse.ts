@@ -1,4 +1,4 @@
 export default class ValidatePaymentsResponse {
-    public threeDSData?: string;
+    public threeDSData?: any;
     public challengeResponse?: any;
 }

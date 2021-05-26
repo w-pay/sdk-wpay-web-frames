@@ -60,7 +60,7 @@ To install the dev kit, ensure you have npm installed and run
     After adding your placeholder you can now create your frames element.  When creating an element pass in the type of the element you would like to create and the id of the dom element that you would like to attach it to.
 
     ```
-    action.createElement('CardGroup', 'cardElement');
+    action.createFramesControl('CardGroup', 'cardElement');
     ```
 
     Loading the page should now display the credit card capture element, displaying card, expiry date and CVV.
