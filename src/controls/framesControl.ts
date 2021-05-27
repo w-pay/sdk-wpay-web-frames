@@ -29,12 +29,12 @@ export default class FramesControl {
 
             // Otherwise it was initiated by the frame, so handle it here.  At this stage validation is the only reason the frame would send a message
             switch(e.data.action) {
-                case "validateFrameFailed": 
+                case "validateElementFailed": 
                     this.error = e.data;
                     const validateElementFailedEvent = new CustomEvent(FramesEventType.OnValidated, { detail: e.data, bubbles : true });
                     this.containerElement.dispatchEvent(validateElementFailedEvent);
                     break;
-                case "validateFrameComplete": 
+                case "validateElementComplete": 
                     this.error = undefined;
                     const validateElementCompleteEvent = new CustomEvent(FramesEventType.OnValidated, { detail: e.data, bubbles : true });
                     this.containerElement.dispatchEvent(validateElementCompleteEvent);
