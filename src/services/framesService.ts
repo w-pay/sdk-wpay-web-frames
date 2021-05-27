@@ -47,7 +47,7 @@ export default class FramesService implements IElementsService {
         return responseData.data;
     }
 
-    public async completeAction(actionType: string, sessionId: string, actionId: string): Promise<void> {
+    public async completeAction(actionType: string, sessionId: string, actionId: string, props: any): Promise<void> {
         const response: AxiosResponse = await this.httpService.fetch(`${this.apiBase}/customer/elements/${actionType}/${actionId}/complete`, {
             method: 'post',
             headers: {
@@ -55,7 +55,8 @@ export default class FramesService implements IElementsService {
                 'Content-Type': 'application/json',
                 'Authorization': this.authToken,
                 'x-api-key': this.apiKey,
-                'x-session-id': sessionId
+                'x-session-id': sessionId,
+                'x-wallet-id': props.walletId
             }
         });
 
