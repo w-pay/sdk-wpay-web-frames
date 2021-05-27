@@ -73,7 +73,7 @@ export default abstract class ActionBase implements IAction {
         iFrame.src = src;
         iFrame.frameBorder = "0";
         iFrame.scrolling = "no";
-        iFrame.setAttribute("style", `width: 100%; height: ${options?.height || "22px"};`);
+        iFrame.setAttribute("style", `width: 100%; height: ${options?.height || "22px"}; display: block;`);
 
         container.appendChild(iFrame);
 
