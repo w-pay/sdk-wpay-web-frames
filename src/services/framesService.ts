@@ -33,7 +33,8 @@ export default class FramesService implements IElementsService {
                 'Content-Type': 'application/json',
                 'Authorization': this.authToken,
                 'x-api-key': this.apiKey,
-                'x-everyday-pay-wallet': useEverdayPay
+                'x-everyday-pay-wallet': useEverdayPay,
+                'x-wallet-id': props.walletId
             },
             data: {
                 data: {
@@ -54,7 +55,7 @@ export default class FramesService implements IElementsService {
                 'Content-Type': 'application/json',
                 'Authorization': this.authToken,
                 'x-api-key': this.apiKey,
-                'x-session-id': sessionId,
+                'x-session-id': sessionId
             }
         });
 
