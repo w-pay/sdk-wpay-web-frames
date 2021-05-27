@@ -57,7 +57,8 @@ export default class FramesService implements IElementsService {
                 'x-api-key': this.apiKey,
                 'x-session-id': sessionId,
                 'x-wallet-id': props.walletId
-            }
+            },
+            data: {}
         });
 
         let responseData = await response.data;
