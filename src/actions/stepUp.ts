@@ -68,7 +68,7 @@ export default class StepUp extends ActionBase implements IStepUp {
     public async complete(): Promise<any> {
         this.logger.log(`StepUp: Completing card capture action`, LogLevel.INFO);
         try {
-            const response = await this.framesService.completeAction('step-up', this.actionConfig.sessionId, this.actionConfig.actionId);
+            const response = await this.framesService.completeAction('step-up', this.actionConfig.sessionId, this.actionConfig.actionId, this.options);
 
             this.logger.log('StepUp: Complete Successful', LogLevel.INFO);
 

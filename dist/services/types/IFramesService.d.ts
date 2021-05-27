@@ -1,5 +1,5 @@
 import IActionResponse from 'src/actions/types/IActionResponse';
 export default interface IFramesService {
     initialiseAction(actionType: string, useEverydayPay: boolean, props: any): Promise<IActionResponse>;
-    completeAction(actionType: string, sessionId: string, actionId: string): Promise<void>;
+    completeAction(actionType: string, sessionId: string, actionId: string, props: any): Promise<void>;
 }
