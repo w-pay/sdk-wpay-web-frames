@@ -74,7 +74,7 @@ export default class FramesControl {
         let result = true;
         this.error = undefined;
 
-        await this.performAction("clearFrame").catch((ex: any) => {
+        await this.performAction("clearElement").catch((ex: any) => {
             this.error = ex;
             result = false
         });
@@ -86,7 +86,7 @@ export default class FramesControl {
         let result = true;
         this.error = undefined;
 
-        await this.performAction("validateFrame").catch((ex: any) => {
+        await this.performAction("validateElement").catch((ex: any) => {
             this.error = ex;
             result = false;
         });
@@ -98,7 +98,7 @@ export default class FramesControl {
         let result = true;
         this.error = undefined;
         
-        await this.performAction("submitFrame").catch((ex: any) => {
+        await this.performAction("submitElement").catch((ex: any) => {
             this.error = ex;
             result = false;
         });
