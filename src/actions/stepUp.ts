@@ -4,9 +4,9 @@ import { LogLevel } from '../domain/logLevel';
 import IStepUp from './types/IStepUp';
 
 export default class StepUp extends ActionBase implements IStepUp {
-    public async start(useEveryDayPay: boolean) {
+    public async start() {
         this.logger.log(`Initialising step up action`, LogLevel.INFO)
-        this.actionConfig = await this.framesService.initialiseAction('step-up', useEveryDayPay, this.options);
+        this.actionConfig = await this.framesService.initialiseAction('step-up', this.options);
     }
 
     public async validate(): Promise<void> {

@@ -24,7 +24,7 @@ export default class FramesService implements IElementsService {
         this.httpService = httpService;
     }
 
-    public async initialiseAction(actionType: string, useEverdayPay: boolean = false, props: any): Promise<IActionResponse> {
+    public async initialiseAction(actionType: string, props: any): Promise<IActionResponse> {
 
         const response: AxiosResponse = await this.httpService.fetch(`${this.apiBase}/customer/elements/${actionType}/init`, {
             method: 'post',
@@ -33,7 +33,7 @@ export default class FramesService implements IElementsService {
                 'Content-Type': 'application/json',
                 'Authorization': this.authToken,
                 'x-api-key': this.apiKey,
-                'x-everyday-pay-wallet': useEverdayPay,
+                'x-everyday-pay-wallet': props.useEverdayPay,
                 'x-wallet-id': props.walletId
             },
             data: {

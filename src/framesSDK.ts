@@ -5,6 +5,7 @@ import container from "./container";
 import { LogLevel } from './domain/logLevel';
 import { Container } from 'inversify';
 import { IAction } from './actions/types/IAction';
+import IActionOptions from './domain/IActionOptions';
 
 var myContainer: Container
 
@@ -20,7 +21,7 @@ export default class FramesSDK {
         this.myContainer.bind<LogLevel>("logLevel").toConstantValue(sdkOptions.logLevel || LogLevel.NONE);
     }
 
-    public createAction(actionType: symbol, actionOptions: any = {}) {
+    public createAction(actionType: symbol, actionOptions: IActionOptions = {}) {
         const action: IAction = this.myContainer.get<any>(actionType);
         action.options = actionOptions;
         return action;

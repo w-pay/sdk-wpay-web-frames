@@ -44,6 +44,6 @@ export default class ValidatePayment extends ActionBase implements IAction {
 
     public async complete() {
         // Validate the card initiating issuer vaidation if required
-        return await this.threeDSService.verifyEnrollment(this.options.sessionId, this.options.paymentInstrumentId);
+        return await this.threeDSService.verifyEnrollment(this.options.sessionId, this.options.paymentInstrumentId, this.options.windowSize);
     }
 }
