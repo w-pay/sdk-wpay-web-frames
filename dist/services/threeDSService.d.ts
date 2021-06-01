@@ -9,5 +9,5 @@ export default class ThreeDSService implements IThreeDSService {
     constructor(authToken: string, apiBase: string, apiKey: string, logger: ILoggingService);
     private walletId;
     initializeCardinal(sessionId: string): Promise<string>;
-    verifyEnrollment(sessionId: string, paymentInstrumentId: string, windowSize?: string): Promise<ValidatePaymentsResponse>;
+    verifyEnrollment(sessionId: string, paymentInstrumentId: string, threeDS?: string): Promise<ValidatePaymentsResponse>;
 }
