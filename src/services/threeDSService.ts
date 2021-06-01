@@ -45,7 +45,7 @@ export default class ThreeDSService implements IThreeDSService {
         return initResponse;
     }
 
-    public async verifyEnrollment(sessionId: string, paymentInstrumentId: string, windowSize?: string): Promise<ValidatePaymentsResponse> {
+    public async verifyEnrollment(sessionId: string, paymentInstrumentId: string, threeDS?: string): Promise<ValidatePaymentsResponse> {
         const response = await fetch(`${this.apiBase}/customer/3ds/session/enrolment`, {
             method: 'POST',
             headers: {
@@ -59,7 +59,7 @@ export default class ThreeDSService implements IThreeDSService {
             body: JSON.stringify({
                 data: {
                     sessionId,
-                    windowSize
+                    options: threeDS
                 }
             })
         });
