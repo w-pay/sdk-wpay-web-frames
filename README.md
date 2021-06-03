@@ -201,8 +201,8 @@ async function updateErrors() {
 Here is a basic mapping of the errors that are returned by the validation
 ```
 errorMap: {
-    'Card No. Required': 'Please enter a valid card number.',
-    `Invalid Card No.`: 'Please enter a valid card number.',
+    'Card Number Required': 'Please enter a valid card number.',
+    `Invalid Card Number`: 'Please enter a valid card number.',
     'Invalid Expiry': 'Please enter a valid expiry.',
     'Incomplete Expiry': 'Please enter a valid expiry',
     'Expired card': 'The expiry entered is in the past. Please enter a valid expiry.',
