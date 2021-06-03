@@ -64,8 +64,7 @@ export default class FramesService implements IElementsService {
             }
         });
 
-        let responseData = await response.data;
-
+        let responseData = await response.data.data;
         return responseData;
     }
 }
