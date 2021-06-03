@@ -120,7 +120,7 @@ export default class FramesControl {
         
         const message = {
             id: v4(),
-            frame: this.type,
+            element: this.type,
             action: action
         };
 
