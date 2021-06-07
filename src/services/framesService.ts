@@ -59,7 +59,9 @@ export default class FramesService implements IElementsService {
                 'x-wallet-id': props.walletId
             },
             data: {
-                data: {},
+                data: {
+                    save: props.save
+                },
                 meta: {}
             }
         });

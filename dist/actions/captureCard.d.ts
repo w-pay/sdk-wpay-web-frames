@@ -4,6 +4,6 @@ export default class CaptureCard extends ActionBase implements ICaptureCard {
     start(): Promise<void>;
     validate(): Promise<void>;
     submit(): Promise<void>;
-    complete(): Promise<any>;
+    complete(save?: boolean): Promise<any>;
     clear(): Promise<void>;
 }
