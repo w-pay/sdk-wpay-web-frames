@@ -3,4 +3,6 @@ export default class IActionOptions {
     paymentInstrumentId?: string;
     useEveryDayPay?: boolean;
     threeDS?: any;
+    verify?: boolean;
+    save?: boolean;
 }
