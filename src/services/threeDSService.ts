@@ -87,6 +87,7 @@ export default class ThreeDSService implements IThreeDSService {
 
             if (payload.data.enrollmentResponse.status === "PENDING_AUTHENTICATION") {
                 this.logger.log(`${payload.status}: Issuer authentication required`, LogLevel.DEBUG);
+                this.logger.log(JSON.stringify(payload.data.enrollmentResponse), LogLevel.DEBUG);
                 Cardinal.continue('cca',
                     {
                         "AcsUrl": payload.data.enrollmentResponse.consumerAuthenticationInformation.acsUrl,
