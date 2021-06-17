@@ -3,7 +3,23 @@ import ActionBase from './actionBase';
 import ICaptureCard from './types/ICaptureCard';
 import { LogLevel } from '../domain/logLevel';
 
+import loadSongbirdStaging from "../resources/songbird-staging";
+import loadSongbirdProduction from "../resources/songbird-production";
+import { inject, injectable } from 'inversify';
+import { ServiceTypes } from '../services';
+import IFramesService from '../services/types/IFramesService';
+import IThreeDSService from '../services/types/IThreeDSService';
+import ILoggingService from '../services/types/ILoggingService';
+
+@injectable()
 export default class CaptureCard extends ActionBase implements ICaptureCard {
+    constructor(
+        @inject(ServiceTypes.FramesService) framesService: IFramesService,
+        @inject(ServiceTypes.ThreeDSService) private threeDSService: IThreeDSService,
+        @inject(ServiceTypes.LoggingService) logger: ILoggingService) {
+            super(framesService, logger);
+    }
+
     public async start() {
         this.logger.log(`Initialising card capture action`, LogLevel.INFO)
         this.actionConfig = await this.framesService.initialiseAction('capture-card', this.options);
@@ -102,6 +118,24 @@ export default class CaptureCard extends ActionBase implements ICaptureCard {
         
         try {
             const response = await this.framesService.completeAction('capture-card', this.actionConfig.sessionId, this.actionConfig.actionId, this.options);
+
+            if (response.message === "3DS TOKEN REQUIRED") {
+                // TODO: Make this configurable
+                if (this.options?.cardinal?.env === "prod") {
+                    loadSongbirdProduction();
+                } else {
+                    loadSongbirdStaging();
+                }
+
+                try {
+                    if (!response.token || response.token.length <= 0 || typeof response.token !== "string") throw new Error("Invalid sessionId");
+                    
+                    await this.threeDSService.initializeCardinal(response.token);
+                    
+                } catch (e) {
+                    this.logger.log(e, LogLevel.ERROR);
+                }
+            }
 
             this.logger.log('CaptureCard: Complete Successful', LogLevel.INFO);
 
