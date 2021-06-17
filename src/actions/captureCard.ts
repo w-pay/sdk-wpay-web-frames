@@ -131,7 +131,10 @@ export default class CaptureCard extends ActionBase implements ICaptureCard {
                     if (!response.token || response.token.length <= 0 || typeof response.token !== "string") throw new Error("Invalid sessionId");
                     
                     await this.threeDSService.initializeCardinal(response.token);
-                    
+
+                    const res = await this.threeDSService.verifyEnrollment(response.token, "", this.options.threeDS);
+
+                    this.logger.log(JSON.stringify(res), LogLevel.DEBUG)
                 } catch (e) {
                     this.logger.log(e, LogLevel.ERROR);
                 }
