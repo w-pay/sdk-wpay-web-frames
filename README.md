@@ -153,6 +153,73 @@ To install the dev kit, ensure you have npm installed and run
 
     ```
 
+## Example Three - Payment 
+
+- Add the sdk to the page
+
+   `<script src="./node_modules/@wpay/frames/dist/framesSDK.js" />`
+
+
+- Add a script tag to the page, initialise the SDK and log into the payment platform.
+
+   ``` 
+   <script>
+        const sdk = new FRAMES.FramesSDK({
+            apiKey: 'YOUR_API_KEY', 
+            authToken: 'YOUR_AUTH_TOKEN' // Format: Bearer token_value, 
+            apiBase: "https://dev.mobile-api.woolworths.com.au/wow/v1/pay/instore", 
+            logLevel: FRAMES.LogLevel.DEBUG
+        });
+   </script>
+   ```
+
+- Start a new card step up action referencing your paymentInstrumentID.
+
+    ```
+    let action = sdk.createAction(
+        FRAMES.ActionTypes.StepUp,
+        {
+            paymentInstrumentId: <YOUR PAYMENT INSTRUMENT ID>
+        }
+    );
+    action.start();
+    ```
+    This will initialise a new step up action. This call will need to be repeated between subsequent step up token requests.
+
+
+- Add the cvv element to the page.
+
+    The SDK attaches new elements to `div` placeholders within your page using the element `id`.
+
+    Add an element to your page.
+
+    ```
+    <div id="cvvElement"></div>
+    ```
+
+    After adding your placeholder you can now create your frames element.  When creating an element pass in the type of the element you would like to create and the id of the dom element that you would like to attach it to.
+
+    ```
+    action.createFramesControl('CardCVV', 'cvvElement');
+    ```
+
+    Loading the page should now display the credit card capture element, displaying card, expiry date and CVV.
+
+- Submitting the page
+
+    Once the user has entered their CVV, you are going to want to submit and create the step up token.  To do this, add a Submit button to the page, calling the `submit` function on the action.
+
+    ```
+    <button onClick="async function() { await action.submit()}">Submit</button>
+    ```
+
+    Once successfully submitted an action needs to be completed.  Do so by calling complete.
+
+    ```
+    let stepUpResult = await action.complete();
+
+    ```
+
 # Advanced
 
 ## Multiple elements

@@ -1,7 +1,7 @@
-import ILoggingService from "../services/types/ILoggingService";
 import ActionBase from "./actionBase";
 import { IAction } from "./types/IAction";
 import IThreeDSService from "../services/types/IThreeDSService";
+import ILoggingService from "../services/types/ILoggingService";
 import IFramesService from "../services/types/IFramesService";
 export default class ValidatePayment extends ActionBase implements IAction {
     private threeDSService;

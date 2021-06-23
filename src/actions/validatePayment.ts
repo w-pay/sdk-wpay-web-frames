@@ -1,11 +1,13 @@
 import { inject, injectable } from "inversify";
 import { ServiceTypes } from "../services";
-import ILoggingService from "../services/types/ILoggingService";
+
 import ActionBase from "./actionBase";
 import { IAction } from "./types/IAction";
 
-import IThreeDSService from "../services/types/IThreeDSService";
 import { LogLevel } from "../domain/logLevel";
+
+import IThreeDSService from "../services/types/IThreeDSService";
+import ILoggingService from "../services/types/ILoggingService";
 import IFramesService from "../services/types/IFramesService";
 
 import loadSongbirdStaging from "../resources/songbird-staging";
