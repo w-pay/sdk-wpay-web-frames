@@ -45,7 +45,7 @@ export default class ThreeDSService implements IThreeDSService {
         return initResponse;
     }
 
-    public async verifyEnrollment(sessionId: string, paymentInstrumentId: string, threeDS?: any): Promise<ValidatePaymentsResponse> {
+    public async verifyEnrollment(sessionId: string, paymentInstrumentId?: string, threeDS?: any): Promise<ValidatePaymentsResponse> {
         const response = await fetch(`${this.apiBase}/customer/3ds/session/enrolment`, {
             method: 'POST',
             headers: {
