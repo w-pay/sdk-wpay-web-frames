@@ -114,6 +114,9 @@ export default class CaptureCard extends ActionBase implements ICaptureCard {
         this.logger.log(`CaptureCard: Completing card capture action`, LogLevel.INFO);
         this.options.save = save;
         
+
+        this.logger.log(`CaptureCard: Challengeresponses ${challengeResponses}`, LogLevel.INFO);
+
         try {
             const response = await this.framesService.completeAction('capture-card', this.actionConfig.sessionId, this.actionConfig.actionId, this.options, challengeResponses);
 
