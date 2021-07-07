@@ -76,10 +76,10 @@ export default class UpdateCard extends ActionBase implements IUpdateCard {
         }
     }
 
-    public async complete(): Promise<any> {
+    public async complete(challengeResponses: any[] = []): Promise<any> {
         this.logger.log(`UpdateCard: Completing card capture action`, LogLevel.INFO);
         try {
-            const response = await this.framesService.completeAction('update-card', this.actionConfig.sessionId, this.actionConfig.actionId, this.options);
+            const response = await this.framesService.completeAction('update-card', this.actionConfig.sessionId, this.actionConfig.actionId, this.options, challengeResponses);
 
             this.logger.log('UpdateCard: Complete Successful', LogLevel.INFO);
 

@@ -4,6 +4,6 @@ export default class UpdateCard extends ActionBase implements IUpdateCard {
     start(): Promise<void>;
     validate(): Promise<void>;
     submit(): Promise<void>;
-    complete(): Promise<any>;
+    complete(challengeResponses?: any[]): Promise<any>;
     clear(): Promise<void>;
 }

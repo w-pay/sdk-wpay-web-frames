@@ -8,5 +8,5 @@ export default class FramesService implements IElementsService {
     private apiKey;
     constructor(authToken: string, apiBase: string, apiKey: string, httpService: IHttpService);
     initialiseAction(actionType: string, props: any): Promise<IActionResponse>;
-    completeAction(actionType: string, sessionId: string, actionId: string, props: any): Promise<void>;
+    completeAction(actionType: string, sessionId: string, actionId: string, props: any, challengeResponses: any[]): Promise<void>;
 }
