@@ -115,7 +115,7 @@ export default class CaptureCard extends ActionBase implements ICaptureCard {
         this.options.save = save;
         
         try {
-            const response = await this.framesService.completeAction('capture-card', this.actionConfig.sessionId, this.actionConfig.actionId, this.options);
+            const response = await this.framesService.completeAction('capture-card', this.actionConfig.sessionId, this.actionConfig.actionId, this.options, challengeResponses);
 
             if (response.message === "3DS TOKEN REQUIRED") {
                 this.logger.log('CaptureCard: 3DS TOKEN REQUIRED', LogLevel.INFO);
