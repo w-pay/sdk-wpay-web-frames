@@ -432,3 +432,22 @@ e.g.
 ```
 const action = cdk.createAction(ELEMENTS.ActionTypes.CaptureCard, { verify: true });
 ```
+
+### 3DS2 - Non Payer Auth
+
+If you wish to perform 3DS2 verification as part of a card capture exercise, you can do so by specifying that 3DS is required when initializing the card capture action.
+
+```
+this.captureCardAction = this.framesSDK.createAction(
+    FRAMES.ActionTypes.CaptureCard,
+    {
+        verify: true,
+        save: true,
+        threeDS: {
+          requires3DS: true,
+        },
+    },
+) as CaptureCard;
+```
+
+Through enabling this feature, 3DS will be verified as part of the card capture process
