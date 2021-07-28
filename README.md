@@ -433,16 +433,20 @@ e.g.
 const action = cdk.createAction(ELEMENTS.ActionTypes.CaptureCard, { verify: true });
 ```
 
-### 3DS2 - Non Payer Auth
+# 3DS2
+
+The Frames SDK offers 3DS2 verification cababilities by wrapping Cardinals (https://www.cardinalcommerce.com/) 3DS songbird library and orchestrating the 3DS verification process.  There are 2 supported flows, one for verification of cards during the capture process and a second for verification at time of payment.
+
+## Card Verification
 
 If you wish to perform 3DS2 verification as part of a card capture exercise, you can do so by specifying that 3DS is required when initializing the card capture action.
+
+- Create a new card capture action, specifying that 3DS is required.
 
 ```
 this.captureCardAction = this.framesSDK.createAction(
     FRAMES.ActionTypes.CaptureCard,
     {
-        verify: true,
-        save: true,
         threeDS: {
           requires3DS: true,
         },
@@ -450,4 +454,32 @@ this.captureCardAction = this.framesSDK.createAction(
 ) as CaptureCard;
 ```
 
-Through enabling this feature, 3DS will be verified as part of the card capture process
+- Capture card as per normal.  When you call complete, you will recieve a failure with a 3DS challenge.
+
+- Create a validateCard action
+
+- Complete the validateCard action.  If successful this will return a challengeResponse that can be used to complete the captureCard action.
+
+- Complete the capture card action, providing the challengeResponse.
+
+## Payment Verification
+
+If 3DS has been requested as part of the payment flow then you will be required to provide a 3DS challenge response when attempting to make a payment.  To create the challenge response, you need to create and execute the validatePayment action.  This will orchestrate 3DS verifaction using the Cardinal Songbird library and return a chellengeResponse that can then be used when making a payment.
+
+- Create a paymentRequest using the WPay SDK passing in the config for 3DS.
+
+- Make a payment.  The request should fail requesting a 3DS challenge response, you will need need the session returned when creating the challengeResponse below.
+
+- Create and start the validatePayment action.
+
+- Complete the action.  If successful this will return a 3DS challenge response.
+
+
+## 3DS ERROR Codes
+
+- 3DS_001: 3DS Token Required
+- 3DS_002: Invalid session
+- 3DS_003: 3DS Validation Failed
+- 3DS_004: Unsupported 3DS Version
+- 3DS_005: 3DS Service Unavailable
+- 3DS_500: 3DS Unknown Error
