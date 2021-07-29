@@ -33,7 +33,7 @@ export default class ValidatePayment extends ActionBase implements IAction {
 
     public async start() {
         // TODO: Make this configurable
-        if (this.options?.cardinal?.env === "prod") {
+        if (this.options?.threeDS?.env === "prod") {
             loadSongbirdProduction();
         } else {
             loadSongbirdStaging();

@@ -368,7 +368,36 @@ const action = cdk.createAction(ELEMENTS.ActionTypes.CaptureCard, { verify: true
 
 # 3DS2
 
+> Please note:  In order to use 3DS you merchant must have had 3DS enabled
+
 The Frames SDK offers 3DS2 verification cababilities by wrapping Cardinals (https://www.cardinalcommerce.com/) 3DS songbird library and orchestrating the 3DS verification process.  There are 2 supported flows, one for verification of cards during the capture process and a second for verification at time of payment.
+
+## Selecting an environment
+
+Cardinal is a little unique in how it does environement management, providing 2 instances of the songbird library, one for staging and a second for production use.  Both versions of the library have been included in the SDK so that there are no code changes required between environments.
+
+In order to protect production the SDK will use the staging version by default.  In order to switch the threeDS enabled actions over to production you need to provide the following in your options when creating the action.
+
+```
+{
+    threeDS: {
+        env: "prod"
+    }
+}
+```
+
+Here is an example of the prod config being used to validate a card:
+
+```
+const enrollmentRequest: any = {
+    sessionId: CARD_CAPTURE_RESPONSE_TOKEN,
+    threeDS: {
+        env: "prod"
+    }
+};
+
+const action = this.framesSDK.createAction(FRAMES.ActionTypes.ValidateCard, enrollmentRequest);
+```
 
 ## Card Verification
 
@@ -377,13 +406,13 @@ If you wish to perform 3DS2 verification as part of a card capture exercise, you
 - Create a new card capture action, specifying that 3DS is required.
 
 ```
-this.captureCardAction = this.framesSDK.createAction(
-    FRAMES.ActionTypes.CaptureCard,
+const captureCardAction = this.framesSDK.createAction(
+    FRAMES.ActionTypes.ValidateCard,
     {
         threeDS: {
-          requires3DS: true,
-        },
-    },
+          requires3DS: true
+        }
+    }
 ) as CaptureCard;
 ```
 
@@ -399,6 +428,13 @@ this.captureCardAction = this.framesSDK.createAction(
 - Create and start a validateCard action.  This will initialise the cardinal library and perform device data capture.
 
 ```
+const enrollmentRequest: any = {
+    sessionId: cardCaptureResponse.token,
+    threeDS: {
+        env: "staging"
+    }
+};
+
 const action = this.framesSDK.createAction(FRAMES.ActionTypes.ValidateCard, enrollmentRequest);
 await action.start();
 ```
@@ -440,32 +476,88 @@ Here is an example reponse:
 }
 ```
 
-- Complete the capture card action, providing the challengeResponse.
+- Complete the capture card action, providing the challengeResponse.  This should return the standard card capture response with the addition of the 3DS evidence used in its creation.
 
 ```
-cardCaptureResponse = await this.captureCardAction.complete(this.saveCard, [validationResponse.challengeResponse]);
+const cardCaptureResponse = await this.captureCardAction.complete(this.saveCard, [validationResponse.challengeResponse]);
 ```
 
 ## Payment Verification
 
 If 3DS has been requested as part of the payment flow then you will be required to provide a 3DS challenge response when attempting to make a payment.  To create the challenge response, you need to create and execute the validatePayment action.  This will orchestrate 3DS verifaction using the Cardinal Songbird library and return a chellengeResponse that can then be used when making a payment.
 
+
+
 - Create a paymentRequest using the WPay SDK passing in the config for 3DS.
+>Please note, your schemaId may differ
 
 ```
+const request = {
+    merchantReferenceId: 12345,
+    maxUses: 3,
+    timeToLivePayment: 300,
+    grossAmount: 2.40,
+    merchantPayload: {
+        schemaId: '0a221353-b26c-4848-9a77-4a8bcbacf228',
+        payload: { 
+            requires3DS: settings.merchant.require3DSPA 
+        }
+    }
+};
 
+return merchantSDK.payments.createPaymentRequest(request);
 ```
 
 - Make a payment.  The request should fail requesting a 3DS challenge response, you will need need the session returned when creating the challengeResponse below.
 
 ```
+const transaction = await customerSDK.paymentRequests.makePayment(paymentRequestId, paymentInstrumentId);
+```
 
+Here is an example of rejected transaction with 3DS challenge:
+
+```
+{
+    "type": "PAYMENT",
+    "status": "REJECTED",
+    "rollback": "NOT_REQUIRED",
+    "merchantId": "petculture",
+    "grossAmount": 12.4,
+    "instruments": [
+        {
+            "transactions": [],
+            "instrumentType": "CREDIT_CARD",
+            "paymentInstrumentId": "198821"
+        }
+    ],
+    "executionTime": "2021-07-29T01:53:33.517Z",
+    "transactionId": "9b5eaf73-30d8-4f32-aeb5-e1c4ac2a2a8c",
+    "clientReference": "9b5eaf73-30d8-4f32-aeb5-e1c4ac2a2a8c",
+    "subTransactions": [
+        {
+            "threeDS": {
+                "sessionId": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiIzNGE5MjVhNi0wNzFmLTRiZjEtODA0MS1lOGJmNjEwYzQ4ZTgiLCJpYXQiOjE2Mjc1MjM2MTcuMDk4LCJpc3MiOiJwZXRjdWx0dXJlIiwiT3JnVW5pdElkIjoiNjBhZjhhMWUwYmFjNWQ1MGNjMjZmMzNjIiwiUGF5bG9hZCI6eyJwYXltZW50SW5zdHJ1bWVudElkIjoiMTk4ODIxIiwib3JkZXJJbmZvcm1hdGlvbiI6eyJhbW91bnREZXRhaWxzIjp7ImN1cnJlbmN5IjoiQVVEIiwiYW1vdW50IjoxMi40fX19LCJPYmplY3RpZnlQYXlsb2FkIjp0cnVlLCJSZWZlcmVuY2VJZCI6IjQ1OTA3MzQ5LWU2OTEtNDFkOS05Njk3LTgxYWFiMTc4MzZlZSJ9.W9D3yDqnGDZg3QncvVmiVfe7d8LW2se4yeS2jx7rPZQ",
+                "paymentInstrumentId": "198821"
+            },
+            "errorCode": "3DS_001",
+            "errorMessage": "3DS TOKEN REQUIRED"
+        }
+    ],
+    "paymentRequestId": "34a925a6-071f-4bf1-8041-e8bf610c48e8",
+    "merchantReferenceId": "d0a118eb-613e-4899-8b71-70806abd40be"
+}
 ```
 
 - Create and start the validatePayment action.
 
 ```
-
+const enrollmentRequest: any = {
+    sessionId, (Provided in the 3DS challenge)
+    paymentInstrumentId, (The payment instrumentID you want to perform 3DS on - must match instrument used in the challenge)
+    threeDS: {
+        env: "staging"
+    }
+};
 ```
 
 - Complete the action.  If successful this will return a 3DS challenge response.
