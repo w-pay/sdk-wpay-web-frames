@@ -153,73 +153,6 @@ To install the dev kit, ensure you have npm installed and run
 
     ```
 
-## Example Three - Payment 
-
-- Add the sdk to the page
-
-   `<script src="./node_modules/@wpay/frames/dist/framesSDK.js" />`
-
-
-- Add a script tag to the page, initialise the SDK and log into the payment platform.
-
-   ``` 
-   <script>
-        const sdk = new FRAMES.FramesSDK({
-            apiKey: 'YOUR_API_KEY', 
-            authToken: 'YOUR_AUTH_TOKEN' // Format: Bearer token_value, 
-            apiBase: "https://dev.mobile-api.woolworths.com.au/wow/v1/pay/instore", 
-            logLevel: FRAMES.LogLevel.DEBUG
-        });
-   </script>
-   ```
-
-- Start a new card step up action referencing your paymentInstrumentID.
-
-    ```
-    let action = sdk.createAction(
-        FRAMES.ActionTypes.StepUp,
-        {
-            paymentInstrumentId: <YOUR PAYMENT INSTRUMENT ID>
-        }
-    );
-    action.start();
-    ```
-    This will initialise a new step up action. This call will need to be repeated between subsequent step up token requests.
-
-
-- Add the cvv element to the page.
-
-    The SDK attaches new elements to `div` placeholders within your page using the element `id`.
-
-    Add an element to your page.
-
-    ```
-    <div id="cvvElement"></div>
-    ```
-
-    After adding your placeholder you can now create your frames element.  When creating an element pass in the type of the element you would like to create and the id of the dom element that you would like to attach it to.
-
-    ```
-    action.createFramesControl('CardCVV', 'cvvElement');
-    ```
-
-    Loading the page should now display the credit card capture element, displaying card, expiry date and CVV.
-
-- Submitting the page
-
-    Once the user has entered their CVV, you are going to want to submit and create the step up token.  To do this, add a Submit button to the page, calling the `submit` function on the action.
-
-    ```
-    <button onClick="async function() { await action.submit()}">Submit</button>
-    ```
-
-    Once successfully submitted an action needs to be completed.  Do so by calling complete.
-
-    ```
-    let stepUpResult = await action.complete();
-
-    ```
-
 # Advanced
 
 ## Multiple elements
@@ -454,13 +387,64 @@ this.captureCardAction = this.framesSDK.createAction(
 ) as CaptureCard;
 ```
 
-- Capture card as per normal.  When you call complete, you will recieve a failure with a 3DS challenge.
+- Capture card as per normal.  When you call complete, you will recieve a failure with a 3DS challenge.  For example:
 
-- Create a validateCard action
+```
+{
+    "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJPcmdVbml0SWQiOiI2MGFmOGExZTBiYWM1ZDUwY2MyNmYzM2MiLCJSZWZlcmVuY2VJZCI6ImUxYzdjNzk4LWE1MjYtNDZhMC05ODU4LTRmNGIwMmNlNzdiOSIsImlzcyI6InBldGN1bHR1cmUiLCJQYXlsb2FkIjp7ImFjdGlvbklkIjoiYzYxZmM1OTgtZDU3ZS00MWM3LTg4YzQtMjhhODlkOTczYzEyIiwib3JkZXJJbmZvcm1hdGlvbiI6eyJhbW91bnREZXRhaWxzIjp7ImN1cnJlbmN5IjoiQVVEIn19fSwiaWF0IjoxNjI3NTE3MTc2LCJqdGkiOiIzNDMyMDBmMC0wNzQ3LTQ1NWUtODdlMi04ZTU5OTc3ZTAzMDEifQ.bghcu82uOuN6LSX_oKPj8f6WjBMhnXK3DYUkfp1F0mc",
+    "message": "3DS TOKEN REQUIRED"}
+}
+```
+
+- Create and start a validateCard action.  This will initialise the cardinal library and perform device data capture.
+
+```
+const action = this.framesSDK.createAction(FRAMES.ActionTypes.ValidateCard, enrollmentRequest);
+await action.start();
+```
 
 - Complete the validateCard action.  If successful this will return a challengeResponse that can be used to complete the captureCard action.
 
+```
+const validationResponse = await action.complete();
+```
+
+Here is an example reponse:
+```
+{
+    "threeDSData": {
+        "Validated": true,
+        "ActionCode": "SUCCESS",
+        "ErrorNumber": 0,
+        "ErrorDescription": "Success",
+        "Payment": {
+            "Type": "CCA",
+            "ExtendedData": {
+                "Amount": "0",
+                "CAVV": "MTIzNDU2Nzg5MDEyMzQ1Njc4OTA=",
+                "CurrencyCode": "036",
+                "ECIFlag": "05",
+                "ThreeDSVersion": "2.1.0",
+                "PAResStatus": "Y",
+                "SignatureVerification": "Y"
+            },
+            "ProcessorTransactionId": "Rq6wpFnMVE9tMpRjuIC0"
+        }
+    },
+    "challengeResponse": {
+        "type": "3DS",
+        "instrumentId": undefined,
+        "token": "Rq6wpFnMVE9tMpRjuIC0",
+        "reference": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJPcmdVbml0SWQiOiI2MGFmOGExZTBiYWM1ZDUwY2MyNmYzM2MiLCJSZWZlcmVuY2VJZCI6ImE4N2VmMWM3LWE4ZjUtNGYzNy05MjY2LTQzMzE0MzNmNjJiOSIsImlzcyI6InBldGN1bHR1cmUiLCJQYXlsb2FkIjp7ImFjdGlvbklkIjoiODQwOTE1YTQtNjkzYS00YmQ3LTk1OTMtZGZjYWM0YjE4NjQ2Iiwib3JkZXJJbmZvcm1hdGlvbiI6eyJhbW91bnREZXRhaWxzIjp7ImN1cnJlbmN5IjoiQVVEIn19fSwiaWF0IjoxNjI3NTE5MzY1LCJqdGkiOiJkZmM4MWRiOC01YTA1LTQzMTUtODBmMy00NDAyNTZiZjA2MTgifQ.BIcz8Jk6cFYYSv872M1mCISEQqAvWJKDeDXv-2qF-ko"
+    }
+}
+```
+
 - Complete the capture card action, providing the challengeResponse.
+
+```
+cardCaptureResponse = await this.captureCardAction.complete(this.saveCard, [validationResponse.challengeResponse]);
+```
 
 ## Payment Verification
 
@@ -468,12 +452,27 @@ If 3DS has been requested as part of the payment flow then you will be required 
 
 - Create a paymentRequest using the WPay SDK passing in the config for 3DS.
 
+```
+
+```
+
 - Make a payment.  The request should fail requesting a 3DS challenge response, you will need need the session returned when creating the challengeResponse below.
+
+```
+
+```
 
 - Create and start the validatePayment action.
 
+```
+
+```
+
 - Complete the action.  If successful this will return a 3DS challenge response.
 
+```
+
+```
 
 ## 3DS ERROR Codes
 
