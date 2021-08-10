@@ -33,7 +33,7 @@ export default class FramesService implements IElementsService {
                 'Content-Type': 'application/json',
                 'Authorization': this.authToken,
                 'x-api-key': this.apiKey,
-                'x-everyday-pay-wallet': props.useEverdayPay,
+                'x-everyday-pay-wallet': props.useEverydayPay,
                 'x-wallet-id': props.walletId
             },
             data: {
