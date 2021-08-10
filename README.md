@@ -548,7 +548,7 @@ Here is an example of rejected transaction with 3DS challenge:
 }
 ```
 
-- Create and start the validatePayment action.
+- Create and start the validatePayment action.  This will initialise the cardinal library and perform device data capture.
 
 ```
 const enrollmentRequest: any = {
@@ -558,14 +558,23 @@ const enrollmentRequest: any = {
         env: "staging"
     }
 };
+
+const action = this.framesSDK.createAction(FRAMES.ActionTypes.ValidatePayment, enrollmentRequest) as ValidatePayment;
+
+await action.start();
 ```
 
 - Complete the action.  If successful this will return a 3DS challenge response.
 
 ```
-
+const validationResponse = await action.complete();
 ```
 
+- Make the payment providing the challengeResponse in the request.  The payment should now go through successfully.
+
+```
+const transaction = await this.customerSDK.paymentRequests.makePayment(paymentRequestId, paymentInstrumentId, [], undefined, undefined, undefined, [validationResponse.challengeResponse]);
+```
 ## 3DS ERROR Codes
 
 - 3DS_001: 3DS Token Required

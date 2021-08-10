@@ -23,7 +23,7 @@ export default class FramesControl {
             // if (e.data.id) return;
 
             // Card group is interested in all message types
-            if (this.type != 'CardGroup' && e.data.frame != this.type) return;
+            if (this.type != 'CardGroup' && e.data.element != this.type) return;
 
             this.logger.log(`FrameMessage: ${JSON.stringify(e.data)}`, LogLevel.DEBUG);
 
