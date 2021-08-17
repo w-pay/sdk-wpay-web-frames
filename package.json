@@ -2,8 +2,8 @@
   "name": "@wpay/frames",
   "version": "1.0.2",
   "description": "Development kit to assist in building clients that use the woolies API",
-  "main": "./dist/elementsSDK.js",
-  "module": "./dist/elementsSDK.js",
+  "main": "./dist/framesSDK.js",
+  "module": "./dist/framesSDK.js",
   "typings": "./dist/index.d.ts",
   "files": [
     "dist"
@@ -24,7 +24,7 @@
   "devDependencies": {
     "@types/axios": "^0.14.0",
     "@types/jest": "^26.0.10",
-    "@types/node": "^14.10.1",
+    "@types/node": "^14.14.37",
     "clean-webpack-plugin": "^3.0.0",
     "jest": "^26.4.0",
     "jest-fetch-mock": "^3.0.3",

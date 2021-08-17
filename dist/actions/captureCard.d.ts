@@ -1,9 +1,14 @@
 import ActionBase from './actionBase';
 import ICaptureCard from './types/ICaptureCard';
+import IFramesService from '../services/types/IFramesService';
+import IThreeDSService from '../services/types/IThreeDSService';
+import ILoggingService from '../services/types/ILoggingService';
 export default class CaptureCard extends ActionBase implements ICaptureCard {
-    start(useEveryDayPay: boolean): Promise<void>;
+    private threeDSService;
+    constructor(framesService: IFramesService, threeDSService: IThreeDSService, logger: ILoggingService);
+    start(): Promise<void>;
     validate(): Promise<void>;
     submit(): Promise<void>;
-    complete(): Promise<any>;
+    complete(save?: boolean, challengeResponses?: any[]): Promise<any>;
     clear(): Promise<void>;
 }

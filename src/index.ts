@@ -1,9 +1,7 @@
-import AuthorisationService from './services/authorizationService'
-import ElementsSDK from './customer/elementsSDK';
+import FramesSDK from './framesSDK';
 
 import { ActionTypes } from './actions';
 import { LogLevel } from './domain/logLevel';
-import { ElementEventType } from './controls/elementEventType';
+import { FramesEventType } from './domain/framesEventType';
 
-
-export { AuthorisationService, ActionTypes, LogLevel, ElementEventType, ElementsSDK };
+export { ActionTypes, LogLevel, FramesEventType, FramesSDK };

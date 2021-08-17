@@ -1,13 +1,12 @@
-import IActionResponse from 'src/actions/types/IActionResponse';
+import IActionResponse from '../actions/types/IActionResponse';
 import { injectable, inject } from 'inversify';
-import IElementsService from './types/IElementsService';
+import IElementsService from './types/IFramesService';
 import { ServiceTypes } from '.';
-import ILoggingService from './types/ILoggingService';
 import IHttpService from './types/IHttpService';
 import { AxiosResponse } from 'axios';
 
 @injectable()
-export default class ElementsService implements IElementsService {
+export default class FramesService implements IElementsService {
     private apiBase!: string;
     private httpService!: IHttpService;
     private authToken!: string;
@@ -25,7 +24,7 @@ export default class ElementsService implements IElementsService {
         this.httpService = httpService;
     }
 
-    public async initialiseAction(actionType: string, useEverdayPay: boolean = false, props: any): Promise<IActionResponse> {
+    public async initialiseAction(actionType: string, props: any): Promise<IActionResponse> {
 
         const response: AxiosResponse = await this.httpService.fetch(`${this.apiBase}/customer/elements/${actionType}/init`, {
             method: 'post',
@@ -34,7 +33,8 @@ export default class ElementsService implements IElementsService {
                 'Content-Type': 'application/json',
                 'Authorization': this.authToken,
                 'x-api-key': this.apiKey,
-                'x-everyday-pay-wallet': useEverdayPay
+                'x-everyday-pay-wallet': props.useEverydayPay,
+                'x-wallet-id': props.walletId
             },
             data: {
                 data: {
@@ -47,7 +47,7 @@ export default class ElementsService implements IElementsService {
         return responseData.data;
     }
 
-    public async completeAction(actionType: string, sessionId: string, actionId: string): Promise<void> {
+    public async completeAction(actionType: string, sessionId: string, actionId: string, props: any, challengeResponses: any[]): Promise<void> {
         const response: AxiosResponse = await this.httpService.fetch(`${this.apiBase}/customer/elements/${actionType}/${actionId}/complete`, {
             method: 'post',
             headers: {
@@ -56,11 +56,19 @@ export default class ElementsService implements IElementsService {
                 'Authorization': this.authToken,
                 'x-api-key': this.apiKey,
                 'x-session-id': sessionId,
+                'x-wallet-id': props.walletId
+            },
+            data: {
+                data: {
+                    save: props.save
+                },
+                meta: {
+                    challengeResponses
+                }
             }
         });
 
-        let responseData = await response.data;
-
+        let responseData = await response.data.data;
         return responseData;
     }
 }

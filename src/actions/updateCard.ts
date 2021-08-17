@@ -1,30 +1,30 @@
-import ElementControl from '../controls/elementControl';
+import FramesControl from '../controls/framesControl';
 import ActionBase from './actionBase';
 import IUpdateCard from './types/IUpdateCard';
 import { LogLevel } from '../domain/logLevel';
 
 export default class UpdateCard extends ActionBase implements IUpdateCard {
-    public async start(useEveryDayPay: boolean) {
+    public async start() {
         this.logger.log(`Initialising update card action`, LogLevel.INFO)
-        this.actionConfig = await this.elementsService.initialiseAction('update-card', useEveryDayPay, this.props);
+        this.actionConfig = await this.framesService.initialiseAction('update-card', this.options);
     }
 
     public async validate(): Promise<void> {
-        this.logger.log('Validating elements', LogLevel.INFO);
+        this.logger.log('Validating frames', LogLevel.INFO);
 
         try {
-            // First, check to ensure that we have all of the elements that we need
-            let missingElements = [];
+            // First, check to ensure that we have all of the frmaes that we need
+            let missingFrames = [];
 
-            const cardExpiry = this.elements.get('CardExpiry');
-            if (cardExpiry === undefined) missingElements.push('CardExpiry');
+            const cardExpiry = this.frames.get('CardExpiry');
+            if (cardExpiry === undefined) missingFrames.push('CardExpiry');
 
-            const cardCVV = this.elements.get('CardCVV');
-            if (cardCVV === undefined) missingElements.push('CardCVV');
+            const cardCVV = this.frames.get('CardCVV');
+            if (cardCVV === undefined) missingFrames.push('CardCVV');
 
-            // Check to see if there are any elements missing - used elements rather than missing elements length to satisfy compiler that undefined had been handled
+            // Check to see if there are any frames missing
             if (!cardExpiry || !cardCVV) {
-                throw `Missing required elements: ${missingElements.join(', ')}`;
+                throw `Missing required frames: ${missingFrames.join(', ')}`;
             }
 
             let success = true;
@@ -41,7 +41,7 @@ export default class UpdateCard extends ActionBase implements IUpdateCard {
                         })
             ]);
 
-            if (!success) throw 'One or more elements failed validation';
+            if (!success) throw 'One or more frames failed validation';
         } catch (e) {
             // There was a problem during vaidation
             this.logger.log('UpdateCard: Validation failed', LogLevel.INFO);
@@ -53,17 +53,15 @@ export default class UpdateCard extends ActionBase implements IUpdateCard {
     }
 
     public async submit(): Promise<void> {
-        // Validate the elements prior to submitting
+        // Validate the frames prior to submitting
         await this.validate();
 
-        // Elements are all present and valid, proceed to submit
-        this.logger.log ('UpdateCard: Submiting elements', LogLevel.INFO);
+        // Frames are all present and valid, proceed to submit
+        this.logger.log ('UpdateCard: Submiting frames', LogLevel.INFO);
 
         try {
-            
-            const cardNo = this.elements.get('CardNo') as ElementControl;
-            const cardExpiry = this.elements.get('CardExpiry') as ElementControl;
-            const cardCVV = this.elements.get('CardCVV') as ElementControl;
+            const cardExpiry = this.frames.get('CardExpiry') as FramesControl;
+            const cardCVV = this.frames.get('CardCVV') as FramesControl;
 
             // Submit all parts and wait for them to return
             await Promise.all([
@@ -78,10 +76,10 @@ export default class UpdateCard extends ActionBase implements IUpdateCard {
         }
     }
 
-    public async complete(): Promise<any> {
+    public async complete(challengeResponses: any[] = []): Promise<any> {
         this.logger.log(`UpdateCard: Completing card capture action`, LogLevel.INFO);
         try {
-            const response = await this.elementsService.completeAction('update-card', this.actionConfig.sessionId, this.actionConfig.actionId);
+            const response = await this.framesService.completeAction('update-card', this.actionConfig.sessionId, this.actionConfig.actionId, this.options, challengeResponses);
 
             this.logger.log('UpdateCard: Complete Successful', LogLevel.INFO);
 
@@ -97,12 +95,12 @@ export default class UpdateCard extends ActionBase implements IUpdateCard {
         try {
             const promises: Promise<boolean>[] = [];
 
-            // Call clear on all elements
-            this.elements.forEach((element) => {
-                promises.push(element.clear());
+            // Call clear on all frames
+            this.frames.forEach((control) => {
+                promises.push(control.clear());
             });
         
-            // Wait for all elements to clear
+            // Wait for all frames to clear
             await Promise.all(promises);
 
             this.logger.log('UpdateCard: Clear Successful', LogLevel.INFO);

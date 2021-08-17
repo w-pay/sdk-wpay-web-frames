@@ -1,9 +1,9 @@
-import ILoggingService from 'src/services/types/ILoggingService';
+import ILoggingService from '../services/types/ILoggingService';
 import { LogLevel } from '../domain/logLevel';
-import { ElementEventType } from './elementEventType';
+import { FramesEventType } from '../domain/framesEventType';
 import { v4 } from 'uuid';
 
-export default class ElementControl {
+export default class FramesControl {
     public type: string;
     public frameElement: HTMLIFrameElement;
     public containerElement: HTMLElement;
@@ -31,20 +31,20 @@ export default class ElementControl {
             switch(e.data.action) {
                 case "validateElementFailed": 
                     this.error = e.data;
-                    const validateElementFailedEvent = new CustomEvent(ElementEventType.OnValidated, { detail: e.data, bubbles : true });
+                    const validateElementFailedEvent = new CustomEvent(FramesEventType.OnValidated, { detail: e.data, bubbles : true });
                     this.containerElement.dispatchEvent(validateElementFailedEvent);
                     break;
                 case "validateElementComplete": 
                     this.error = undefined;
-                    const validateElementCompleteEvent = new CustomEvent(ElementEventType.OnValidated, { detail: e.data, bubbles : true });
+                    const validateElementCompleteEvent = new CustomEvent(FramesEventType.OnValidated, { detail: e.data, bubbles : true });
                     this.containerElement.dispatchEvent(validateElementCompleteEvent);
                     break;
                 case "onFocus":
-                    const onFocusEvent = new CustomEvent(ElementEventType.OnFocus, { detail: e.data, bubbles : true });
+                    const onFocusEvent = new CustomEvent(FramesEventType.OnFocus, { detail: e.data, bubbles : true });
                     this.containerElement.dispatchEvent(onFocusEvent);
                     break;
                 case "onBlur":   
-                    const onBlurEvent = new CustomEvent(ElementEventType.OnBlur, { detail: e.data, bubbles : true });
+                    const onBlurEvent = new CustomEvent(FramesEventType.OnBlur, { detail: e.data, bubbles : true });
                     this.containerElement.dispatchEvent(onBlurEvent);
                     break;
             }
@@ -109,7 +109,7 @@ export default class ElementControl {
     private async performAction(action: string): Promise<void> {
         if (!this.frameElement.contentWindow) {
             return Promise.reject({
-                "action": "elementActionFailed",
+                "action": "frameActionFailed",
                 "error": "IFrame not mounted to DOM"
             });
         }

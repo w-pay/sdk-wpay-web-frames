@@ -22,30 +22,32 @@ To install the dev kit, ensure you have npm installed and run
 
 - Add the sdk to the page
 
-   `<script src="./node_modules/@wpay/frames/dist/elementsSDK.js" />`
+   `<script src="./node_modules/@wpay/frames-sdk/dist/framesSDK.js"></script>`
 
 
 - Add a script tag to the page, initialise the SDK and log into the payment platform.
 
    ``` 
    <script>
-      let apiKey = 'YOUR_API_KEY';
-      let apiHost = "https://dev.mobile-api.woolworths.com.au/wow/v1/pay/instore";
-      let authorizationToken = 'YOUR_AUTH_TOKEN' // Format: Bearer token_value
-      let sdk = new ELEMENTS.ElementsSDK(apiKey, authorizationToken, apiHost, ELEMENTS.LogLevel.DEBUG);
+        const sdk = new FRAMES.FramesSDK({
+            apiKey: 'YOUR_API_KEY', 
+            authToken: 'YOUR_AUTH_TOKEN' // Format: Bearer token_value, 
+            apiBase: "https://dev.mobile-api.woolworths.com.au/wow/v1/pay/instore", 
+            logLevel: FRAMES.LogLevel.DEBUG
+        });
    </script>
    ```
 
 - Start a new card capture action. The action will handle all interactions with your elements, including their creation, validation and submission.
 
     ```
-    let action = sdk.createAction(ELEMENTS.ActionTypes.CaptureCard);
+    let action = sdk.createFramesControl(FRAMES.ActionTypes.CaptureCard);
     action.start();
     ```
     This will initialise a new card capture action. This call will need to be repeated between subsequent card captures.
 
 
-- Add the credit card capture elements to the page.
+- Add the credit card capture frames to the page.
 
     The SDK attaches new elements to `div` placeholders within your page using the element `id`.
 
@@ -58,7 +60,7 @@ To install the dev kit, ensure you have npm installed and run
     After adding your placeholder you can now create your frames element.  When creating an element pass in the type of the element you would like to create and the id of the dom element that you would like to attach it to.
 
     ```
-    action.createElement('CardGroup', 'cardElement');
+    action.createFramesControl('CardGroup', 'cardElement');
     ```
 
     Loading the page should now display the credit card capture element, displaying card, expiry date and CVV.
@@ -88,17 +90,19 @@ To install the dev kit, ensure you have npm installed and run
 
 - Add the sdk to the page
 
-   `<script src="./node_modules/@wpay/frames/dist/elementsSDK.js" />`
+   `<script src="./node_modules/@wpay/frames/dist/framesSDK.js" />`
 
 
 - Add a script tag to the page, initialise the SDK and log into the payment platform.
 
    ``` 
    <script>
-      let apiKey = 'YOUR_API_KEY';
-      let apiHost = "https://dev.mobile-api.woolworths.com.au/wow/v1/pay/instore";
-      let authorizationToken = 'YOUR_AUTH_TOKEN' // Format: Bearer token_value
-      let sdk = new ELEMENTS.ElementsSDK(apiKey, authorizationToken, apiHost, ELEMENTS.LogLevel.DEBUG);
+        const sdk = new FRAMES.FramesSDK({
+            apiKey: 'YOUR_API_KEY', 
+            authToken: 'YOUR_AUTH_TOKEN' // Format: Bearer token_value, 
+            apiBase: "https://dev.mobile-api.woolworths.com.au/wow/v1/pay/instore", 
+            logLevel: FRAMES.LogLevel.DEBUG
+        });
    </script>
    ```
 
@@ -106,7 +110,7 @@ To install the dev kit, ensure you have npm installed and run
 
     ```
     let action = sdk.createAction(
-        ELEMENTS.ActionTypes.StepUp,
+        FRAMES.ActionTypes.StepUp,
         {
             paymentInstrumentId: <YOUR PAYMENT INSTRUMENT ID>
         }
@@ -129,7 +133,7 @@ To install the dev kit, ensure you have npm installed and run
     After adding your placeholder you can now create your frames element.  When creating an element pass in the type of the element you would like to create and the id of the dom element that you would like to attach it to.
 
     ```
-    action.createElement('CardCVV', 'cvvElement');
+    action.createFramesControl('CardCVV', 'cvvElement');
     ```
 
     Loading the page should now display the credit card capture element, displaying card, expiry date and CVV.
@@ -158,9 +162,9 @@ The process for using individual elements is much the same as the single grouped
 Instead of adding a single, control, use the action to create multiple controls.
 
 ```
-action.createElement('CardNo', 'cardCaptureCardNo', options);
-action.createElement('CardExpiry', 'cardCaptureExpiry', options);
-action.createElement('CardCVV', 'cardCaptureCVV', options);
+action.createFramesControl('CardNo', 'cardCaptureCardNo', options);
+action.createFramesControl('CardExpiry', 'cardCaptureExpiry', options);
+action.createFramesControl('CardCVV', 'cardCaptureCVV', options);
 ```
 
 Thats all you need to do.  When you submit the action, the SDK will manage the submission of all of the individual elements for you.
@@ -173,7 +177,7 @@ Here is an example of subscribing to the OnValidated event and registering a fun
 placeholder element that the element is injected into.  Registering in the wrong place may mean you miss the event.
 
 ```
-document.getElementById('cardCaptureCardNo').addEventListener(ELEMENTS.ElementEventType.OnValidated, updateErrors);
+document.getElementById('cardCaptureCardNo').addEventListener(FRAMES.FramesEventType.OnValidated, updateErrors);
 ```
 
 Update errors might look something like this (Pure JS example):
@@ -197,8 +201,8 @@ async function updateErrors() {
 Here is a basic mapping of the errors that are returned by the validation
 ```
 errorMap: {
-    'Card No. Required': 'Please enter a valid card number.',
-    `Invalid Card No.`: 'Please enter a valid card number.',
+    'Card Number Required': 'Please enter a valid card number.',
+    `Invalid Card Number`: 'Please enter a valid card number.',
     'Invalid Expiry': 'Please enter a valid expiry.',
     'Incomplete Expiry': 'Please enter a valid expiry',
     'Expired card': 'The expiry entered is in the past. Please enter a valid expiry.',
@@ -216,15 +220,15 @@ e.g.
 document
     .getElementById('cardCaptureCardNo')
     .addEventListener(
-        ELEMENTS.ElementEventType.OnBlur,
+        Frames.FramesEventType.OnBlur,
         () => { // Do something onBlur }
     );
 
 ## Styling & Options
 
-In order to ensure seamless integration with your user experience, styling can either be applied to the container via CSS, or in the case you want to make styling changes inside the frame, be injected into the elements at run time via the options config.
+In order to ensure seamless integration with your user experience, styling can either be applied to the container via CSS, or in the case you want to make styling changes inside the frame, be injected into the Frames at run time via the options config.
 
-An element has several classes that can be used as targets for styling:
+An frame has several classes that can be used as targets for styling:
 - woolies-element
 - container
 - error (only applied when the element has been validated and reported an error)
@@ -361,3 +365,221 @@ e.g.
 ```
 const action = cdk.createAction(ELEMENTS.ActionTypes.CaptureCard, { verify: true });
 ```
+
+# 3DS2
+
+> Please note:  In order to use 3DS you merchant must have had 3DS enabled
+
+The Frames SDK offers 3DS2 verification cababilities by wrapping Cardinals (https://www.cardinalcommerce.com/) 3DS songbird library and orchestrating the 3DS verification process.  There are 2 supported flows, one for verification of cards during the capture process and a second for verification at time of payment.
+
+## Selecting an environment
+
+Cardinal is a little unique in how it does environement management, providing 2 instances of the songbird library, one for staging and a second for production use.  Both versions of the library have been included in the SDK so that there are no code changes required between environments.
+
+In order to protect production the SDK will use the staging version by default.  In order to switch the threeDS enabled actions over to production you need to provide the following in your options when creating the action.
+
+```
+{
+    threeDS: {
+        env: "prod"
+    }
+}
+```
+
+Here is an example of the prod config being used to validate a card:
+
+```
+const enrollmentRequest: any = {
+    sessionId: CARD_CAPTURE_RESPONSE_TOKEN,
+    threeDS: {
+        env: "prod"
+    }
+};
+
+const action = this.framesSDK.createAction(FRAMES.ActionTypes.ValidateCard, enrollmentRequest);
+```
+
+## Card Verification
+
+If you wish to perform 3DS2 verification as part of a card capture exercise, you can do so by specifying that 3DS is required when initializing the card capture action.
+
+- Create a new card capture action, specifying that 3DS is required.
+
+```
+const captureCardAction = this.framesSDK.createAction(
+    FRAMES.ActionTypes.ValidateCard,
+    {
+        threeDS: {
+          requires3DS: true
+        }
+    }
+) as CaptureCard;
+```
+
+- Capture card as per normal.  When you call complete, you will recieve a failure with a 3DS challenge.  For example:
+
+```
+{
+    "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJPcmdVbml0SWQiOiI2MGFmOGExZTBiYWM1ZDUwY2MyNmYzM2MiLCJSZWZlcmVuY2VJZCI6ImUxYzdjNzk4LWE1MjYtNDZhMC05ODU4LTRmNGIwMmNlNzdiOSIsImlzcyI6InBldGN1bHR1cmUiLCJQYXlsb2FkIjp7ImFjdGlvbklkIjoiYzYxZmM1OTgtZDU3ZS00MWM3LTg4YzQtMjhhODlkOTczYzEyIiwib3JkZXJJbmZvcm1hdGlvbiI6eyJhbW91bnREZXRhaWxzIjp7ImN1cnJlbmN5IjoiQVVEIn19fSwiaWF0IjoxNjI3NTE3MTc2LCJqdGkiOiIzNDMyMDBmMC0wNzQ3LTQ1NWUtODdlMi04ZTU5OTc3ZTAzMDEifQ.bghcu82uOuN6LSX_oKPj8f6WjBMhnXK3DYUkfp1F0mc",
+    "message": "3DS TOKEN REQUIRED"}
+}
+```
+
+- Create and start a validateCard action.  This will initialise the cardinal library and perform device data capture.
+
+```
+const enrollmentRequest: any = {
+    sessionId: cardCaptureResponse.token,
+    threeDS: {
+        env: "staging"
+    }
+};
+
+const action = this.framesSDK.createAction(FRAMES.ActionTypes.ValidateCard, enrollmentRequest);
+await action.start();
+```
+
+- Complete the validateCard action.  If successful this will return a challengeResponse that can be used to complete the captureCard action.
+
+```
+const validationResponse = await action.complete();
+```
+
+Here is an example reponse:
+```
+{
+    "threeDSData": {
+        "Validated": true,
+        "ActionCode": "SUCCESS",
+        "ErrorNumber": 0,
+        "ErrorDescription": "Success",
+        "Payment": {
+            "Type": "CCA",
+            "ExtendedData": {
+                "Amount": "0",
+                "CAVV": "MTIzNDU2Nzg5MDEyMzQ1Njc4OTA=",
+                "CurrencyCode": "036",
+                "ECIFlag": "05",
+                "ThreeDSVersion": "2.1.0",
+                "PAResStatus": "Y",
+                "SignatureVerification": "Y"
+            },
+            "ProcessorTransactionId": "Rq6wpFnMVE9tMpRjuIC0"
+        }
+    },
+    "challengeResponse": {
+        "type": "3DS",
+        "instrumentId": undefined,
+        "token": "Rq6wpFnMVE9tMpRjuIC0",
+        "reference": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJPcmdVbml0SWQiOiI2MGFmOGExZTBiYWM1ZDUwY2MyNmYzM2MiLCJSZWZlcmVuY2VJZCI6ImE4N2VmMWM3LWE4ZjUtNGYzNy05MjY2LTQzMzE0MzNmNjJiOSIsImlzcyI6InBldGN1bHR1cmUiLCJQYXlsb2FkIjp7ImFjdGlvbklkIjoiODQwOTE1YTQtNjkzYS00YmQ3LTk1OTMtZGZjYWM0YjE4NjQ2Iiwib3JkZXJJbmZvcm1hdGlvbiI6eyJhbW91bnREZXRhaWxzIjp7ImN1cnJlbmN5IjoiQVVEIn19fSwiaWF0IjoxNjI3NTE5MzY1LCJqdGkiOiJkZmM4MWRiOC01YTA1LTQzMTUtODBmMy00NDAyNTZiZjA2MTgifQ.BIcz8Jk6cFYYSv872M1mCISEQqAvWJKDeDXv-2qF-ko"
+    }
+}
+```
+
+- Complete the capture card action, providing the challengeResponse.  This should return the standard card capture response with the addition of the 3DS evidence used in its creation.
+
+```
+const cardCaptureResponse = await this.captureCardAction.complete(this.saveCard, [validationResponse.challengeResponse]);
+```
+
+## Payment Verification
+
+If 3DS has been requested as part of the payment flow then you will be required to provide a 3DS challenge response when attempting to make a payment.  To create the challenge response, you need to create and execute the validatePayment action.  This will orchestrate 3DS verifaction using the Cardinal Songbird library and return a chellengeResponse that can then be used when making a payment.
+
+
+
+- Create a paymentRequest using the WPay SDK passing in the config for 3DS.
+>Please note, your schemaId may differ
+
+```
+const request = {
+    merchantReferenceId: 12345,
+    maxUses: 3,
+    timeToLivePayment: 300,
+    grossAmount: 2.40,
+    merchantPayload: {
+        schemaId: '0a221353-b26c-4848-9a77-4a8bcbacf228',
+        payload: { 
+            requires3DS: settings.merchant.require3DSPA 
+        }
+    }
+};
+
+return merchantSDK.payments.createPaymentRequest(request);
+```
+
+- Make a payment.  The request should fail requesting a 3DS challenge response, you will need need the session returned when creating the challengeResponse below.
+
+```
+const transaction = await customerSDK.paymentRequests.makePayment(paymentRequestId, paymentInstrumentId);
+```
+
+Here is an example of rejected transaction with 3DS challenge:
+
+```
+{
+    "type": "PAYMENT",
+    "status": "REJECTED",
+    "rollback": "NOT_REQUIRED",
+    "merchantId": "petculture",
+    "grossAmount": 12.4,
+    "instruments": [
+        {
+            "transactions": [],
+            "instrumentType": "CREDIT_CARD",
+            "paymentInstrumentId": "198821"
+        }
+    ],
+    "executionTime": "2021-07-29T01:53:33.517Z",
+    "transactionId": "9b5eaf73-30d8-4f32-aeb5-e1c4ac2a2a8c",
+    "clientReference": "9b5eaf73-30d8-4f32-aeb5-e1c4ac2a2a8c",
+    "subTransactions": [
+        {
+            "threeDS": {
+                "sessionId": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiIzNGE5MjVhNi0wNzFmLTRiZjEtODA0MS1lOGJmNjEwYzQ4ZTgiLCJpYXQiOjE2Mjc1MjM2MTcuMDk4LCJpc3MiOiJwZXRjdWx0dXJlIiwiT3JnVW5pdElkIjoiNjBhZjhhMWUwYmFjNWQ1MGNjMjZmMzNjIiwiUGF5bG9hZCI6eyJwYXltZW50SW5zdHJ1bWVudElkIjoiMTk4ODIxIiwib3JkZXJJbmZvcm1hdGlvbiI6eyJhbW91bnREZXRhaWxzIjp7ImN1cnJlbmN5IjoiQVVEIiwiYW1vdW50IjoxMi40fX19LCJPYmplY3RpZnlQYXlsb2FkIjp0cnVlLCJSZWZlcmVuY2VJZCI6IjQ1OTA3MzQ5LWU2OTEtNDFkOS05Njk3LTgxYWFiMTc4MzZlZSJ9.W9D3yDqnGDZg3QncvVmiVfe7d8LW2se4yeS2jx7rPZQ",
+                "paymentInstrumentId": "198821"
+            },
+            "errorCode": "3DS_001",
+            "errorMessage": "3DS TOKEN REQUIRED"
+        }
+    ],
+    "paymentRequestId": "34a925a6-071f-4bf1-8041-e8bf610c48e8",
+    "merchantReferenceId": "d0a118eb-613e-4899-8b71-70806abd40be"
+}
+```
+
+- Create and start the validatePayment action.  This will initialise the cardinal library and perform device data capture.
+
+```
+const enrollmentRequest: any = {
+    sessionId, (Provided in the 3DS challenge)
+    paymentInstrumentId, (The payment instrumentID you want to perform 3DS on - must match instrument used in the challenge)
+    threeDS: {
+        env: "staging"
+    }
+};
+
+const action = this.framesSDK.createAction(FRAMES.ActionTypes.ValidatePayment, enrollmentRequest) as ValidatePayment;
+
+await action.start();
+```
+
+- Complete the action.  If successful this will return a 3DS challenge response.
+
+```
+const validationResponse = await action.complete();
+```
+
+- Make the payment providing the challengeResponse in the request.  The payment should now go through successfully.
+
+```
+const transaction = await this.customerSDK.paymentRequests.makePayment(paymentRequestId, paymentInstrumentId, [], undefined, undefined, undefined, [validationResponse.challengeResponse]);
+```
+## 3DS ERROR Codes
+
+- 3DS_001: 3DS Token Required
+- 3DS_002: Invalid session
+- 3DS_003: 3DS Validation Failed
+- 3DS_004: Unsupported 3DS Version
+- 3DS_005: 3DS Service Unavailable
+- 3DS_500: 3DS Unknown Error
