@@ -37,6 +37,9 @@ export default class ThreeDSService implements IThreeDSService {
 
             Cardinal.setup("init", {
                 jwt: sessionId
+            }).catch((error: any) => {
+                this.logger.log(error, LogLevel.ERROR);
+                reject(error);
             });
         });
 
