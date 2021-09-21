@@ -61,12 +61,12 @@ export default class ThreeDSService implements IThreeDSService {
                 'Content-Type': 'application/json'
 
             },
-            body: JSON.stringify({
+            data: {
                 data: {
                     sessionId,
                     options: threeDS
                 }
-            })
+            }
         });
 
         const payload = await response.data;
