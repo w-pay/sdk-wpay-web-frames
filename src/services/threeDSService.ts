@@ -4,6 +4,7 @@ import { ServiceTypes } from ".";
 import ILoggingService from "./types/ILoggingService";
 import IThreeDSService from "./types/IThreeDSService";
 import { LogLevel } from "../domain/logLevel";
+import IHttpService from "./types/IHttpService";
 
 declare var Cardinal:any;
 
@@ -13,6 +14,7 @@ export default class ThreeDSService implements IThreeDSService {
         @inject("authToken") private authToken: string,
         @inject("apiBase") private apiBase: string,
         @inject("apiKey") private apiKey: string,
+        @inject(ServiceTypes.HttpService) private httpService: IHttpService,
         @inject(ServiceTypes.LoggingService) private logger: ILoggingService) {}
 
     private walletId = "4fa9e893-2fb9-4516-bfc5-6fa8cd903528";
@@ -49,7 +51,7 @@ export default class ThreeDSService implements IThreeDSService {
     }
 
     public async verifyEnrollment(sessionId: string, paymentInstrumentId?: string, threeDS?: any): Promise<ValidatePaymentsResponse> {
-        const response = await fetch(`${this.apiBase}/customer/3ds/session/enrolment`, {
+        const response = await this.httpService.fetch(`${this.apiBase}/customer/3ds/session/enrolment`, {
             method: 'POST',
             headers: {
                 'x-api-key': this.apiKey,
@@ -67,7 +69,7 @@ export default class ThreeDSService implements IThreeDSService {
             })
         });
 
-        const payload = await response.json();
+        const payload = await response.data;
 
         const promise = new Promise<ValidatePaymentsResponse>((resolve, reject) => {
             Cardinal.on("payments.validated", (data: any, jwt: string) => {
