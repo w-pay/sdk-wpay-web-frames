@@ -582,4 +582,7 @@ const transaction = await this.customerSDK.paymentRequests.makePayment(paymentRe
 - 3DS_003: 3DS Validation Failed
 - 3DS_004: Unsupported 3DS Version
 - 3DS_005: 3DS Service Unavailable
+- 3DS_006: 3DS Authentication Failed
+- 3DS_007: 3DS Validation Timeout
+- 3DS_100: Merchant does not support 3DS
 - 3DS_500: 3DS Unknown Error
