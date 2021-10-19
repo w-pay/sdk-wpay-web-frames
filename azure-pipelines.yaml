@@ -5,9 +5,7 @@ trigger:
       - master
       - release/*
 
-pr:
-  - master
-  - release/*
+pr: none
 
 variables:
   nodeVersion: 15.x
