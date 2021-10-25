@@ -1,34 +1,34 @@
-import ElementControl from '../../../src/controls/elementControl';
+import FramesControl from '../../../src/controls/framesControl';
 import LoggingService from '../../../src/services/loggingService';
 import { LogLevel } from '../../../src/domain/logLevel';
 
-describe('elementControl', () => {
+describe('framesControl', () => {
     it ('can be constructed', () => {
         const frameElement = document.createElement("iframe");
         const containerElement = document.createElement("div");
 
-        const elementControl = new ElementControl('CardGroup', containerElement, frameElement, new LoggingService(LogLevel.DEBUG));
+        const framesControl = new FramesControl('CardGroup', containerElement, frameElement, new LoggingService(LogLevel.DEBUG));
     })
 
     it ('can handle errors', () => {
         const frameElement = document.createElement("iframe");
         const containerELement = document.createElement("div");
 
-        const elementControl = new ElementControl('CardGroup', containerELement, frameElement, new LoggingService(LogLevel.DEBUG));
+        const framesControl = new FramesControl('CardGroup', containerELement, frameElement, new LoggingService(LogLevel.DEBUG));
 
-        let error = elementControl.error;
+        let error = framesControl.error;
 
         expect(error).toEqual(undefined);
 
-        elementControl.error = "Some error";
+        framesControl.error = "Some error";
 
         expect(containerELement.classList).toContain('error');
-        expect(elementControl.isValid()).toBeFalsy();
+        expect(framesControl.isValid()).toBeFalsy();
 
-        elementControl.error = undefined;
+        framesControl.error = undefined;
 
         expect(containerELement.classList).not.toContain('error');
-        expect(elementControl.isValid()).toBeTruthy();
+        expect(framesControl.isValid()).toBeTruthy();
     })
 
     it ('can clear - success', async () => {
@@ -53,8 +53,8 @@ describe('elementControl', () => {
             }
         });
 
-        const elementControl = new ElementControl('CardGroup', containerElement, iframeElement, new LoggingService(LogLevel.DEBUG));
-        await elementControl.clear();
+        const framesControl = new FramesControl('CardGroup', containerElement, iframeElement, new LoggingService(LogLevel.DEBUG));
+        await framesControl.clear();
     })
 
     it ('can clear - failure', async () => {
@@ -81,12 +81,12 @@ describe('elementControl', () => {
             }
         });
 
-        const elementControl = new ElementControl('CardGroup', containerElement, iframeElement, new LoggingService(LogLevel.DEBUG));
+        const framesControl = new FramesControl('CardGroup', containerElement, iframeElement, new LoggingService(LogLevel.DEBUG));
         try {
-            expect(await elementControl.clear()).toThrow();
+            expect(await framesControl.clear()).toThrow();
         } catch (ex) {
-            delete elementControl.error.id;
-            expect(elementControl.error).toEqual(
+            delete framesControl.error.id;
+            expect(framesControl.error).toEqual(
                 {
                     "element": 'CardGroup',
                     "action": "clearElementFailed", 
@@ -118,10 +118,10 @@ describe('elementControl', () => {
             }
         });
 
-        const elementControl = new ElementControl('CardGroup', containerElement, iframeElement, new LoggingService(LogLevel.DEBUG));
-        await elementControl.validate();
+        const framesControl = new FramesControl('CardGroup', containerElement, iframeElement, new LoggingService(LogLevel.DEBUG));
+        await framesControl.validate();
 
-        expect(elementControl.isValid()).toBeTruthy();
+        expect(framesControl.isValid()).toBeTruthy();
     })
 
     it ('can validate - failure', async () => {
@@ -148,13 +148,13 @@ describe('elementControl', () => {
             }
         });
 
-        const elementControl = new ElementControl('CardGroup', containerElement, iframeElement, new LoggingService(LogLevel.DEBUG));
+        const framesControl = new FramesControl('CardGroup', containerElement, iframeElement, new LoggingService(LogLevel.DEBUG));
         try {
-            expect(await elementControl.validate()).toThrow();
+            expect(await framesControl.validate()).toThrow();
         } catch (ex) {
-            expect(elementControl.isValid()).toBeFalsy();
-            delete elementControl.error.id;
-            expect(elementControl.error).toEqual(
+            expect(framesControl.isValid()).toBeFalsy();
+            delete framesControl.error.id;
+            expect(framesControl.error).toEqual(
                 {
                     "element": 'CardGroup',
                     "action": "validateElementFailed", 
@@ -186,25 +186,25 @@ describe('elementControl', () => {
             }
         });
 
-        const elementControl = new ElementControl('CardGroup', containerElement, iframeElement, new LoggingService(LogLevel.DEBUG));
-        await elementControl.submit();
+        const framesControl = new FramesControl('CardGroup', containerElement, iframeElement, new LoggingService(LogLevel.DEBUG));
+        await framesControl.submit();
 
-        expect(elementControl.isValid()).toBeTruthy();
+        expect(framesControl.isValid()).toBeTruthy();
     })
 
     it ('can submit - failure', async () => {
         const iframeElement: HTMLIFrameElement = document.createElement("iframe");
         const containerElement: HTMLDivElement = document.createElement("div");
 
-        const elementControlNoMount = new ElementControl('CardGroup', containerElement, iframeElement, new LoggingService(LogLevel.DEBUG));
+        const framesControlNoMount = new FramesControl('CardGroup', containerElement, iframeElement, new LoggingService(LogLevel.DEBUG));
         
         try {
-            expect(await elementControlNoMount.submit()).toThrow();
+            expect(await framesControlNoMount.submit()).toThrow();
         } catch(e) {
-            expect(elementControlNoMount.isValid()).toBeFalsy();
-            expect(elementControlNoMount.error).toEqual(
+            expect(framesControlNoMount.isValid()).toBeFalsy();
+            expect(framesControlNoMount.error).toEqual(
                 {
-                    "action": "elementActionFailed", 
+                    "action": "frameActionFailed", 
                     "error": "IFrame not mounted to DOM"
                 }
             );

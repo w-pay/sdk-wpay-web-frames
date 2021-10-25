@@ -10,7 +10,7 @@
   ],
   "scripts": {
     "build": "webpack --mode development",
-    "test": "jest --silent",
+    "test": "jest",
     "dist": "webpack --mode production"
   },
   "author": "",
@@ -40,6 +40,7 @@
     "collectCoverage": true,
     "setupFiles": [
       "./test/setupJest.js"
-    ]
+    ],
+    "transformIgnorePatterns": [ "<rootDir>/src/resources/" ]
   }
 }

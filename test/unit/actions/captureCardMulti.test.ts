@@ -1,29 +1,35 @@
-import myContainer from "../../../src/customer/container";
+import container from "../../../src/container";
 import { ActionTypes } from "../../../src/actions";
-import ElementsService from '../../../src/services/elementsService';
+import FramesService from '../../../src/services/framesService';
 import { injectable, decorate } from 'inversify';
 import CaptureCard from '../../../src/actions/captureCard';
-import ElementControl from '../../../src/controls/elementControl';
+import FrameControl from '../../../src/controls/framesControl';
 import { LogLevel } from '../../../src/domain/logLevel';
 
-jest.mock('../../../src/services/elementsService');
-jest.mock('../../../src/controls/elementControl');
+// jest.mock('../../../src/services/framesService');
+// jest.mock('../../../src/controls/frameControl');
 
-decorate(injectable(), ElementsService);
+jest.mock('../../../src/resources/songbird-staging', () => jest.fn());
+jest.mock('../../../src/resources/songbird-production', () => jest.fn());
 
-interface ElementsServiceMock extends ElementsService {
+//decorate(injectable(), FramesService);
+
+interface FramesServiceMock extends FramesService {
     mockResolvedValue: Function
     mockRejectedValue: Function
 }
+
+const myContainer = container.create();
+myContainer.bind('logLevel').toConstantValue(LogLevel.DEBUG);
+myContainer.bind<string>("apiBase").toConstantValue("http://localhost:8080");   
+myContainer.bind<string>("authToken").toConstantValue("TOKEN");  
+myContainer.bind<string>("apiKey").toConstantValue("API_KEY");  
 
 describe("CaptureCard - Multi", () => {
 
     afterEach(() => {
         document.getElementsByTagName('html')[0].innerHTML = ''; 
     });
-
-    myContainer.bind<string>("apiBase").toConstantValue("http://localhost:8080/card-capture");    
-    myContainer.bind('logLevel').toConstantValue(LogLevel.DEBUG);
 
     it('can be constructed', () => {
         const action = myContainer.get<any>(ActionTypes.CaptureCard);
@@ -33,7 +39,7 @@ describe("CaptureCard - Multi", () => {
     
     it('can be started', async () => {
         
-        ElementsService.prototype.initialiseAction = jest.fn().mockImplementation(() => {
+        FramesService.prototype.initialiseAction = jest.fn().mockImplementation(() => {
             return {
                 url: 'mockURL',
                 sessionId: '12345'
@@ -55,9 +61,9 @@ describe("CaptureCard - Multi", () => {
 
         expect(baseElement.children.length).toEqual(0);
 
-        action.createElement('CardNo', 'cardCapturePanel');
-        action.createElement('CardExpiry', 'cardCapturePanel');
-        action.createElement('CardCVV', 'cardCapturePanel');
+        action.createFramesControl('CardNo', 'cardCapturePanel');
+        action.createFramesControl('CardExpiry', 'cardCapturePanel');
+        action.createFramesControl('CardCVV', 'cardCapturePanel');
 
         expect(baseElement.children.length).toEqual(3);
     });
@@ -70,9 +76,9 @@ describe("CaptureCard - Multi", () => {
         const action = myContainer.get<any>(ActionTypes.CaptureCard);
         await action.start();
 
-        action.createElement('CardNo', 'cardCapturePanel');
-        action.createElement('CardExpiry', 'cardCapturePanel');
-        action.createElement('CardCVV', 'cardCapturePanel');
+        action.createFramesControl('CardNo', 'cardCapturePanel');
+        action.createFramesControl('CardExpiry', 'cardCapturePanel');
+        action.createFramesControl('CardCVV', 'cardCapturePanel');
 
         action.clear();
     });
@@ -82,20 +88,19 @@ describe("CaptureCard - Multi", () => {
         baseElement.id = "cardCapturePanel";
         document.body.appendChild(baseElement);
 
-        ElementControl.prototype.validate = jest.fn().mockImplementation(() => {
+        FrameControl.prototype.validate = jest.fn().mockImplementation(() => {
             return Promise.resolve(true);
         });
 
         const action = myContainer.get<any>(ActionTypes.CaptureCard);
         await action.start();
 
-        action.createElement('CardNo', 'cardCapturePanel');
-        action.createElement('CardExpiry', 'cardCapturePanel');
-        action.createElement('CardCVV', 'cardCapturePanel');
+        action.createFramesControl('CardNo', 'cardCapturePanel');
+        action.createFramesControl('CardExpiry', 'cardCapturePanel');
+        action.createFramesControl('CardCVV', 'cardCapturePanel');
         
-        let result = await action.validate();
-
-        expect(result).toEqual(true);
+        //Validate no longer returns a value, ensure that the promise resolves without error
+        await expect(action.validate()).resolves.not.toThrow();
     });
 
     it('can be validated - fail', async () => {
@@ -103,20 +108,19 @@ describe("CaptureCard - Multi", () => {
         baseElement.id = "cardCapturePanel";
         document.body.appendChild(baseElement);
 
-        ElementControl.prototype.validate = jest.fn().mockImplementation(() => {
+        FrameControl.prototype.validate = jest.fn().mockImplementation(() => {
             return Promise.reject();
         });
 
         const action = myContainer.get<any>(ActionTypes.CaptureCard);
         await action.start();
 
-        action.createElement('CardNo', 'cardCapturePanel');
-        action.createElement('CardExpiry', 'cardCapturePanel');
-        action.createElement('CardCVV', 'cardCapturePanel');
+        action.createFramesControl('CardNo', 'cardCapturePanel');
+        action.createFramesControl('CardExpiry', 'cardCapturePanel');
+        action.createFramesControl('CardCVV', 'cardCapturePanel');
         
-        let result = await action.validate();
-
-        expect(result).toEqual(false);
+        //Validate no longer returns a value, ensure that the promise resolves without error
+        await expect(action.validate()).rejects.toEqual(undefined);
     });
 
     it('can be submitted - success', async () => {
@@ -124,19 +128,19 @@ describe("CaptureCard - Multi", () => {
         baseElement.id = "cardCapturePanel";
         document.body.appendChild(baseElement);
 
-        ElementControl.prototype.submit = ElementControl.prototype.validate = jest.fn().mockImplementation(() => {
+        FrameControl.prototype.submit = FrameControl.prototype.validate = jest.fn().mockImplementation(() => {
             return Promise.resolve(true);
         });
 
         const action = myContainer.get<any>(ActionTypes.CaptureCard);
         await action.start();
 
-        action.createElement('CardNo', 'cardCapturePanel');
-        action.createElement('CardExpiry', 'cardCapturePanel');
-        action.createElement('CardCVV', 'cardCapturePanel');
-        
-        let result = await action.submit();
-        expect(result).toEqual(true);
+        action.createFramesControl('CardNo', 'cardCapturePanel');
+        action.createFramesControl('CardExpiry', 'cardCapturePanel');
+        action.createFramesControl('CardCVV', 'cardCapturePanel');
+
+        //Submit no longer returns a value, ensure that the promise resolves without error
+        await expect(action.submit()).resolves.not.toThrow();
     });
 
     it('can be submitted - fail', async () => {
@@ -144,24 +148,24 @@ describe("CaptureCard - Multi", () => {
         baseElement.id = "cardCapturePanel";
         document.body.appendChild(baseElement);
 
-        ElementControl.prototype.submit = jest.fn().mockImplementation(() => {
+        FrameControl.prototype.submit = jest.fn().mockImplementation(() => {
             return Promise.reject();
         });
 
         const action = myContainer.get<any>(ActionTypes.CaptureCard);
         await action.start();
 
-        action.createElement('CardNo', 'cardCapturePanel');
-        action.createElement('CardExpiry', 'cardCapturePanel');
-        action.createElement('CardCVV', 'cardCapturePanel');
+        action.createFramesControl('CardNo', 'cardCapturePanel');
+        action.createFramesControl('CardExpiry', 'cardCapturePanel');
+        action.createFramesControl('CardCVV', 'cardCapturePanel');
         
-        let result = await action.submit();
-        expect(result).toEqual(false);
+        //Submit no longer returns a value, ensure that the promise resolves without error
+        await expect(action.submit()).rejects.toEqual(undefined);
     });
 
     it('can be completed', async () => {
-        ElementsService.prototype.completeAction = jest.fn().mockImplementation(() => {
-            return Promise.resolve();
+        FramesService.prototype.completeAction = jest.fn().mockImplementation(() => {
+            return Promise.resolve({ message: '' });
         });
 
         const baseElement = document.createElement('div');
@@ -169,14 +173,15 @@ describe("CaptureCard - Multi", () => {
         document.body.appendChild(baseElement);
 
         const action = myContainer.get<any>(ActionTypes.CaptureCard);
+        action.options = { save: true };
         await action.start();
 
-        action.createElement('CardNo', 'cardCapturePanel');
-        action.createElement('CardExpiry', 'cardCapturePanel');
-        action.createElement('CardCVV', 'cardCapturePanel');
+        action.createFramesControl('CardNo', 'cardCapturePanel');
+        action.createFramesControl('CardExpiry', 'cardCapturePanel');
+        action.createFramesControl('CardCVV', 'cardCapturePanel');
         
         await action.complete();
 
-        expect(ElementsService.prototype.completeAction).toHaveBeenCalled();
+        expect(FramesService.prototype.completeAction).toHaveBeenCalled();
     });
 })
