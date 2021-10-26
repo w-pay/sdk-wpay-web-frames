@@ -1,6 +1,6 @@
 {
   "name": "@wpay/frames",
-  "version": "2.0.3",
+  "version": "2.0.4",
   "description": "Development kit to assist in building clients that use the woolies API",
   "main": "./dist/framesSDK.js",
   "module": "./dist/framesSDK.js",
@@ -10,7 +10,7 @@
   ],
   "scripts": {
     "build": "webpack --mode development",
-    "test": "jest --silent",
+    "test": "jest",
     "dist": "webpack --mode production"
   },
   "author": "",
@@ -40,6 +40,7 @@
     "collectCoverage": true,
     "setupFiles": [
       "./test/setupJest.js"
-    ]
+    ],
+    "transformIgnorePatterns": [ "<rootDir>/src/resources/" ]
   }
 }
