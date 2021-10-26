@@ -6,7 +6,7 @@ import CaptureCard from '../../../src/actions/captureCard';
 import { LogLevel } from "../../../src/domain/logLevel";
 import FramesControl from "../../../src/controls/framesControl";
 
-jest.mock('../../../src/services/FramesService');
+jest.mock('../../../src/services/framesService');
 jest.mock('../../../src/controls/framesControl');
 
 jest.mock('../../../src/resources/songbird-staging', () => jest.fn());
