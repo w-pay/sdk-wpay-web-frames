@@ -106,13 +106,14 @@ To install the dev kit, ensure you have npm installed and run
    </script>
    ```
 
-- Start a new card step up action referencing your paymentInstrumentID.
+- Start a new card step up action referencing your paymentInstrumentID and the scheme of the instrument (e.g. VISA)
 
     ```
     let action = sdk.createAction(
         FRAMES.ActionTypes.StepUp,
         {
-            paymentInstrumentId: <YOUR PAYMENT INSTRUMENT ID>
+            paymentInstrumentId: <YOUR PAYMENT INSTRUMENT ID>,
+            scheme: <PAYMENT INSTRUMENT SCHEME>
         }
     );
     action.start();

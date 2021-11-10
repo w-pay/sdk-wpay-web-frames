@@ -1,7 +1,7 @@
 export default class IActionOptions {
     sessionId?: string;
     paymentInstrumentId?: string;
-    useEveryDayPay?: boolean;
+    useEverydayPay?: boolean;
     threeDS?: any;
     verify?: boolean;
     save?: boolean;

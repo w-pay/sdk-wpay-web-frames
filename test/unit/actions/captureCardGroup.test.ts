@@ -1,18 +1,26 @@
-import myContainer from "../../../src/container";
+import container from "../../../src/container";
 import { ActionTypes } from "../../../src/actions";
-import ElementsService from '../../../src/services/elementsService';
+import FramesService from '../../../src/services/framesService';
 import { injectable, decorate } from 'inversify';
 import CaptureCard from '../../../src/actions/captureCard';
 import { LogLevel } from "../../../src/domain/logLevel";
+import FramesControl from "../../../src/controls/framesControl";
 
-jest.mock('../../../src/services/elementsService');
-jest.mock('../../../src/controls/elementControl');
+jest.mock('../../../src/services/framesService');
+jest.mock('../../../src/controls/framesControl');
 
-decorate(injectable(), ElementsService);
+jest.mock('../../../src/resources/songbird-staging', () => jest.fn());
+jest.mock('../../../src/resources/songbird-production', () => jest.fn());
 
+decorate(injectable(), FramesService);
+
+const myContainer = container.create();
 myContainer.bind('logLevel').toConstantValue(LogLevel.DEBUG);
+myContainer.bind<string>("apiBase").toConstantValue("http://localhost:8080");   
+myContainer.bind<string>("authToken").toConstantValue("TOKEN");  
+myContainer.bind<string>("apiKey").toConstantValue("API_KEY");  
 
-interface ElementsServiceMock extends ElementsService {
+interface FramesServiceMock extends FramesService {
     mockResolvedValue: Function
     mockRejectedValue: Function
 }
@@ -22,8 +30,7 @@ describe("CaptureCard - Group", () => {
     afterEach(() => {
         document.getElementsByTagName('html')[0].innerHTML = ''; 
     });
-
-    myContainer.bind<string>("apiBase").toConstantValue("http://localhost:8080");    
+ 
     it('can be constructed', () => {
         const action = myContainer.get<any>(ActionTypes.CaptureCard);
 
@@ -32,7 +39,7 @@ describe("CaptureCard - Group", () => {
     
     it('can be started', async () => {
         
-        ElementsService.prototype.initialiseAction = jest.fn().mockImplementation(() => {
+        FramesService.prototype.initialiseAction = jest.fn().mockImplementation(() => {
             return {
                 url: 'mockURL',
                 sessionId: '12345'
@@ -54,7 +61,7 @@ describe("CaptureCard - Group", () => {
 
         expect(baseElement.children.length).toEqual(0);
 
-        action.createElement('CardGroup', 'cardCapturePanel');
+        action.createFramesControl('CardGroup', 'cardCapturePanel');
 
         expect(baseElement.children.length).toEqual(1);
     });
@@ -73,7 +80,7 @@ describe("CaptureCard - Group", () => {
             style: {}
         }
 
-        action.createElement('CardGroup', 'cardCapturePanel', options);
+        action.createFramesControl('CardGroup', 'cardCapturePanel', options);
 
         expect(baseElement.children.length).toEqual(1);
     });
@@ -82,11 +89,13 @@ describe("CaptureCard - Group", () => {
         const action = myContainer.get<any>(ActionTypes.CaptureCard);
         await action.start();
 
-        try {
-            expect(action.createElement('CardGroup', 'cardCapturePanel')).toThrow();
-        } catch (ex) {
-            expect(ex).toEqual('Target element not found');
-        }
+        // try {
+        //     expect(action.createFramesControl('CardGroup', 'cardCapturePanel')).toThrow();
+        // } catch (ex) {
+        //     expect(ex).toEqual('Target element not found');
+        // }
+
+        expect(() => action.createFramesControl('CardGroup', 'cardCapturePanel')).toThrow('Target element not found');
     });
 
     it('can clear elements', async () => {
@@ -94,14 +103,14 @@ describe("CaptureCard - Group", () => {
         baseElement.id = "cardCapturePanel";
         document.body.appendChild(baseElement);
 
-        ElementControl.prototype.validate = jest.fn().mockImplementation(() => {
+        FramesControl.prototype.validate = jest.fn().mockImplementation(() => {
             return Promise.resolve(true);
         });
 
         const action = myContainer.get<any>(ActionTypes.CaptureCard);
         await action.start();
 
-        action.createElement('CardGroup', 'cardCapturePanel');
+        action.createFramesControl('CardGroup', 'cardCapturePanel');
 
         await action.clear();
     });
@@ -111,19 +120,21 @@ describe("CaptureCard - Group", () => {
         baseElement.id = "cardCapturePanel";
         document.body.appendChild(baseElement);
 
-        ElementControl.prototype.clear = jest.fn().mockImplementation(() => {
-            return Promise.reject({
-                "action": "clearElementFailed", 
-                "error": "Clear Failed"
-            });
+        const clearReturnValue = {
+            "action": "clearElementFailed", 
+            "error": "Clear Failed"
+        }
+        FramesControl.prototype.clear = jest.fn().mockImplementation(() => {
+            return Promise.reject(clearReturnValue);
         });
 
         const action = myContainer.get<any>(ActionTypes.CaptureCard);
         await action.start();
 
-        action.createElement('CardGroup', 'cardCapturePanel');
+        action.createFramesControl('CardGroup', 'cardCapturePanel');
 
-        expect(await action.clear()).toBeFalsy();
+        //await expect(action.clear()).toThrow();
+        await expect(action.clear()).rejects.toEqual(clearReturnValue);
     });
 
     it('can be validated', async () => {
@@ -131,7 +142,7 @@ describe("CaptureCard - Group", () => {
         baseElement.id = "cardCapturePanel";
         document.body.appendChild(baseElement);
 
-        ElementControl.prototype.validate = jest.fn().mockImplementation(() => {
+        FramesControl.prototype.validate = jest.fn().mockImplementation(() => {
             return Promise.resolve(true);
         });
 
@@ -140,13 +151,12 @@ describe("CaptureCard - Group", () => {
 
         expect(baseElement.children.length).toEqual(0);
 
-        await action.createElement('CardGroup', 'cardCapturePanel');
+        await action.createFramesControl('CardGroup', 'cardCapturePanel');
 
         expect(baseElement.children.length).toEqual(1);
         
-        let result = await action.validate();
-
-        expect(result).toEqual(true);
+        //Validate no longer returns a value, ensure that the promise resolves without error
+        await expect(action.validate()).resolves.not.toThrow();
     });
 
     it('can be submitted', async () => {
@@ -154,7 +164,7 @@ describe("CaptureCard - Group", () => {
         baseElement.id = "cardCapturePanel";
         document.body.appendChild(baseElement);
 
-        ElementControl.prototype.submit = jest.fn().mockImplementation(() => {
+        FramesControl.prototype.submit = jest.fn().mockImplementation(() => {
             return Promise.resolve(true);
         });
 
@@ -163,17 +173,17 @@ describe("CaptureCard - Group", () => {
 
         expect(baseElement.children.length).toEqual(0);
 
-        await action.createElement('CardGroup', 'cardCapturePanel');
+        await action.createFramesControl('CardGroup', 'cardCapturePanel');
 
         expect(baseElement.children.length).toEqual(1);
         
-        let result = await action.submit();
-        expect(result).toEqual(true);
+        //Submit no longer returns a value, ensure that the promise resolves without error
+        await expect(action.submit()).resolves.not.toThrow();
     });
 
     it('can be completed', async () => {
-        ElementsService.prototype.completeAction = jest.fn().mockImplementation(() => {
-            return Promise.resolve();
+        FramesService.prototype.completeAction = jest.fn().mockImplementation(() => {
+            return Promise.resolve({ message: '' });
         });
 
         const baseElement = document.createElement('div');
@@ -181,16 +191,17 @@ describe("CaptureCard - Group", () => {
         document.body.appendChild(baseElement);
 
         const action = myContainer.get<any>(ActionTypes.CaptureCard);
+        action.options = { save: true };
         await action.start();
 
         expect(baseElement.children.length).toEqual(0);
 
-        await action.createElement('CardGroup', 'cardCapturePanel');
+        await action.createFramesControl('CardGroup', 'cardCapturePanel');
 
         expect(baseElement.children.length).toEqual(1);
-        
+
         await action.complete();
 
-        expect(ElementsService.prototype.completeAction).toHaveBeenCalled();
+        expect(FramesService.prototype.completeAction).toHaveBeenCalled();
     });
 })
