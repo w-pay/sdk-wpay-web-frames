@@ -555,7 +555,10 @@ const enrollmentRequest: any = {
     sessionId, (Provided in the 3DS challenge)
     paymentInstrumentId, (The payment instrumentID you want to perform 3DS on - must match instrument used in the challenge)
     threeDS: {
-        env: "staging"
+        env: "staging",
+        consumerAuthenticationInformation: {
+          acsWindowSize: this.acsWindowSize,
+        }
     }
 };
 
@@ -575,6 +578,28 @@ const validationResponse = await action.complete();
 ```
 const transaction = await this.customerSDK.paymentRequests.makePayment(paymentRequestId, paymentInstrumentId, [], undefined, undefined, undefined, [validationResponse.challengeResponse]);
 ```
+
+### Additional 3DS config
+
+At times you may want to leverage additional config items made available by cybersource, such as flags to force 3DS step up or specify a window size.  These additional config values can be found in the ```consumerAuthenticationInformation``` block.
+
+Here is an example of the configuration you would use when creating a validateCard action to use the ```consumerAuthenticationInformation``` to set the window size:
+
+```
+{
+    sessionId: "YOUR_SESSION_ID",
+    threeDS: {
+        consumerAuthenticationInformation: {
+            acsWindowSize: "01",
+        }
+    }
+}
+```
+
+For a full list of options (and descriptions), check out the cybersource documentation for the "Check Payer Auth Enrollment" endpoint.  The request payload contains the property ```consumerAuthenticationInformation``` which is the property exposed above.
+
+Cybersource docs - https://developer.cybersource.com/api-reference-assets/index.html#payer-authentication_payer-authentication_check-payer-auth-enrollment
+
 ## 3DS ERROR Codes
 
 - 3DS_001: 3DS Token Required
