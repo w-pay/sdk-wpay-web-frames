@@ -11,6 +11,7 @@ export default abstract class ActionBase implements IAction {
     public actionConfig!: IActionResponse;
     public options: any;
     public frames = new Map<string, FramesControl>();
+    public targetElementId: string = "";
     
     public logger!: ILoggingService;
 

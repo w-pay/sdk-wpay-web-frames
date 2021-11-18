@@ -5,6 +5,7 @@ import ILoggingService from "./types/ILoggingService";
 import IThreeDSService from "./types/IThreeDSService";
 import { LogLevel } from "../domain/logLevel";
 import IHttpService from "./types/IHttpService";
+import { FramesCardinalEventType } from "../domain/framesCardinalEventType";
 
 declare var Cardinal:any;
 
@@ -24,6 +25,9 @@ export default class ThreeDSService implements IThreeDSService {
             Cardinal.configure({
                 logging: {
                     level: "on"
+                },
+                payment: {
+                    framework: 'inline'
                 }
             });
         }
@@ -50,7 +54,7 @@ export default class ThreeDSService implements IThreeDSService {
         return initResponse;
     }
 
-    public async verifyEnrollment(sessionId: string, paymentInstrumentId?: string, threeDS?: any): Promise<ValidatePaymentsResponse> {
+    public async verifyEnrollment(sessionId: string, targetElementId:string, paymentInstrumentId?: string, threeDS?: any): Promise<ValidatePaymentsResponse> {
         const response = await this.httpService.fetch(`${this.apiBase}/customer/3ds/session/enrolment`, {
             method: 'POST',
             headers: {
@@ -72,6 +76,22 @@ export default class ThreeDSService implements IThreeDSService {
         const payload = await response.data;
 
         const promise = new Promise<ValidatePaymentsResponse>((resolve, reject) => {
+            var container: HTMLElement | null; // The element we will inject the HTML template into
+
+            Cardinal.on("ui.render", () => {
+                const onRenderEvent = new CustomEvent(FramesCardinalEventType.OnRender, { bubbles : true });
+                if (container) container.dispatchEvent(onRenderEvent);
+            });
+
+            Cardinal.on("ui.close", () => {
+                if (container) {
+                    container.innerHTML = "";
+                }
+
+                const onCloseEvent = new CustomEvent(FramesCardinalEventType.OnClose, { bubbles : true });
+                if (container) container.dispatchEvent(onCloseEvent);
+            });
+
             Cardinal.on("payments.validated", (data: any, jwt: string) => {
                 this.logger.log(`Issuer authentication complete`, LogLevel.DEBUG);
 
@@ -84,15 +104,64 @@ export default class ThreeDSService implements IThreeDSService {
                         instrumentId: paymentInstrumentId,
                         token: data.Payment.ProcessorTransactionId,
                         reference: sessionId,
-
                     }
                 });
+
+                Cardinal.off("ui.close");
+                Cardinal.off("ui.render");
                 Cardinal.off("payments.validated");
             });
 
             if (payload.data.enrollmentResponse.status === "PENDING_AUTHENTICATION") {
                 this.logger.log(`${payload.status}: Issuer authentication required`, LogLevel.DEBUG);
                 this.logger.log(JSON.stringify(payload.data.enrollmentResponse), LogLevel.DEBUG);
+
+                // Setup the IFrame handler
+                Cardinal.on('ui.inline.setup', (htmlTemplate: string, details: any, resolveUI: Function, rejectUI: Function) => {
+                    try {
+                        if (htmlTemplate !== undefined && details !== undefined) {
+                          // Depending on your integration you may need to account for other items when processing different payment types
+                          switch (details.paymentType) {
+                            case 'CCA':
+                              // Process CCA authentication screen
+                              switch (details.data.mode) {
+                                case 'static':
+                                  // Inject Iframe into DOM in visible spot
+                                  container = document.getElementById(targetElementId);
+                                  break;
+                    
+                                case 'suppress':
+                                  // Inject Iframe into DOM out of view
+                                  container = document.getElementById(targetElementId);
+                                  break;
+                                default:
+                                  throw new Error("Unsupported inline mode found [" + details.data.mode + "]");
+                              }
+                    
+                              break;
+                            default:
+                              throw new Error("Unsupported inline payment type found [" + details.paymentType + "]");
+                          }
+                          // Because the template we get from Songbird is a string template, we need to inject it as innerHTML
+
+                          if (!container) {
+                            throw new Error(`Validate Card: Missing or invalid target element - ${targetElementId}`);
+                          }
+
+                          container.innerHTML = htmlTemplate;
+
+                          // Inform Songbird that we have successfully injected the iframe into the DOM and the transaction can proceed forward
+                          resolveUI();
+                        } else {
+                          throw new Error("Validate Card: Unable to process request due to invalid arguments");
+                        }
+                    
+                      } catch (error) {
+                        // An error occurred, we need to inform Songbird that an error occurred so Songbird can abondon the transaction and trigger the 'payments.validated' event with an error
+                        rejectUI(error);
+                      }
+                });
+
                 Cardinal.continue('cca',
                     {
                         "AcsUrl": payload.data.enrollmentResponse.consumerAuthenticationInformation.acsUrl,

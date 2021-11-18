@@ -6,7 +6,7 @@ import IFramesService from "../services/types/IFramesService";
 export default class ValidateCard extends ActionBase implements IAction {
     private threeDSService;
     constructor(framesService: IFramesService, threeDSService: IThreeDSService, logger: ILoggingService);
-    createFramesControl(framesControlType: string, targetElement: string, options?: any): void;
+    createFramesControl(framesControlType: string, targetElementId: string, options?: any): void;
     errors(): any[];
     start(): Promise<void>;
     complete(): Promise<import("../domain/validatePaymentResponse").default>;

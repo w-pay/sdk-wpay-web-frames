@@ -8,6 +8,7 @@ export default abstract class ActionBase implements IAction {
     actionConfig: IActionResponse;
     options: any;
     frames: Map<string, FramesControl>;
+    targetElementId: string;
     logger: ILoggingService;
     constructor(framesService: IFramesService, logger: ILoggingService);
     errors(): any[];

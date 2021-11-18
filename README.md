@@ -440,6 +440,33 @@ const action = this.framesSDK.createAction(FRAMES.ActionTypes.ValidateCard, enro
 await action.start();
 ```
 
+- Set the targetElement that you would like the 3DS frame to render to
+
+```
+action.createFramesControl('ValidateCard', 'yourElementId');
+```
+
+- Typically the 3DS window is displayed as a modal, however hte IFrame can be embedded anywhere.  To assist in building out your experience, we have 2 events:
+  - OnRender: Triggered once the issuer content has been embedded into the targetElement
+  - On Close: Triggered once the issuer content has been dismissed.
+
+  These events can be subscribed to in the typical fashion:
+
+  ```
+    const renderEventListener = () => {
+        // Do something on render
+        console.log('Show modal');
+    };
+
+    const closeEventListener = () => {
+        // Do something on close
+        console.log('Hide modal');
+    };
+
+    elementHandle.addEventListener(FRAMES.FramesCardinalEventType.OnRender, renderEventListener);
+    elementHandle.addEventListener(FRAMES.FramesCardinalEventType.OnClose, closeEventListener);
+  ```
+
 - Complete the validateCard action.  If successful this will return a challengeResponse that can be used to complete the captureCard action.
 
 ```
@@ -447,7 +474,7 @@ const validationResponse = await action.complete();
 ```
 
 Here is an example reponse:
-```
+  ```
 {
     "threeDSData": {
         "Validated": true,
@@ -475,12 +502,19 @@ Here is an example reponse:
         "reference": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJPcmdVbml0SWQiOiI2MGFmOGExZTBiYWM1ZDUwY2MyNmYzM2MiLCJSZWZlcmVuY2VJZCI6ImE4N2VmMWM3LWE4ZjUtNGYzNy05MjY2LTQzMzE0MzNmNjJiOSIsImlzcyI6InBldGN1bHR1cmUiLCJQYXlsb2FkIjp7ImFjdGlvbklkIjoiODQwOTE1YTQtNjkzYS00YmQ3LTk1OTMtZGZjYWM0YjE4NjQ2Iiwib3JkZXJJbmZvcm1hdGlvbiI6eyJhbW91bnREZXRhaWxzIjp7ImN1cnJlbmN5IjoiQVVEIn19fSwiaWF0IjoxNjI3NTE5MzY1LCJqdGkiOiJkZmM4MWRiOC01YTA1LTQzMTUtODBmMy00NDAyNTZiZjA2MTgifQ.BIcz8Jk6cFYYSv872M1mCISEQqAvWJKDeDXv-2qF-ko"
     }
 }
-```
+  ```
 
 - Complete the capture card action, providing the challengeResponse.  This should return the standard card capture response with the addition of the 3DS evidence used in its creation.
 
 ```
 const cardCaptureResponse = await this.captureCardAction.complete(this.saveCard, [validationResponse.challengeResponse]);
+```
+
+- As part of good house keeping we should unsubscribe from the events we subscribed to earlier:
+
+```
+elementHandle.removeEventListener(FRAMES.FramesCardinalEventType.OnRender, renderEventListener);
+elementHandle.removeEventListener(FRAMES.FramesCardinalEventType.OnClose, closeEventListener);
 ```
 
 ## Payment Verification
@@ -567,6 +601,32 @@ const action = this.framesSDK.createAction(FRAMES.ActionTypes.ValidatePayment, e
 
 await action.start();
 ```
+- Set the targetElement that you would like the 3DS frame to render to
+
+```
+action.createFramesControl('ValidatePayment', 'yourElementId');
+```
+
+- Typically the 3DS window is displayed as a modal, however hte IFrame can be embedded anywhere.  To assist in building out your experience, we have 2 events:
+  - OnRender: Triggered once the issuer content has been embedded into the targetElement
+  - On Close: Triggered once the issuer content has been dismissed.
+
+  These events can be subscribed to in the typical fashion:
+
+  ```
+    const renderEventListener = () => {
+        // Do something on render
+        console.log('Show modal');
+    };
+
+    const closeEventListener = () => {
+        // Do something on close
+        console.log('Hide modal');
+    };
+
+    elementHandle.addEventListener(FRAMES.FramesCardinalEventType.OnRender, renderEventListener);
+    elementHandle.addEventListener(FRAMES.FramesCardinalEventType.OnClose, closeEventListener);
+  ```
 
 - Complete the action.  If successful this will return a 3DS challenge response.
 
@@ -578,6 +638,13 @@ const validationResponse = await action.complete();
 
 ```
 const transaction = await this.customerSDK.paymentRequests.makePayment(paymentRequestId, paymentInstrumentId, [], undefined, undefined, undefined, [validationResponse.challengeResponse]);
+```
+
+- As part of good house keeping we should unsubscribe from the events we subscribed to earlier:
+
+```
+elementHandle.removeEventListener(FRAMES.FramesCardinalEventType.OnRender, renderEventListener);
+elementHandle.removeEventListener(FRAMES.FramesCardinalEventType.OnClose, closeEventListener);
 ```
 
 ### Additional 3DS config

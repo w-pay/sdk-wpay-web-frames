@@ -20,8 +20,11 @@ export default class ValidateCard extends ActionBase implements IAction {
             super(framesService, logger);
     }
 
-    public createFramesControl(framesControlType: string, targetElement: string, options?: any): void {
-        // There are no frames to setup so do nothing
+    public createFramesControl(framesControlType: string, targetElementId: string, options?: any): void {
+        let targetElement = document.getElementById(targetElementId);
+        if (!targetElement) throw new Error("Target element not found");
+
+        this.targetElementId = targetElementId;
     }
 
     public errors(): any[] {
@@ -39,15 +42,15 @@ export default class ValidateCard extends ActionBase implements IAction {
 
         try {
             if (!this.options.sessionId || this.options.sessionId.length <= 0 || typeof this.options.sessionId !== "string") throw new Error("Invalid sessionId");
-            await this.threeDSService.initializeCardinal(this.options.sessionId);
+            await this.threeDSService.initializeCardinal(this.options.sessionId, this.targetElementId);
             
         } catch (e) {
-            this.logger.log(e, LogLevel.ERROR);
+            this.logger.log(e as string, LogLevel.ERROR);
         }
     }
 
     public async complete() {
         // Validate the card initiating issuer vaidation if required
-        return await this.threeDSService.verifyEnrollment(this.options.sessionId, this.options.paymentInstrumentId, this.options.threeDS);
+        return await this.threeDSService.verifyEnrollment(this.options.sessionId, this.targetElementId, this.options.paymentInstrumentId, this.options.threeDS);
     }
 }

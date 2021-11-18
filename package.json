@@ -41,6 +41,8 @@
     "setupFiles": [
       "./test/setupJest.js"
     ],
-    "transformIgnorePatterns": [ "<rootDir>/src/resources/" ]
+    "transformIgnorePatterns": [
+      "<rootDir>/src/resources/"
+    ]
   }
 }
