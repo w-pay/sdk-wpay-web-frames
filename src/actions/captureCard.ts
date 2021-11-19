@@ -32,7 +32,7 @@ export default class CaptureCard extends ActionBase implements ICaptureCard {
                     (result) => {
                         if (!result) throw 'One or more frames failed validation';
                     });
-                } else {
+            } else {
                 // First, check to ensure that we have all of the frames that we need
                 let missingFrames = [];
 

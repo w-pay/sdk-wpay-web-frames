@@ -4,12 +4,13 @@ import container from "./container";
 
 import { LogLevel } from './domain/logLevel';
 import { Container } from 'inversify';
-import { IAction } from './actions/types/IAction';
 import IActionOptions from './domain/IActionOptions';
+import { ActionType, IFramesSDK } from './domain/IFramesSDK';
+import { ActionTypeSymbols, ActionTypes } from './actions';
 
 var myContainer: Container
 
-export default class FramesSDK {
+export default class FramesSDK implements IFramesSDK {
     myContainer = container.create();
 
     constructor(sdkOptions: any) {
@@ -21,8 +22,9 @@ export default class FramesSDK {
         this.myContainer.bind<LogLevel>("logLevel").toConstantValue(sdkOptions.logLevel || LogLevel.NONE);
     }
 
-    public createAction(actionType: symbol, actionOptions: IActionOptions = {}) {
-        const action: IAction = this.myContainer.get<any>(actionType);
+    public createAction<T extends ActionTypes>(actionType: T, actionOptions: IActionOptions = {}): ActionType<T> {
+        const actionTypeSymbol = ActionTypeSymbols[actionType];
+        const action = (this.myContainer.get(actionTypeSymbol) as ActionType<T>);
         action.options = actionOptions;
         return action;
     }

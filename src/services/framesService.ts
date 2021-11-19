@@ -47,7 +47,7 @@ export default class FramesService implements IElementsService {
         return responseData.data;
     }
 
-    public async completeAction(actionType: string, sessionId: string, actionId: string, props: any, challengeResponses: any[]): Promise<void> {
+    public async completeAction(actionType: string, sessionId: string, actionId: string, props: any, challengeResponses: any[]): Promise<any> {
         const response: AxiosResponse = await this.httpService.fetch(`${this.apiBase}/customer/elements/${actionType}/${actionId}/complete`, {
             method: 'post',
             headers: {
