@@ -80,10 +80,12 @@ export default class ThreeDSService implements IThreeDSService {
 
             Cardinal.on("ui.render", () => {
                 const onRenderEvent = new CustomEvent(FramesCardinalEventType.OnRender, { bubbles : true });
+                container = document.getElementById(targetElementId);
                 if (container) container.dispatchEvent(onRenderEvent);
             });
 
             Cardinal.on("ui.close", () => {
+                container = document.getElementById(targetElementId);
                 if (container) {
                     container.innerHTML = "";
                 }
