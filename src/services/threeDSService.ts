@@ -86,12 +86,13 @@ export default class ThreeDSService implements IThreeDSService {
 
             Cardinal.on("ui.close", () => {
                 container = document.getElementById(targetElementId);
-                if (container) {
-                    container.innerHTML = "";
-                }
 
                 const onCloseEvent = new CustomEvent(FramesCardinalEventType.OnClose, { bubbles : true });
                 if (container) container.dispatchEvent(onCloseEvent);
+
+                if (container) {
+                    container.innerHTML = "";
+                }
             });
 
             Cardinal.on("payments.validated", (data: any, jwt: string) => {
