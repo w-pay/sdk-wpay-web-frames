@@ -6,6 +6,8 @@ export default class FramesControl {
     eventHandlers: Map<string, Function[]>;
     private exception;
     private logger;
+    private formStatus;
+    private formValid;
     constructor(type: string, containerElement: HTMLElement, frameElement: HTMLIFrameElement, logger: ILoggingService);
     isValid(): boolean;
     get error(): any;
@@ -14,4 +16,6 @@ export default class FramesControl {
     validate(): Promise<boolean>;
     submit(): Promise<boolean>;
     private performAction;
+    private checkFormValidity;
+    private triggerAutoFill;
 }
