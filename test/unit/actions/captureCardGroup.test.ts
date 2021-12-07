@@ -1,5 +1,5 @@
 import container from "../../../src/container";
-import { ActionTypes } from "../../../src/actions";
+import { ActionTypeSymbols } from "../../../src/actions";
 import FramesService from '../../../src/services/framesService';
 import { injectable, decorate } from 'inversify';
 import CaptureCard from '../../../src/actions/captureCard';
@@ -32,7 +32,7 @@ describe("CaptureCard - Group", () => {
     });
  
     it('can be constructed', () => {
-        const action = myContainer.get<any>(ActionTypes.CaptureCard);
+        const action = myContainer.get<any>(ActionTypeSymbols.CaptureCard);
 
         expect(action).toBeInstanceOf(CaptureCard);
     });
@@ -46,7 +46,7 @@ describe("CaptureCard - Group", () => {
             };
         })
 
-        const action = myContainer.get<any>(ActionTypes.CaptureCard);
+        const action = myContainer.get<any>(ActionTypeSymbols.CaptureCard);
 
         await action.start();
     });
@@ -56,7 +56,7 @@ describe("CaptureCard - Group", () => {
         baseElement.id = "cardCapturePanel";
         document.body.appendChild(baseElement);
 
-        const action = myContainer.get<any>(ActionTypes.CaptureCard);
+        const action = myContainer.get<any>(ActionTypeSymbols.CaptureCard);
         await action.start();
 
         expect(baseElement.children.length).toEqual(0);
@@ -71,7 +71,7 @@ describe("CaptureCard - Group", () => {
         baseElement.id = "cardCapturePanel";
         document.body.appendChild(baseElement);
 
-        const action = myContainer.get<any>(ActionTypes.CaptureCard);
+        const action = myContainer.get<any>(ActionTypeSymbols.CaptureCard);
         await action.start();
 
         expect(baseElement.children.length).toEqual(0);
@@ -86,7 +86,7 @@ describe("CaptureCard - Group", () => {
     });
 
     it('will fail to create element when missing target', async () => {
-        const action = myContainer.get<any>(ActionTypes.CaptureCard);
+        const action = myContainer.get<any>(ActionTypeSymbols.CaptureCard);
         await action.start();
 
         // try {
@@ -107,7 +107,7 @@ describe("CaptureCard - Group", () => {
             return Promise.resolve(true);
         });
 
-        const action = myContainer.get<any>(ActionTypes.CaptureCard);
+        const action = myContainer.get<any>(ActionTypeSymbols.CaptureCard);
         await action.start();
 
         action.createFramesControl('CardGroup', 'cardCapturePanel');
@@ -128,7 +128,7 @@ describe("CaptureCard - Group", () => {
             return Promise.reject(clearReturnValue);
         });
 
-        const action = myContainer.get<any>(ActionTypes.CaptureCard);
+        const action = myContainer.get<any>(ActionTypeSymbols.CaptureCard);
         await action.start();
 
         action.createFramesControl('CardGroup', 'cardCapturePanel');
@@ -146,7 +146,7 @@ describe("CaptureCard - Group", () => {
             return Promise.resolve(true);
         });
 
-        const action = myContainer.get<any>(ActionTypes.CaptureCard);
+        const action = myContainer.get<any>(ActionTypeSymbols.CaptureCard);
         await action.start();
 
         expect(baseElement.children.length).toEqual(0);
@@ -168,7 +168,7 @@ describe("CaptureCard - Group", () => {
             return Promise.resolve(true);
         });
 
-        const action = myContainer.get<any>(ActionTypes.CaptureCard);
+        const action = myContainer.get<any>(ActionTypeSymbols.CaptureCard);
         await action.start();
 
         expect(baseElement.children.length).toEqual(0);
@@ -190,7 +190,7 @@ describe("CaptureCard - Group", () => {
         baseElement.id = "cardCapturePanel";
         document.body.appendChild(baseElement);
 
-        const action = myContainer.get<any>(ActionTypes.CaptureCard);
+        const action = myContainer.get<any>(ActionTypeSymbols.CaptureCard);
         action.options = { save: true };
         await action.start();
 
