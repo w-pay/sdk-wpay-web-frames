@@ -12,9 +12,10 @@ import IFramesService from "../services/types/IFramesService";
 
 import loadSongbirdStaging from "../resources/songbird-staging";
 import loadSongbirdProduction from "../resources/songbird-production";
+import IValidatePayment from "./types/IValidatePayment";
 
 @injectable()
-export default class ValidatePayment extends ActionBase implements IAction {
+export default class ValidatePayment extends ActionBase implements IValidatePayment {
     constructor(
         @inject(ServiceTypes.FramesService) framesService: IFramesService,
         @inject(ServiceTypes.ThreeDSService) private threeDSService: IThreeDSService,

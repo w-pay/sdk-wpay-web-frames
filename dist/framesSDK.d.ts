@@ -1,9 +1,10 @@
 import 'reflect-metadata';
 import { Container } from 'inversify';
-import { IAction } from './actions/types/IAction';
 import IActionOptions from './domain/IActionOptions';
-export default class FramesSDK {
+import { ActionType, IFramesSDK } from './domain/IFramesSDK';
+import { ActionTypes } from './actions';
+export default class FramesSDK implements IFramesSDK {
     myContainer: Container;
     constructor(sdkOptions: any);
-    createAction(actionType: symbol, actionOptions?: IActionOptions): IAction;
+    createAction<T extends ActionTypes>(actionType: T, actionOptions?: IActionOptions): ActionType<T>;
 }

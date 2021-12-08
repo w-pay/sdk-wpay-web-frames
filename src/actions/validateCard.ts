@@ -10,9 +10,11 @@ import IThreeDSService from "../services/types/IThreeDSService";
 import ILoggingService from "../services/types/ILoggingService";
 import IFramesService from "../services/types/IFramesService";
 import { LogLevel } from "../domain/logLevel";
+import IValidateCard from "./types/IValidateCard";
+import ValidatePaymentsResponse from "src/domain/validatePaymentResponse";
 
 @injectable()
-export default class ValidateCard extends ActionBase implements IAction {
+export default class ValidateCard extends ActionBase implements IValidateCard {
     constructor(
         @inject(ServiceTypes.FramesService) framesService: IFramesService,
         @inject(ServiceTypes.ThreeDSService) private threeDSService: IThreeDSService,
@@ -49,7 +51,7 @@ export default class ValidateCard extends ActionBase implements IAction {
         }
     }
 
-    public async complete() {
+    public async complete(): Promise<ValidatePaymentsResponse> {
         // Validate the card initiating issuer vaidation if required
         return await this.threeDSService.verifyEnrollment(this.options.sessionId, this.targetElementId, this.options.paymentInstrumentId, this.options.threeDS);
     }

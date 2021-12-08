@@ -7,7 +7,7 @@ import FramesService from './services/framesService';
 import IFramesService from './services/types/IFramesService';
 import CaptureCard from './actions/captureCard';
 
-import { ActionTypes } from './actions';
+import { ActionTypeSymbols } from './actions';
 import ICaptureCard from './actions/types/ICaptureCard';
 import ILoggingService from './services/types/ILoggingService';
 import LoggingService from './services/loggingService';
@@ -35,11 +35,11 @@ function create() {
     myContainer.bind<IHttpService>(ServiceTypes.HttpService).to(HttpService);
 
     // Bind the symbols for actions
-    myContainer.bind<ICaptureCard>(ActionTypes.CaptureCard).to(CaptureCard);
-    myContainer.bind<IStepUp>(ActionTypes.StepUp).to(StepUp);
-    myContainer.bind<IUpdateCard>(ActionTypes.UpdateCard).to(UpdateCard);
-    myContainer.bind<IValidateCard>(ActionTypes.ValidateCard).to(ValidateCard);
-    myContainer.bind<IValidatePayment>(ActionTypes.ValidatePayment).to(ValidatePayment);
+    myContainer.bind<ICaptureCard>(ActionTypeSymbols.CaptureCard).to(CaptureCard);
+    myContainer.bind<IStepUp>(ActionTypeSymbols.StepUp).to(StepUp);
+    myContainer.bind<IUpdateCard>(ActionTypeSymbols.UpdateCard).to(UpdateCard);
+    myContainer.bind<IValidateCard>(ActionTypeSymbols.ValidateCard).to(ValidateCard);
+    myContainer.bind<IValidatePayment>(ActionTypeSymbols.ValidatePayment).to(ValidatePayment);
 
     return myContainer;
 }

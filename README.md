@@ -41,7 +41,7 @@ To install the dev kit, ensure you have npm installed and run
 - Start a new card capture action. The action will handle all interactions with your elements, including their creation, validation and submission.
 
     ```
-    let action = sdk.createFramesControl(FRAMES.ActionTypes.CaptureCard);
+    let action = sdk.createAction(FRAMES.ActionTypes.CaptureCard);
     action.start();
     ```
     This will initialise a new card capture action. This call will need to be repeated between subsequent card captures.
@@ -364,7 +364,7 @@ By default, the card verification is disabled on card capture.  If you would lik
 e.g.
 
 ```
-const action = cdk.createAction(ELEMENTS.ActionTypes.CaptureCard, { verify: true });
+const action = cdk.createAction(FRAMES.ActionTypes.CaptureCard, { verify: true });
 ```
 
 # 3DS2
