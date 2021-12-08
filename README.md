@@ -364,7 +364,7 @@ By default, the card verification is disabled on card capture.  If you would lik
 e.g.
 
 ```
-const action = cdk.createAction(ELEMENTS.ActionTypes.CaptureCard, { verify: true });
+const action = cdk.createAction(FRAMES.ActionTypes.CaptureCard, { verify: true });
 ```
 
 # 3DS2
