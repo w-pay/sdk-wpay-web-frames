@@ -30,10 +30,10 @@ export default class FramesControl {
             switch(e.data.action) {
                 case "onLoad":
                 case "validateElementFailed":
-                    this.formStatus[e.data.element] = false;
+                    this.formStatus[e.data.control] = false;
                     break;
                 case "validateElementComplete":
-                    this.formStatus[e.data.element] = true;
+                    this.formStatus[e.data.control] = true;
                     break;
                 case "autoFillTriggerComplete":
                     this.triggerAutoFill(e.data)
