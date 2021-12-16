@@ -49,6 +49,7 @@ export default class ValidatePayment extends ActionBase implements IValidatePaym
             
         } catch (e) {
             this.logger.log(e as string, LogLevel.ERROR);
+            throw e;
         }
     }
 
