@@ -41,12 +41,14 @@ export default class ThreeDSService implements IThreeDSService {
                 Cardinal.off('payments.setupComplete');
             });
 
-            Cardinal.setup("init", {
-                jwt: sessionId
-            }).catch((error: any) => {
-                this.logger.log(error, LogLevel.ERROR);
+            try {
+                Cardinal.setup("init", {
+                    jwt: sessionId
+                });
+            } catch(error) {
+                this.logger.log((error as Error).message, LogLevel.ERROR);
                 reject(error);
-            });
+            };
         });
 
         const initResponse = await promise;
