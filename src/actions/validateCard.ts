@@ -48,6 +48,7 @@ export default class ValidateCard extends ActionBase implements IValidateCard {
             
         } catch (e) {
             this.logger.log(e as string, LogLevel.ERROR);
+            throw e;
         }
     }
 
