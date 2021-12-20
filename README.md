@@ -78,6 +78,9 @@ To install the dev kit, ensure you have npm installed and run
     ```
     let captureResult = await action.complete();
 
+    // The save option can be overwritten at completion time. This allows the customer
+    // to give input into whether a card should be saved or not post form rendering.
+    let captureResult = await action.complete(false);
     ```
 
     If you would like to clear the element(s), you can also call the `clear` function on the action.
