@@ -177,12 +177,9 @@ Thats all you need to do.  When you submit the action, the SDK will manage the s
 
 Things don't always go smoothly, so sometimes there will be errors within the frames that you need to be aware of.
 
-Here is an example of subscribing to the OnValidated event and registering a function to handle the event (updateErrors).  Please note: The event needs to be registered on the 
-placeholder element that the element is injected into.  Registering in the wrong place may mean you miss the event.
+Here is an example of subscribing to the `OnValidated` event and registering a function to handle the event (updateErrors).  
 
-```
-document.getElementById('cardCaptureCardNo').addEventListener(FRAMES.FramesEventType.OnValidated, updateErrors);
-```
+**Please note**: The event needs to be registered on the placeholder element that the element is injected into.  Registering in the wrong place may mean you miss the event.
 
 Update errors might look something like this (Pure JS example):
 
@@ -212,6 +209,17 @@ errorMap: {
     'Expired card': 'The expiry entered is in the past. Please enter a valid expiry.',
     'Invalid CVV': 'Please enter a valid CVV.'
 }
+```
+
+### Form valid event
+
+If there are multiple elements on a page, there needs to be coordination to know if the form 
+as a whole is valid or not. The `FormValid` and `FormInvalid` events can be used instead of
+the application having to track the validation status of each element. For example,
+
+```
+document.getElementById('cardElement').addEventListener(FRAMES.FramesEventType.FormValid, () => { // Do something });
+document.getElementById('cardElement').addEventListener(FRAMES.FramesEventType.FormInvalid, () => { // Do something });
 ```
 
 ## Events - OnFocus & OnBlur
