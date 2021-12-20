@@ -215,15 +215,14 @@ errorMap: {
 
 Sometimes you have an advanced use case like turning on and off buttons once all fields are complete which mean that you need to know when controls are visited.  Typically this type of activity would be done using onFocus or onBlur events.
 
-If you would like to listen into these events you can do so by adding an event listener to the placeholder element in much the same way as you do for validation.
+If you would like to listen into these events you can do so by adding an event listener to 
+the placeholder element in much the same way as you do for validation. For example,
 
-e.g.
+```
 document
     .getElementById('cardCaptureCardNo')
-    .addEventListener(
-        Frames.FramesEventType.OnBlur,
-        () => { // Do something onBlur }
-    );
+    .addEventListener(Frames.FramesEventType.OnBlur, () => { // Do something onBlur });
+```
 
 ## Styling & Options
 
