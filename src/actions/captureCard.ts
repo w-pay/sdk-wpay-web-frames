@@ -110,10 +110,11 @@ export default class CaptureCard extends ActionBase implements ICaptureCard {
         }
     }
 
-    public async complete(save: boolean = true, challengeResponses: any[] = []): Promise<any> {
+    public async complete(save?: boolean, challengeResponses: any[] = []): Promise<any> {
         this.logger.log(`CaptureCard: Completing card capture action`, LogLevel.INFO);
-        this.options.save = save;
-        
+        if (save !== undefined) {
+            this.options.save = save;
+        }
 
         this.logger.log(`CaptureCard: Challengeresponses ${challengeResponses}`, LogLevel.INFO);
 
