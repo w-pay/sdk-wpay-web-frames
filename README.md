@@ -78,6 +78,9 @@ To install the dev kit, ensure you have npm installed and run
     ```
     let captureResult = await action.complete();
 
+    // The save option can be overwritten at completion time. This allows the customer
+    // to give input into whether a card should be saved or not post form rendering.
+    let captureResult = await action.complete(false);
     ```
 
     If you would like to clear the element(s), you can also call the `clear` function on the action.
@@ -174,12 +177,9 @@ Thats all you need to do.  When you submit the action, the SDK will manage the s
 
 Things don't always go smoothly, so sometimes there will be errors within the frames that you need to be aware of.
 
-Here is an example of subscribing to the OnValidated event and registering a function to handle the event (updateErrors).  Please note: The event needs to be registered on the 
-placeholder element that the element is injected into.  Registering in the wrong place may mean you miss the event.
+Here is an example of subscribing to the `OnValidated` event and registering a function to handle the event (updateErrors).  
 
-```
-document.getElementById('cardCaptureCardNo').addEventListener(FRAMES.FramesEventType.OnValidated, updateErrors);
-```
+**Please note**: The event needs to be registered on the placeholder element that the element is injected into.  Registering in the wrong place may mean you miss the event.
 
 Update errors might look something like this (Pure JS example):
 
@@ -211,19 +211,29 @@ errorMap: {
 }
 ```
 
+### Form valid event
+
+If there are multiple elements on a page, there needs to be coordination to know if the form 
+as a whole is valid or not. The `FormValid` and `FormInvalid` events can be used instead of
+the application having to track the validation status of each element. For example,
+
+```
+document.getElementById('cardElement').addEventListener(FRAMES.FramesEventType.FormValid, () => { // Do something });
+document.getElementById('cardElement').addEventListener(FRAMES.FramesEventType.FormInvalid, () => { // Do something });
+```
+
 ## Events - OnFocus & OnBlur
 
 Sometimes you have an advanced use case like turning on and off buttons once all fields are complete which mean that you need to know when controls are visited.  Typically this type of activity would be done using onFocus or onBlur events.
 
-If you would like to listen into these events you can do so by adding an event listener to the placeholder element in much the same way as you do for validation.
+If you would like to listen into these events you can do so by adding an event listener to 
+the placeholder element in much the same way as you do for validation. For example,
 
-e.g.
+```
 document
     .getElementById('cardCaptureCardNo')
-    .addEventListener(
-        Frames.FramesEventType.OnBlur,
-        () => { // Do something onBlur }
-    );
+    .addEventListener(Frames.FramesEventType.OnBlur, () => { // Do something onBlur });
+```
 
 ## Styling & Options
 
