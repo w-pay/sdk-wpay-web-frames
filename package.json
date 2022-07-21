@@ -9,6 +9,8 @@
     "dist"
   ],
   "scripts": {
+    "preversion": "npm test",
+    "version": "npm run dist",
     "build": "webpack --mode development",
     "test": "jest",
     "dist": "webpack --mode production"
