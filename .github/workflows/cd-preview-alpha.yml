@@ -1,0 +1,56 @@
+name: '@wpay/frames early preview publish'
+
+on:
+  push:
+    branches:
+      - "*"
+      - "!main"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Setup Node
+        uses: actions/setup-node@v2
+        with:
+          node-version: '12.x'
+          registry-url: https://registry.npmjs.org/
+
+      - name: Update NPM
+        run: npm install -g npm@latest
+
+      - name: Git setup
+        run: |
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+
+      - name: NPM install
+        run: npm install
+
+      - name: NPM Pack
+        run: |
+          # sometimes files which is tracked is changed (e.g. lock file)
+          git commit -am "changed"
+          
+          # make a reasonable version number
+          VERSION=$(date +"%Y.%m.%d-alpha%H%M")
+          echo "Setting version $VERSION"
+          npm version $VERSION
+          
+          # prepare tarball
+          mkdir -p dist-pack
+          cd dist-pack
+          npm pack ..
+          
+          # copy documentation as readme
+          cp ../docs/ALPHA-PREVIEW.md README.md
+
+      - name: Upload Artifact GitHub Action
+        uses: actions/upload-artifact@v2
+        with:
+          name: npm-pack
+          path: dist-pack
+          retention-days: 30
