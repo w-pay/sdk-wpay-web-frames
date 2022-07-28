@@ -48,11 +48,11 @@ export default class FramesControl {
 
             // Otherwise it was initiated by the frame, so handle it here.  At this stage validation is the only reason the frame would send a message
             switch(e.data.action) {
-                case "validateElementFailed": 
+                case "validateElementFailed":
                     this.error = e.data;
                     const validateElementFailedEvent = new CustomEvent(FramesEventType.OnValidated, { detail: e.data, bubbles : true });
                     this.containerElement.dispatchEvent(validateElementFailedEvent);
-                    
+
                     //If the form was previously valid we need to generate an invalid form event
                     if (this.formValid) {
                         this.formValid = false;
@@ -60,7 +60,7 @@ export default class FramesControl {
                         this.containerElement.dispatchEvent(formInvalidEvent);
                     }
                     break;
-                case "validateElementComplete": 
+                case "validateElementComplete":
                     this.error = undefined;
                     const validateElementCompleteEvent = new CustomEvent(FramesEventType.OnValidated, { detail: e.data, bubbles : true });
                     this.containerElement.dispatchEvent(validateElementCompleteEvent);
@@ -70,7 +70,7 @@ export default class FramesControl {
                     const onFocusEvent = new CustomEvent(FramesEventType.OnFocus, { detail: e.data, bubbles : true });
                     this.containerElement.dispatchEvent(onFocusEvent);
                     break;
-                case "onBlur":   
+                case "onBlur":
                     const onBlurEvent = new CustomEvent(FramesEventType.OnBlur, { detail: e.data, bubbles : true });
                     this.containerElement.dispatchEvent(onBlurEvent);
                     break;
@@ -95,6 +95,18 @@ export default class FramesControl {
         }
 
         this.exception = value;
+    }
+
+    public async injectData(cardDetails: any): Promise<boolean> {
+        let result = true;
+        this.error = undefined;
+
+        await this.performAction("injectData", cardDetails).catch((ex: any) => {
+            this.error = ex;
+            result = false
+        });
+
+        return result;
     }
 
     public async clear(): Promise<boolean> {
@@ -124,7 +136,7 @@ export default class FramesControl {
     public async submit(): Promise<boolean> {
         let result = true;
         this.error = undefined;
-        
+
         await this.performAction("submitElement").catch((ex: any) => {
             this.error = ex;
             result = false;
@@ -133,7 +145,7 @@ export default class FramesControl {
         return result;
     }
 
-    private async performAction(action: string): Promise<void> {
+    private async performAction(action: string, payload?: any): Promise<void> {
         if (!this.frameElement.contentWindow) {
             return Promise.reject({
                 "action": "frameActionFailed",
@@ -144,11 +156,12 @@ export default class FramesControl {
         this.logger.log(`performAction: Performing action ${action}`, LogLevel.DEBUG);
 
         let messageHandler: any;
-        
+
         const message = {
             id: v4(),
             element: this.type,
-            action: action
+            action: action,
+            payload: payload,
         };
 
         const promise = new Promise((resolve, reject) => {

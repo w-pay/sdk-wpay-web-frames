@@ -1,4 +1,4 @@
-import { IAction } from 'src/actions/types/IAction';
+import { IAction, CardDetails } from 'src/actions/types/IAction';
 import FramesControl from '../controls/framesControl';
 import { inject, injectable } from 'inversify';
 import { ServiceTypes } from '../services';
@@ -12,7 +12,7 @@ export default abstract class ActionBase implements IAction {
     public options: any;
     public frames = new Map<string, FramesControl>();
     public targetElementId: string = "";
-    
+
     public logger!: ILoggingService;
 
     constructor(
@@ -31,8 +31,17 @@ export default abstract class ActionBase implements IAction {
                 errors.push(errorObject.error);
             }
         }));
-        
+
         return errors;
+    }
+
+    public async injectCardDetailsFromPciScopedRuntime(cardDetails: CardDetails) {
+        const injections: Promise<any>[] = [];
+        this.frames.forEach(control => {
+            injections.push(control.injectData(cardDetails));
+        });
+
+        await Promise.all(injections);
     }
 
     public removeElements() {
@@ -81,7 +90,7 @@ export default abstract class ActionBase implements IAction {
         // Create a new frames control for managing the frame content moving forward
         let framesControl = new FramesControl(framesControlType, container, iFrame, this.logger);
         this.frames.set(framesControlType, framesControl);
-        
+
         // Add the container to the target element
         targetElement.appendChild(container);
     }

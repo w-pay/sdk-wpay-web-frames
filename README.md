@@ -235,6 +235,33 @@ document
     .addEventListener(Frames.FramesEventType.OnBlur, () => { // Do something onBlur });
 ```
 
+## Inject Card Details from External Sources
+
+The merchant's app or checkout page may wish to inject card details into the card capture session. The typical use case would be for a mobile app to have implemented OCR capabilities which would allow their customer to capture the card details using the mobile camera.
+
+To enable this workflow, the method `injectCardDetailsFromPciScopedRuntime` may be called, and as hinted by the method name, would increase the PCI-DSS obligations the merchant's implementation.
+
+Only employ this method if the increased obligation scope has been fully understood by the implementor.
+
+```javascript
+// annotated example
+
+// create and start the SDK as per usual
+let action = sdk.createAction(FRAMES.ActionTypes.CaptureCard);
+await action.start();
+
+// inject the display elements
+action.createFramesControl('CardGroup', 'cardElement');
+
+// and to inject the data into the frames
+await action.injectCardDetailsFromPciScopedRuntime(
+    {
+      cardNo: '5353123412341234',
+      expiry: '04/20',
+      cvv: '999'
+    });
+```
+
 ## Styling & Options
 
 In order to ensure seamless integration with your user experience, styling can either be applied to the container via CSS, or in the case you want to make styling changes inside the frame, be injected into the Frames at run time via the options config.
