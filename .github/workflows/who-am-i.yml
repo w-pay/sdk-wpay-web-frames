@@ -11,6 +11,12 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
+      - name: Setup Node
+        uses: actions/setup-node@v2
+        with:
+          node-version: '12.x'
+          registry-url: https://registry.npmjs.org/
+
       - name: Who Am I
         run: npm whoami
         env:
