@@ -1,11 +1,8 @@
 name: '@wpay/frames build'
 
 on:
-  push:
-    branches: [ master ]
-
   pull_request:
-    branches: [ master ]
+    branches: [ main ]
 
 jobs:
   build:
@@ -30,32 +27,3 @@ jobs:
 
       - name: NPM test
         run: npm run test
-
-      - name: NPM Build
-        run: npm run dist
-
-      - name: Commit dist changes
-        if: ${{ github.ref == 'refs/heads/master' }}
-        run: |
-          git add dist/ || echo "No changes to stage"
-          git commit -m 'Updated dists' || echo "No changes to commit"
-
-      # Can't be in a separate job as we need the results of any build to be included in
-      # any published module.
-      - name: Publish
-        if: ${{ github.ref == 'refs/heads/master' }}
-        run: ./scripts/publish.sh
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-
-      - name: Tag
-        if: ${{ github.ref == 'refs/heads/master' }}
-        run: ./scripts/tag.sh
-        env:
-          GH_AUTH_TOKEN: ${{ secrets.GH_AUTH_TOKEN }}
-
-      - name: Push changes
-        if: ${{ github.ref == 'refs/heads/master' }}
-        run: |
-          git push
-          git push --tags
