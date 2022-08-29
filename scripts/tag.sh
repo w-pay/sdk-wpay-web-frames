@@ -17,5 +17,10 @@ else
   git push --tags
 
   echo $GH_AUTH_TOKEN | gh auth login --with-token
-  gh release create $version
+
+  mkdir -p release/ && cd release/
+  npm pack ..
+  cd ..
+
+  gh release create $version ./release/*.tgz
 fi
