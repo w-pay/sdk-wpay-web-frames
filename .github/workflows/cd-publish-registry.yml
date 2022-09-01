@@ -1,11 +1,11 @@
-name: '@wpay/frames build'
+name: '@wpay/frames publish'
 
 on:
   push:
-    branches: [ main ]
+    branches: [ "main" ]
 
 jobs:
-  build:
+  publish:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -27,19 +27,16 @@ jobs:
         run: npm run dist
 
       - name: Publish
-        if: ${{ github.ref == 'refs/heads/main' }}
         run: ./scripts/publish.sh
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Tag and Release
-        if: ${{ github.ref == 'refs/heads/main' }}
         run: ./scripts/tag.sh
         env:
-          GH_AUTH_TOKEN: ${{ secrets.GH_AUTH_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Push changes
-        if: ${{ github.ref == 'refs/heads/main' }}
         run: |
           git push
           git push --tags
