@@ -1,20 +1,13 @@
 # Installation
 
-To install the dev kit, ensure you have npm installed and run
+```
+echo "@w-pay:registry=https://npm.pkg.github.com" >> .npmrc
+npm install @w-pay/sdk-wpay-web-frames
+```
 
-`npm install @wpay/frames --save`
-
-> Developer note: The above is the target experience.  Until the package is deployed to an npm repo, please use `npm link` to link the `@wpay/frames` module to your project.
-> 
-> In the @wpay/frames project run
-> ```
-> npm link
-> ```
-> In your project run
-> ```
-> npm link @wpay/frames
-> ```
-> You should now be able to use the sdk.
+> ***Note:*** For backwards compatibility, NPM packages would continue to
+> be published to the [NPM Repository](https://www.npmjs.com/package/@wpay/frames). 
+> However, the dual-publishing is due to be sunset.
 
 # Getting Started
 

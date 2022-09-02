@@ -1,6 +1,6 @@
 #! /bin/sh
 
-name=$(npm -s run env echo '$npm_package_name')
+name=$([ -z "$npm_package_name" ] && { npm -s run env echo '$npm_package_name'; } || { echo $npm_package_name; })
 version=$(npm -s run env echo '$npm_package_version')
 
 node $PWD/scripts/check-version-published.js $name $version

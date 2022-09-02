@@ -21,19 +21,21 @@ const pkg = process.argv[2];
 const version = process.argv[3];
 const packageData = fetchPackageData(pkg);
 
+
 console.log(`Searching for ${pkg}@${version}`);
-const found = packageData.versions.find((v) => v === version);
+const found = (!packageData.error || packageData.error.code !== "E404")
+	&& packageData.versions.find((v) => v === version);
 
 process.exit(checkResult(found, pkg, version));
 
 function fetchPackageData(pkg) {
-	const data = spawnSync("npm", [ "view", pkg, "--json" ], { encoding: "utf8" }).stdout;
+	const data = spawnSync("npm", [ "view", pkg, "--json", "-s" ], { encoding: "utf8" }).stdout;
 
-	return JSON.parse(data);
+	return data && data.length && JSON.parse(data) || { error: { code: "E404" } };
 }
 
 function checkResult(result, pkg, version) {
-	if (result !== undefined) {
+	if (result) {
 		console.log(`Found ${pkg}@${version}`);
 
 		return 1;
