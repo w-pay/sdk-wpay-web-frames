@@ -5,38 +5,88 @@ on:
     branches: [ "main" ]
 
 jobs:
-  publish:
+  build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v2
+    - name: Checkout
+      uses: actions/checkout@v2
 
-      - name: Setup Node
-        uses: actions/setup-node@v2
-        with:
-          node-version: '12.x'
-          registry-url: https://registry.npmjs.org/
+    - name: Setup Node
+      uses: actions/setup-node@v2
+      with:
+        node-version: '12.x'
+        registry-url: https://registry.npmjs.org/
 
-      - name: NPM install
-        run: npm install
+    - name: NPM install
+      run: npm install
 
-      - name: NPM test
-        run: npm run test
+    - name: NPM test
+      run: npm run test
 
-      - name: NPM Build
-        run: npm run dist
+    - name: NPM Build
+      run: npm run dist
 
-      - name: Publish
-        run: ./scripts/publish.sh
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+  publish-npm:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
 
-      - name: Tag and Release
-        run: ./scripts/tag.sh
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - name: Setup Node
+      uses: actions/setup-node@v2
+      with:
+        node-version: '12.x'
+        registry-url: https://registry.npmjs.org/
 
-      - name: Push changes
-        run: |
-          git push
-          git push --tags
+    - name: NPM install
+      run: npm install
+
+    - name: NPM Build
+      run: npm run dist
+
+    - name: Publish to NPM
+      run: ./scripts/publish.sh
+      env:
+        NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+  publish-gh-packages:
+    needs: build
+    runs-on: ubuntu-latest
+
+    permissions:
+      packages: write
+      contents: write
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Setup Node Registry to GitHub Packages
+      uses: actions/setup-node@v2
+      with:
+        node-version: '12.x'
+        registry-url: 'https://npm.pkg.github.com'
+
+    - name: NPM install
+      run: npm install
+
+    - name: NPM Build
+      run: npm run dist
+
+    - name: Publish to GitHub Packages
+      run: ./scripts/publish.sh
+      env:
+        NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        npm_package_name: "@w-pay/sdk-wpay-web-frames"
+
+    - name: Git Tag and GitHub Release
+      run: ./scripts/tag.sh
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        npm_package_name: "@wpay/frames"
+
+    - name: Push changes
+      run: |
+        git push
+        git push --tags

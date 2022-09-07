@@ -1,20 +1,29 @@
 # Installation
 
-To install the dev kit, ensure you have npm installed and run
+```shell
+# if you don't have the registry for our scope
+echo "@w-pay:registry=https://npm.pkg.github.com" >> .npmrc
+# verify details
+npm config list
 
-`npm install @wpay/frames --save`
+# And! Our SDK
+npm install @w-pay/sdk-wpay-web-frames
+```
 
-> Developer note: The above is the target experience.  Until the package is deployed to an npm repo, please use `npm link` to link the `@wpay/frames` module to your project.
-> 
-> In the @wpay/frames project run
-> ```
-> npm link
-> ```
-> In your project run
-> ```
-> npm link @wpay/frames
-> ```
-> You should now be able to use the sdk.
+If you receive an error similar to `authentication token not provided`, you will need to load up a GitHub Personal Access Token for your login. The steps are as follows:
+
+1. Visit your [GitHub Token Settings]()
+2. Generate a new token for `read:packages`
+3. On your terminal, use the command
+   ```shell
+   npm login --scope=@w-pay --registry=https://npm.pkg.github.com
+   ```
+4. And enter in your GitHub username and the password would be the token generated on step 2.
+
+> ***Note:*** For backwards compatibility, NPM packages would continue to
+> be published to the [NPM Repository](https://www.npmjs.com/package/@wpay/frames). 
+> However, the dual-publishing is due to be sunset.
+
 
 # Getting Started
 
