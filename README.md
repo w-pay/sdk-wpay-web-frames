@@ -27,76 +27,199 @@ If you receive an error similar to `authentication token not provided`, you will
 
 # Getting Started
 
-## Example One - Card Capture
+With the use of this SDK, the PCI obligations of the merchant application is minimized. Flexibility
+pertaining to styling of the card capturing elements for brand management is possible.
 
-- Add the sdk to the page
+This getting started guide is a rapid introduction on using this SDK.
 
-   `<script src="./node_modules/@wpay/frames-sdk/dist/framesSDK.js"></script>`
+## (Step 1) Marking Rendering Elements
+
+The SDK would inject the appropriate `<iframe/>` and other markers by pre-configured by the merchant.
+For a very quick introduction, presume your page would be decorated with the following `<div/>` elements.
+
+> Note - the naming convention of the node ID's is not relevant. These names are passed in later, and as
+> long as the identifiers are addressable by `document.getElementById`, it is suitable.
+
+```html
+<div id="default-card-capture-group">
+  <!-- provide an interface which would accept the card number, expiry, and cvv -->
+</div>
+
+<div id="single-card-number">
+  <!-- only the card number would be injected -->
+</div>
+<div id="single-card-expiry">
+  <!-- only the card expiry field would be injected -->
+</div>
+<div id="single-card-cvv">
+  <!-- likewise, only the CVV capture field would be rendered -->
+</div>
+
+<button id="cha-ching">Pay the Man</button>
+```
+
+## (Step 2) Initialize the Client-Side SDK
+
+Add the SDK to the page -- the method would vary greatly depending on your client-side framework
+being employed -- such as Angular, ReactJS, Vue.js, and so on. For the purposes of this quick starter,
+we would assume a vanilla HTML page is being rendered.
+
+```html
+
+<script src="./node_modules/@w-pay/sdk-wpay-web-frames/dist/framesSDK.js"></script>
+
+<script type="application/javascript">
+
+  async function bootUpFramesSdk() {
+
+    const sdk = new FRAMES.FramesSDK({
+                                       apiKey: '<your_api_key>',
+                                       authToken: 'Bearer <session_created_associated_for_wallet>',
+                                       apiBase: "https://pt-api.wpay.com.au/wow/v1/pay/instore",
+                                       logLevel: FRAMES.LogLevel.DEBUG //optional
+                                     });
+
+    const captureAction = sdk.createAction(FRAMES.ActionTypes.CaptureCard);
+    
+    // this is important for the SDK to obtain additional metadata from the backend
+    // it is an async task -- so either await or treat it with the Promise.then...
+    await captureAction.start();
+    
+    // the various options and configurations will be expanded on later!
+    const options = {};
+    
+    if (merchant_wants_to_control_each_input_field) {
+      captureAction.createFramesControl('CardNo', 'single-card-number', options);
+      captureAction.createFramesControl('CardExpiry', 'single-card-expiry', options);
+      captureAction.createFramesControl('CardCVV', 'single-card-cvv', options);
+    } else {
+      captureAction.createFramesControl('CardGroup', 'default-card-capture-group', options);
+    }
+    
+    /*
+    ///////// NOTE: ADDITIONAL CODE SAMPLES WILL BE PLACED HERE ///////////
+     */
+  }
 
 
-- Add a script tag to the page, initialise the SDK and log into the payment platform.
-
-   ``` 
-   <script>
-        const sdk = new FRAMES.FramesSDK({
-            apiKey: 'YOUR_API_KEY', 
-            authToken: 'YOUR_AUTH_TOKEN' // Format: Bearer token_value, 
-            apiBase: "https://dev.mobile-api.woolworths.com.au/wow/v1/pay/instore", 
-            logLevel: FRAMES.LogLevel.DEBUG
-        });
-   </script>
-   ```
-
-- Start a new card capture action. The action will handle all interactions with your elements, including their creation, validation and submission.
-
-    ```
-    let action = sdk.createAction(FRAMES.ActionTypes.CaptureCard);
-    action.start();
-    ```
-    This will initialise a new card capture action. This call will need to be repeated between subsequent card captures.
+  // only for illustration purposes that the page is starting up
+  // it would vary from framework, to framework
+  window.onload = bootUpFramesSdk;
+  
+</script>
+```
 
 
-- Add the credit card capture frames to the page.
+## (Optional Step 3) Customizing the Elements
 
-    The SDK attaches new elements to `div` placeholders within your page using the element `id`.
+Several styling options and configuration can be used to customize the input fields. The options
+which may be applied for customizing the layout are:
 
-    Add an element to your page.
+```javascript
+const options = {
+  "allowAutoComplete": true, // by default, this is false
+  "css": "", // a CSS style as if it would appear in <style type="text/css"></style> -- see advanced section later
+  
+  "style": { // the ROOT level style applied to all elements
+      // key-values to appear similar to <div style="key: value"/>
+  },
 
-    ```
-    <div id="cardElement"></div>
-    ```
+  // things which would target the card group "container" (not the fields)
+  "cardGroup": {
+    "style": { // key-value pairs for style on <img style="key: value; ..."/>
+    }
+  },
+  
+  // controls card number field (even if card group is used)
+  "cardNo": {
+    "cardType": {
+      "layout": "right", // by default to the right
+      "style": { // key-value pairs for style on <img style="key: value; ..."/>
+      }
+    },
+    "style": {
+      "fontWeight": "bold",
+      "fontStyle": "normal"
+    }
+  },
 
-    After adding your placeholder you can now create your frames element.  When creating an element pass in the type of the element you would like to create and the id of the dom element that you would like to attach it to.
+  "cardExpiry": {
+    "style": { // key-value pairs for style on <img style="key: value; ..."/>
+    }
+  },
 
-    ```
-    action.createFramesControl('CardGroup', 'cardElement');
-    ```
+  "cardCVV": {
+    "style": { // key-value pairs for style on <img style="key: value; ..."/>
+    }
+  },
+};
+```
 
-    Loading the page should now display the credit card capture element, displaying card, expiry date and CVV.
 
-- Submitting the page
+A simplified and contrived example follow for illustration:
 
-    Once the user has entered their credit card details, you are going to want to save the details.  To do this, add a Submit button to the page, calling the `submit` function on the action. This will run the card validation, submitting the form if succcessful.
+```javascript
+const options = {
+  "css" : `
+        input::placeholder {
+            color: blue;
+        }
 
-    ```
-    <button onClick="async function() { await action.submit()}">Submit</button>
-    ```
+        input:hover::placeholder {
+            color: green;
+        }
+    `,
+  "style": {
+    "height": "40px",
+    "fontSize": "30px",
+    "fontStyle": "italic"
+  },
 
-    Once successfully submitted an action needs to be completed.  Do so by calling complete.
+  "cardNo": {
+    "cardType": {
+      "layout": "right",
+      "style": {
+        "width": "50px"
+      }
+    },
+    "style": {
+      "fontWeight": "bold",
+      "fontStyle": "normal"
+    }
+  },
+}
+```
 
-    ```
-    let captureResult = await action.complete();
+## (Step 4) Capturing the Card
 
-    // The save option can be overwritten at completion time. This allows the customer
-    // to give input into whether a card should be saved or not post form rendering.
-    let captureResult = await action.complete(false);
-    ```
+The last step is to capture the card, and handle any issues. Extending the JavaScript from step 2:
 
-    If you would like to clear the element(s), you can also call the `clear` function on the action.
+```javascript
+const captureAction = from_where_we_left_off;
 
-    ```
-    <button onClick="async function() { await action.clear()}">Clear</button>
-    ```
+document.getElementById('cha-ching').onclick = async function () {
+  // we will ask all the frame elements to send their data
+  // internally, this would call the client side captureAction.validate()
+  try {
+    await captureAction.submit();
+  } catch {
+    // if there was a problem, most likely a validation issue
+    // you can grab all the errors as an object and transform it for
+    // user display -- by for developer getting started
+    console.error({errors: action.errors()});
+  }
+
+  const captureResult = await captureAction.complete();
+
+  // or you could redirect the customer!
+  console.log(captureResult);
+  // and let's clear the data for another card capture
+  await action.clear();
+};
+
+```
+
+
 
 ## Example Two - Step Up token creation
 
@@ -168,57 +291,12 @@ If you receive an error similar to `authentication token not provided`, you will
 
 # Advanced
 
-## Multiple elements
-
-The process for using individual elements is much the same as the single grouped element, however split across multiple ekements.
-
-Instead of adding a single, control, use the action to create multiple controls.
-
-```
-action.createFramesControl('CardNo', 'cardCaptureCardNo', options);
-action.createFramesControl('CardExpiry', 'cardCaptureExpiry', options);
-action.createFramesControl('CardCVV', 'cardCaptureCVV', options);
-```
-
-Thats all you need to do.  When you submit the action, the SDK will manage the submission of all of the individual elements for you.
-
 ## Error Handling
 
-Things don't always go smoothly, so sometimes there will be errors within the frames that you need to be aware of.
+TODO: Describe `OnValidated`
 
 Here is an example of subscribing to the `OnValidated` event and registering a function to handle the event (updateErrors).  
 
-**Please note**: The event needs to be registered on the placeholder element that the element is injected into.  Registering in the wrong place may mean you miss the event.
-
-Update errors might look something like this (Pure JS example):
-
-```
-async function updateErrors() {
-    if (action.errors()) { 
-        document.getElementById('cardCaptureErrors').innerHTML = "<ul>"
-
-        for (error of action.errors()) {
-            document.getElementById('cardCaptureErrors').innerHTML += `<li>${error}</li>`;
-        }
-
-        document.getElementById('cardCaptureErrors').innerHTML += "</ul>"
-    } else {
-        document.getElementById('cardCaptureErrors').innerHTML = "";
-    }
-}
-```
-
-Here is a basic mapping of the errors that are returned by the validation
-```
-errorMap: {
-    'Card Number Required': 'Please enter a valid card number.',
-    `Invalid Card Number`: 'Please enter a valid card number.',
-    'Invalid Expiry': 'Please enter a valid expiry.',
-    'Incomplete Expiry': 'Please enter a valid expiry',
-    'Expired card': 'The expiry entered is in the past. Please enter a valid expiry.',
-    'Invalid CVV': 'Please enter a valid CVV.'
-}
-```
 
 ### Form valid event
 
@@ -273,6 +351,8 @@ await action.injectCardDetailsFromPciScopedRuntime(
 
 ## Styling & Options
 
+> TODO: describe some styling options within the `<iframe/>`
+
 In order to ensure seamless integration with your user experience, styling can either be applied to the container via CSS, or in the case you want to make styling changes inside the frame, be injected into the Frames at run time via the options config.
 
 An frame has several classes that can be used as targets for styling:
@@ -295,111 +375,6 @@ Here is an example of how one might use these classes to customise the style of 
 }
 ```
 
-If you would like to further style the internal aspects of the element such as font-family/style/weight you can do so using the options object.
-
-The options object allows you to either apply styling to all elements under the control of an action, or scope your changes to only the elements you want to change.
-
-For instance this would set the height of the frame element top 40px and apply a font size of 30 pixels to all elements:
-
-```
-let options = {
-    "height": "40px",
-    "style": {
-        "fontSize": "30px"
-    }
-}
-```
-
-If you then wanted to make the cardNo element bold, while making the other fields italic, you could do so like this:
-
-```
-let options = {
-    "height": "40px",
-    "cardNo": {
-        "style": {
-            "fontWeight": "bold",
-            "fontStyle": "normal"
-        }
-    },
-    "style": {
-        "fontSize": "30px",
-        "fontStyle": "italic"
-    }
-}
-```
-
-The cardNo element is a little unique in that it has a sub element type that is used to show an image based on card scheme.  This element can also be targeted and has an additional property allowing you to choose which side of the element it is displayed on.
-
-This example moves the card type to the right and sets the image width to 50px to fill out the space:
-
-```
-let options = {
-    "height": "40px",
-    "cardNo": {
-        "cardType": {
-            "layout": "right",
-            "style": {
-                "width": "50px"
-            }
-        },
-        "style": {
-            "fontWeight": "bold",
-            "fontStyle": "normal"
-        }
-    },
-    "style": {
-        "fontSize": "30px",
-        "fontStyle": "italic"
-    }
-}
-```
-
-Sometimes you want to make customisations that cant be inlined, such as change the placeholder text, or have a different colour on hover.  You are able to do this by injecting CSS styling into the frame using the css property.
-
-This example sets the placeholder colour to blue and changes it to green on hover:
-
-```
-let options = {
-    height: "40px",
-    "cardNo": {
-        "cardType": {
-            "layout": "right",
-            "style": {
-                "width": "50px"
-            }
-        },
-        "style": {
-            "fontWeight": "bold",
-            "fontStyle": "normal"
-        }
-    },
-    "style": {
-        "fontStyle": "italic",
-        "color": "blue",
-        "fontSize": "30px"
-    },
-    "css" : `
-        input::placeholder {
-            color: blue;
-        }
-
-        input:hover::placeholder {
-            color: green;
-        }
-    `
-}
-```
-
-## Logging
-
-If you would like to see what is going on inside of the SDK, you can enable logging using the SDK constructor.  Simply set the log level you would like to see and you should be able to see the log output in the console window.  The log level is universal so applies to both the SDK and IFrame content.
-
-### Log Levels
-
-- NONE = 0,
-- ERROR = 50,
-- INFO = 100,
-- DEBUG = 200
 
 ## Capture Card Options
 
