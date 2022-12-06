@@ -210,18 +210,224 @@ document.getElementById('cha-ching').onclick = async function () {
   }
 
   const captureResult = await captureAction.complete();
-
-  // or you could redirect the customer!
+  
+  // todo: illustrate capture result has an instrument id
   console.log(captureResult);
-  // and let's clear the data for another card capture
-  await action.clear();
-};
 
+  // out of scope: make payment with Wpay using the instrument ID
+  // often implemented via a Merchant API Service
+};
+```
+
+---
+
+# 3DS Card Validation / Challenge
+
+The SDK has facilities for supporting the merchant with 3DS. There are two use cases which may require 3DS authentication/challenges:
+
+* Adding cards to the shopper's wallet (`card capture` use-case)
+* Performing payments (`make payment` use-case)
+
+Similar to other card capture elements, the merchant will need to designate a target element to host the modal elements.
+
+> Please refer to the [test cards published on the Developer Hub](https://developerhub.wpay.com.au/digitalpayments/docs/test-card-numbers#3ds-test-cards) to simulate the variations of 3DS decisions.
+
+In general, the workflow would follow the key steps:
+1. Perform the step (either `make payment` or `card capture`), to which the action is denied and a "session id" is issued
+2. Using the "session id," obtain the appropriate "challenge response".
+3. Re-attempt the same action as per step 1 but with the additional challenge response obtained from step 3.
+4. Profit!
+
+
+
+## (Step 1) 3DS Required on Payment or Card Capture
+
+Perform the operation as normal -- if 3DS flow is required to obtain a token, the error response type would indicate `3DS_001` stating "3DS token required".
+
+> Note: triggering the 3DS token being required is nuanced with many potential triggers, and is beyond the scope of this document to exhaustively list the triggers according to your merchant configuration. Please contact your account manager for technical support to match your business requirements and use-cases.
+
+For concise details of each use case in the phase of receiving the `3DS_001`, see the subheadings for `make payment` and `card capture`.
+
+### (Step 1a) Make Payment requiring 3DS Token
+
+[When a payment request is made to Wpay](https://developerhub.wpay.com.au/digitalpayments/docs/make-payment#make-a-payment), and a 3DS token is required to be accompanied, the transaction would fail. The following condensed snippet is a sample response.
+
+```json
+{
+    "type": "PAYMENT",
+    "status": "REJECTED",
+    "subTransactions": [
+        {
+            "threeDS": {
+                "sessionId": "eyJhbGciOiJI...Vf4yeS2jx7rPZQ",
+                "paymentInstrumentId": "12345"
+            },
+            "errorCode": "3DS_001",
+            "errorMessage": "3DS TOKEN REQUIRED"
+        }
+    ]
+}
+```
+
+The key elements which the merchant needs to recognize and react to in the above response, is:
+1. that the payment failed (`.status == "REJECTED"`);and,
+2. the reason it failed is that 3DS token needs to be provided (`.subTransactions[].errorCode == "3DS_001"`).
+
+Since the `make payment` procedure is typically called by the merchant backend, the significant variable to return to the user interface is the following element, which we will refer into the subsequent steps.
+```javascript
+// pseudo code -- note the subTransaction may have multiple elements
+// depending if split-payments is employed.
+const THREEDS_SESSION_ID = initialPaymentRequest.subTransactions[theIndex].threeDS.sessionId;
+```
+
+### (Step 1b) Upon Card Capture
+
+As you may recall, card capturing would eventually reach the critical step of `action.complete()`. The following pseudo-snippet has been illustrated in detecting when a 3DS session needs to commence:
+```javascript
+const shouldSaveCard = true;
+const captureResult = await captureAction.complete(shouldSaveCard);
+
+if (captureResult.errorCode === "3DS_001") {
+  const THREEDS_SESSION_ID = captureResult.token;
+}
+```
+
+
+## (Step 2) Card Validation Enrollment and Modal
+
+To begin the card validation, the `THREEDS_SESSION_ID` from Step 0 needs to used to initialize the `ValidateCard` action. In addition, the frame control for hosting the 3DS modal needs to be nominated.
+
+```javascript
+// by way of reminder on the Frames SDK reference
+const sdk = new FRAMES.FramesSDK({ /* */ });
+
+// and how to create the 3DS validate action...
+async function obtain3dsToken(THREEDS_SESSION_ID) {
+  const validateCardRequestParameters = {
+    sessionId: THREEDS_SESSION_ID, // NOTE: this is from (Step 0)
+    threeDS: {
+      // by default, any value other than "prod" is staging
+      env: isProduction ? "prod" : "staging",
+    },
+  };
+
+  const validateAction = sdk.createAction(
+          FRAMES.ActionTypes.ValidateCard,
+          validateCardRequestParameters
+  );
+
+  // this will load up "Songbird" and other Cardinal 3DS support libs
+  await validateAction.start();
+
+  // specify which element to render into - in this case, the following
+  // should be accessible `document.getElementById('theTargetElementForValidateCard');
+  validateAction.createFramesControl('ValidateCard', 'theTargetElementForValidateCard');
+  
+  return await validateAction.complete();
+}
+```
+
+
+## (Step 3) Retrying to Operation with the 3DS Token
+
+In the prior step (Step 1), the function `obtain3dsToken` would yield a payload which is usable in the re-attempt of the operation --
+
+```javascript
+// callee
+const threeDsTokenResult = await obtain3dsToken(THREEDS_SESSION_ID);
+
+// and what needs to be composed into the 3ds token presentation for backend.
+const THREEDS_PAYLOAD = threeDsTokenResult.challengeResponse;
+// which would eval/yield
+//      { /// THREEDS_PAYLOAD
+//         "type": "3DS-frictionless", // alternative "3DS"
+//         "instrumentId": "12345",
+//         "token": "...",
+//         "reference": "..."
+//      }
+```
+
+## (Step 3a) Making Payment with a 3DS Token
+
+The payload `THREEDS_PAYLOAD` is injected into the [make payment endpoint](https://developerhub.wpay.com.au/digitalpayments/docs/make-payment#make-a-payment) with the critical transformation being key --
+
+```
+// POST /wow/v1/pay/instore/customer/payments
+
+{
+  "data": {
+    // ...
+  },
+  "meta": {
+    // ...
+    "challengeResponses": [
+      { /// THREEDS_PAYLOAD
+        "type": "3DS-frictionless",
+        "instrumentId": "12345",
+        "token": "...",
+        "reference": "..."
+      },
+      // ...  other challenges like step ups
+    ]
+  }
+}
+```
+
+### (Step 3b) Adding a Card with 3DS Token
+
+Expanding on the pseudo-example from Step 1b, the retry is earmarked below:
+```javascript
+const shouldSaveCard = true;
+const captureResult = await captureAction.complete(shouldSaveCard);
+
+if (captureResult.errorCode === "3DS_001") {
+  const THREEDS_SESSION_ID = captureResult.token;
+
+  // step 2
+  const threeDsTokenResult = await obtain3dsToken(THREEDS_SESSION_ID);
+  const THREEDS_PAYLOAD = threeDsTokenResult.challengeResponse;
+  
+  // retry the operation again
+  const captureResult = await captureAction.complete(shouldSaveCard, [ THREEDS_PAYLOAD ]);
+}
+```
+
+## (Step 4) Detecting and Dealing with Unsuccessful 3DS Authentication
+
+TODO: expand on best practices
+
+
+## (Optional Step 5) Detecting 3DS Modal Pop-ups
+
+Your user experience may need to detect when the 3DS modal which banks usually challenges the customer via an interaction. The following events are emitted when the challenge UI renders and when the challenge is completed and/or dismissed.
+
+> Tip: For the challenge modals to be presented in the testing environments, use the "Successful Step-Up Authentication" cards [as published on the Developer Hub](https://developerhub.wpay.com.au/digitalpayments/docs/test-card-numbers#3ds-test-cards).
+
+```javascript
+// your user code.
+const handleRenderEventListner = () => { /* ... */ }
+const handleCloseEventListner = () =>  { /* ... */ }
+
+const domElementHostingValidatedCard = document.getElementById('theTargetElementForValidateCard');
+
+domElementHostingValidatedCard.addEventListener(FRAMES.FramesCardinalEventType.OnRender, renderEventListener);
+domElementHostingValidatedCard.addEventListener(FRAMES.FramesCardinalEventType.OnClose, closeEventListener);
+
+// and don't forget to unsubscribe in case you care about memory management...
+domElementHostingValidatedCard.removeEventListener(FRAMES.FramesCardinalEventType.OnRender, renderEventListener);
+domElementHostingValidatedCard.removeEventListener(FRAMES.FramesCardinalEventType.OnClose, closeEventListener);
 ```
 
 
 
-## Example Two - Step Up token creation
+
+
+
+
+
+
+
+## Example Two - Saved Instrument 
 
 - Add the sdk to the page
 
@@ -290,6 +496,8 @@ document.getElementById('cha-ching').onclick = async function () {
     ```
 
 # Advanced
+
+## Form Validation
 
 ## Error Handling
 
@@ -390,283 +598,7 @@ const action = cdk.createAction(FRAMES.ActionTypes.CaptureCard, { verify: true }
 
 # 3DS2
 
-> Please note:  In order to use 3DS you merchant must have had 3DS enabled
-
-The Frames SDK offers 3DS2 verification cababilities by wrapping Cardinals (https://www.cardinalcommerce.com/) 3DS songbird library and orchestrating the 3DS verification process.  There are 2 supported flows, one for verification of cards during the capture process and a second for verification at time of payment.
-
-## Selecting an environment
-
-Cardinal is a little unique in how it does environement management, providing 2 instances of the songbird library, one for staging and a second for production use.  Both versions of the library have been included in the SDK so that there are no code changes required between environments.
-
-In order to protect production the SDK will use the staging version by default.  In order to switch the threeDS enabled actions over to production you need to provide the following in your options when creating the action.
-
-```
-{
-    threeDS: {
-        env: "prod"
-    }
-}
-```
-
-Here is an example of the prod config being used to validate a card:
-
-```
-const enrollmentRequest: any = {
-    sessionId: CARD_CAPTURE_RESPONSE_TOKEN,
-    threeDS: {
-        env: "prod"
-    }
-};
-
-const action = this.framesSDK.createAction(FRAMES.ActionTypes.ValidateCard, enrollmentRequest);
-```
-
-## Card Verification
-
-If you wish to perform 3DS2 verification as part of a card capture exercise, you can do so by specifying that 3DS is required when initializing the card capture action.
-
-- Create a new card capture action, specifying that 3DS is required.
-
-```
-const captureCardAction = this.framesSDK.createAction(
-    FRAMES.ActionTypes.ValidateCard,
-    {
-        threeDS: {
-          requires3DS: true
-        }
-    }
-) as CaptureCard;
-```
-
-- Capture card as per normal.  When you call complete, you will recieve a failure with a 3DS challenge.  For example:
-
-```
-{
-    "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJPcmdVbml0SWQiOiI2MGFmOGExZTBiYWM1ZDUwY2MyNmYzM2MiLCJSZWZlcmVuY2VJZCI6ImUxYzdjNzk4LWE1MjYtNDZhMC05ODU4LTRmNGIwMmNlNzdiOSIsImlzcyI6InBldGN1bHR1cmUiLCJQYXlsb2FkIjp7ImFjdGlvbklkIjoiYzYxZmM1OTgtZDU3ZS00MWM3LTg4YzQtMjhhODlkOTczYzEyIiwib3JkZXJJbmZvcm1hdGlvbiI6eyJhbW91bnREZXRhaWxzIjp7ImN1cnJlbmN5IjoiQVVEIn19fSwiaWF0IjoxNjI3NTE3MTc2LCJqdGkiOiIzNDMyMDBmMC0wNzQ3LTQ1NWUtODdlMi04ZTU5OTc3ZTAzMDEifQ.bghcu82uOuN6LSX_oKPj8f6WjBMhnXK3DYUkfp1F0mc",
-    "message": "3DS TOKEN REQUIRED"}
-}
-```
-
-- Create and start a validateCard action.  This will initialise the cardinal library and perform device data capture.
-
-```
-const enrollmentRequest: any = {
-    sessionId: cardCaptureResponse.token,
-    threeDS: {
-        env: "staging"
-    }
-};
-
-const action = this.framesSDK.createAction(FRAMES.ActionTypes.ValidateCard, enrollmentRequest);
-await action.start();
-```
-
-- Set the targetElement that you would like the 3DS frame to render to
-
-```
-action.createFramesControl('ValidateCard', 'yourElementId');
-```
-
-- Typically the 3DS window is displayed as a modal, however hte IFrame can be embedded anywhere.  To assist in building out your experience, we have 2 events:
-  - OnRender: Triggered once the issuer content has been embedded into the targetElement
-  - On Close: Triggered once the issuer content has been dismissed.
-
-  These events can be subscribed to in the typical fashion:
-
-  ```
-    const renderEventListener = () => {
-        // Do something on render
-        console.log('Show modal');
-    };
-
-    const closeEventListener = () => {
-        // Do something on close
-        console.log('Hide modal');
-    };
-
-    elementHandle.addEventListener(FRAMES.FramesCardinalEventType.OnRender, renderEventListener);
-    elementHandle.addEventListener(FRAMES.FramesCardinalEventType.OnClose, closeEventListener);
-  ```
-
-- Complete the validateCard action.  If successful this will return a challengeResponse that can be used to complete the captureCard action.
-
-```
-const validationResponse = await action.complete();
-```
-
-Here is an example reponse:
-  ```
-{
-    "threeDSData": {
-        "Validated": true,
-        "ActionCode": "SUCCESS",
-        "ErrorNumber": 0,
-        "ErrorDescription": "Success",
-        "Payment": {
-            "Type": "CCA",
-            "ExtendedData": {
-                "Amount": "0",
-                "CAVV": "MTIzNDU2Nzg5MDEyMzQ1Njc4OTA=",
-                "CurrencyCode": "036",
-                "ECIFlag": "05",
-                "ThreeDSVersion": "2.1.0",
-                "PAResStatus": "Y",
-                "SignatureVerification": "Y"
-            },
-            "ProcessorTransactionId": "Rq6wpFnMVE9tMpRjuIC0"
-        }
-    },
-    "challengeResponse": {
-        "type": "3DS",
-        "instrumentId": undefined,
-        "token": "Rq6wpFnMVE9tMpRjuIC0",
-        "reference": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJPcmdVbml0SWQiOiI2MGFmOGExZTBiYWM1ZDUwY2MyNmYzM2MiLCJSZWZlcmVuY2VJZCI6ImE4N2VmMWM3LWE4ZjUtNGYzNy05MjY2LTQzMzE0MzNmNjJiOSIsImlzcyI6InBldGN1bHR1cmUiLCJQYXlsb2FkIjp7ImFjdGlvbklkIjoiODQwOTE1YTQtNjkzYS00YmQ3LTk1OTMtZGZjYWM0YjE4NjQ2Iiwib3JkZXJJbmZvcm1hdGlvbiI6eyJhbW91bnREZXRhaWxzIjp7ImN1cnJlbmN5IjoiQVVEIn19fSwiaWF0IjoxNjI3NTE5MzY1LCJqdGkiOiJkZmM4MWRiOC01YTA1LTQzMTUtODBmMy00NDAyNTZiZjA2MTgifQ.BIcz8Jk6cFYYSv872M1mCISEQqAvWJKDeDXv-2qF-ko"
-    }
-}
-  ```
-
-- Complete the capture card action, providing the challengeResponse.  This should return the standard card capture response with the addition of the 3DS evidence used in its creation.
-
-```
-const cardCaptureResponse = await this.captureCardAction.complete(this.saveCard, [validationResponse.challengeResponse]);
-```
-
-- As part of good house keeping we should unsubscribe from the events we subscribed to earlier:
-
-```
-elementHandle.removeEventListener(FRAMES.FramesCardinalEventType.OnRender, renderEventListener);
-elementHandle.removeEventListener(FRAMES.FramesCardinalEventType.OnClose, closeEventListener);
-```
-
 ## Payment Verification
-
-If 3DS has been requested as part of the payment flow then you will be required to provide a 3DS challenge response when attempting to make a payment.  To create the challenge response, you need to create and execute the validatePayment action.  This will orchestrate 3DS verifaction using the Cardinal Songbird library and return a chellengeResponse that can then be used when making a payment.
-
-
-
-- Create a paymentRequest using the WPay SDK passing in the config for 3DS.
->Please note, your schemaId may differ
-
-```
-const request = {
-    merchantReferenceId: 12345,
-    maxUses: 3,
-    timeToLivePayment: 300,
-    grossAmount: 2.40,
-    merchantPayload: {
-        schemaId: '0a221353-b26c-4848-9a77-4a8bcbacf228',
-        payload: { 
-            requires3DS: settings.merchant.require3DSPA 
-        }
-    }
-};
-
-return merchantSDK.payments.createPaymentRequest(request);
-```
-
-- Make a payment.  The request should fail requesting a 3DS challenge response, you will need need the session returned when creating the challengeResponse below.
-
-```
-const transaction = await customerSDK.paymentRequests.makePayment(paymentRequestId, paymentInstrumentId);
-```
-
-Here is an example of rejected transaction with 3DS challenge:
-
-```
-{
-    "type": "PAYMENT",
-    "status": "REJECTED",
-    "rollback": "NOT_REQUIRED",
-    "merchantId": "petculture",
-    "grossAmount": 12.4,
-    "instruments": [
-        {
-            "transactions": [],
-            "instrumentType": "CREDIT_CARD",
-            "paymentInstrumentId": "198821"
-        }
-    ],
-    "executionTime": "2021-07-29T01:53:33.517Z",
-    "transactionId": "9b5eaf73-30d8-4f32-aeb5-e1c4ac2a2a8c",
-    "clientReference": "9b5eaf73-30d8-4f32-aeb5-e1c4ac2a2a8c",
-    "subTransactions": [
-        {
-            "threeDS": {
-                "sessionId": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiIzNGE5MjVhNi0wNzFmLTRiZjEtODA0MS1lOGJmNjEwYzQ4ZTgiLCJpYXQiOjE2Mjc1MjM2MTcuMDk4LCJpc3MiOiJwZXRjdWx0dXJlIiwiT3JnVW5pdElkIjoiNjBhZjhhMWUwYmFjNWQ1MGNjMjZmMzNjIiwiUGF5bG9hZCI6eyJwYXltZW50SW5zdHJ1bWVudElkIjoiMTk4ODIxIiwib3JkZXJJbmZvcm1hdGlvbiI6eyJhbW91bnREZXRhaWxzIjp7ImN1cnJlbmN5IjoiQVVEIiwiYW1vdW50IjoxMi40fX19LCJPYmplY3RpZnlQYXlsb2FkIjp0cnVlLCJSZWZlcmVuY2VJZCI6IjQ1OTA3MzQ5LWU2OTEtNDFkOS05Njk3LTgxYWFiMTc4MzZlZSJ9.W9D3yDqnGDZg3QncvVmiVfe7d8LW2se4yeS2jx7rPZQ",
-                "paymentInstrumentId": "198821"
-            },
-            "errorCode": "3DS_001",
-            "errorMessage": "3DS TOKEN REQUIRED"
-        }
-    ],
-    "paymentRequestId": "34a925a6-071f-4bf1-8041-e8bf610c48e8",
-    "merchantReferenceId": "d0a118eb-613e-4899-8b71-70806abd40be"
-}
-```
-
-- Create and start the validatePayment action.  This will initialise the cardinal library and perform device data capture.
-
-```
-const enrollmentRequest: any = {
-    sessionId, (Provided in the 3DS challenge)
-    paymentInstrumentId, (The payment instrumentID you want to perform 3DS on - must match instrument used in the challenge)
-    threeDS: {
-        env: "staging",
-        consumerAuthenticationInformation: {
-          acsWindowSize: this.acsWindowSize,
-        }
-    }
-};
-
-const action = this.framesSDK.createAction(FRAMES.ActionTypes.ValidatePayment, enrollmentRequest) as ValidatePayment;
-
-await action.start();
-```
-- Set the targetElement that you would like the 3DS frame to render to
-
-```
-action.createFramesControl('ValidatePayment', 'yourElementId');
-```
-
-- Typically the 3DS window is displayed as a modal, however hte IFrame can be embedded anywhere.  To assist in building out your experience, we have 2 events:
-  - OnRender: Triggered once the issuer content has been embedded into the targetElement
-  - On Close: Triggered once the issuer content has been dismissed.
-
-  These events can be subscribed to in the typical fashion:
-
-  ```
-    const renderEventListener = () => {
-        // Do something on render
-        console.log('Show modal');
-    };
-
-    const closeEventListener = () => {
-        // Do something on close
-        console.log('Hide modal');
-    };
-
-    elementHandle.addEventListener(FRAMES.FramesCardinalEventType.OnRender, renderEventListener);
-    elementHandle.addEventListener(FRAMES.FramesCardinalEventType.OnClose, closeEventListener);
-  ```
-
-- Complete the action.  If successful this will return a 3DS challenge response.
-
-```
-const validationResponse = await action.complete();
-```
-
-- Make the payment providing the challengeResponse in the request.  The payment should now go through successfully.
-
-```
-const transaction = await this.customerSDK.paymentRequests.makePayment(paymentRequestId, paymentInstrumentId, [], undefined, undefined, undefined, [validationResponse.challengeResponse]);
-```
-
-- As part of good house keeping we should unsubscribe from the events we subscribed to earlier:
-
-```
-elementHandle.removeEventListener(FRAMES.FramesCardinalEventType.OnRender, renderEventListener);
-elementHandle.removeEventListener(FRAMES.FramesCardinalEventType.OnClose, closeEventListener);
-```
 
 ### Additional 3DS config
 
