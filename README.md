@@ -25,7 +25,7 @@ Access Token for your login. The steps are as follows:
 > be published to the [NPM Repository](https://www.npmjs.com/package/@wpay/frames).
 > However, the dual-publishing is due to be sunset.
 
-# Getting Started
+# Getting Started -- Tokenize Card for Payments
 
 With the use of this SDK, the PCI obligations of the merchant application is minimized. Flexibility
 pertaining to styling of the card capturing elements for brand management is possible.
@@ -249,7 +249,91 @@ document.getElementById('cha-ching').onclick = async function () {
 
     // out of scope: make payment with Wpay using the instrument ID
     // often implemented via a Merchant API Service
+    // see: https://developerhub.wpay.com.au/digitalpayments/docs/make-payment
 };
+```
+
+---
+
+# Getting Started with Step-Up Challenges
+
+When cards are added to the wallet, the business rules may require a CVV to be confirmed by the shopper to present a
+step-up token for processing payments.
+
+Similar to the card tokenization getting started guide (above), the general steps are:
+
+1. Mark the elements to host the CVV `<iframe/>` element.
+2. Initialize the SDK.
+3. Obtain the step-up token for further processing
+   on [making a payment with step-up tokens](https://developerhub.wpay.com.au/digitalpayments/docs/make-payment#step-up-tokens)
+   .
+
+Assuming the dear reader of this SDK read the prior getting started section, the following example would be concise
+minimal reference.
+
+```html
+
+<div id="single-card-cvv">
+    <!-- likewise, only the CVV capture field would be rendered -->
+</div>
+
+<button id="cha-ching">Pay the Man Again!</button>
+
+<script src="./node_modules/@w-pay/sdk-wpay-web-frames/dist/framesSDK.js"></script>
+
+<script type="application/javascript">
+
+    async function bootUpFramesSdk() {
+
+        const sdk = new FRAMES.FramesSDK({
+                                             apiKey: '<your_api_key>',
+                                             authToken: 'Bearer <session_created_associated_for_wallet>',
+                                             apiBase: "https://pt-api.wpay.com.au/wow/v1/pay/instore",
+                                             logLevel: FRAMES.LogLevel.DEBUG //optional
+                                         });
+
+        // TIP: use the attributes provided by the instrument list for the init
+        // values below -- https://developerhub.wpay.com.au/digitalpayments/reference/getcustomerpaymentinstruments
+        const stepUpActionOptions = {
+            paymentInstrumentId: YOUR_PAYMENT_INSTRUMENT_WHICH_YOU_ARE_STEPPING_UP,
+            scheme: '<PAYMENT INSTRUMENT SCHEME>'
+        };
+        // NOTE: the action type is different from CardCapture
+        const stepUpAction = sdk.createAction(FRAMES.ActionTypes.StepUp, stepUpActionOptions);
+
+        await stepUpAction.start();
+
+        const elementOptions = {};
+        stepUpAction.createFramesControl('CardCVV', 'single-card-cvv', elementOptions);
+
+        document.getElementById('cha-ching').onclick = async function () {
+            // we will ask all the frame elements to send their data
+            // internally, this would call the client side captureAction.validate()
+            try {
+                await stepUpAction.submit();
+            } catch {
+                // if there was a problem, most likely a validation issue
+                // you can grab all the errors as an object and transform it for
+                // user display -- by for developer getting started
+                console.error({ errors: action.errors() });
+            }
+
+            const stepUpResult = await stepUpAction.complete();
+
+            console.log(stepUpResult);
+
+            // out of scope: make payment with Wpay using the instrument ID
+            // often implemented via a Merchant API Service
+            // see: https://developerhub.wpay.com.au/digitalpayments/docs/make-payment
+        };
+    }
+
+
+    // only for illustration purposes that the page is starting up
+    // it would vary from framework, to framework
+    window.onload = bootUpFramesSdk;
+
+</script>
 ```
 
 ---
@@ -530,6 +614,8 @@ targetElement.removeEventListener(Frames.FramesEventType.OnFocus, handleCardNumb
 targetElement.removeEventListener(Frames.FramesEventType.OnBlur, handleCardNumberWentBlur);
 ```
 
+Included in the list of events is raising the form validation states of the users' inputs (e.g. `OnValidated`).
+
 ## Card Verification
 
 When adding a card to the customer's wallet, the tokenization step may validate whether the card details
@@ -579,97 +665,3 @@ await action.injectCardDetailsFromPciScopedRuntime(
     });
 ```
 
-## Example Two - Saved Instrument
-
-- Add the sdk to the page
-
-  `<script src="./node_modules/@wpay/frames/dist/framesSDK.js" />`
-
-
-- Add a script tag to the page, initialise the SDK and log into the payment platform.
-
-   ``` 
-   <script>
-        const sdk = new FRAMES.FramesSDK({
-            apiKey: 'YOUR_API_KEY', 
-            authToken: 'YOUR_AUTH_TOKEN' // Format: Bearer token_value, 
-            apiBase: "https://dev.mobile-api.woolworths.com.au/wow/v1/pay/instore", 
-            logLevel: FRAMES.LogLevel.DEBUG
-        });
-   </script>
-   ```
-
-- Start a new card step up action referencing your paymentInstrumentID and the scheme of the instrument (e.g. VISA)
-
-    ```
-    let action = sdk.createAction(
-        FRAMES.ActionTypes.StepUp,
-        {
-            paymentInstrumentId: <YOUR PAYMENT INSTRUMENT ID>,
-            scheme: <PAYMENT INSTRUMENT SCHEME>
-        }
-    );
-    action.start();
-    ```
-  This will initialise a new step up action. This call will need to be repeated between subsequent step up token
-  requests.
-
-
-- Add the cvv element to the page.
-
-  The SDK attaches new elements to `div` placeholders within your page using the element `id`.
-
-  Add an element to your page.
-
-    ```
-    <div id="cvvElement"></div>
-    ```
-
-  After adding your placeholder you can now create your frames element. When creating an element pass in the type of the
-  element you would like to create and the id of the dom element that you would like to attach it to.
-
-    ```
-    action.createFramesControl('CardCVV', 'cvvElement');
-    ```
-
-  Loading the page should now display the credit card capture element, displaying card, expiry date and CVV.
-
-- Submitting the page
-
-  Once the user has entered their CVV, you are going to want to submit and create the step up token. To do this, add a
-  Submit button to the page, calling the `submit` function on the action.
-
-    ```
-    <button onClick="async function() { await action.submit()}">Submit</button>
-    ```
-
-  Once successfully submitted an action needs to be completed. Do so by calling complete.
-
-    ```
-    let stepUpResult = await action.complete();
-
-    ```
-
-# Advanced
-
-## Form Validation
-
-## Error Handling
-
-TODO: Describe `OnValidated`
-
-Here is an example of subscribing to the `OnValidated` event and registering a function to handle the event (
-updateErrors).
-
-
-## 3DS ERROR Codes
-
-- 3DS_001: 3DS Token Required
-- 3DS_002: Invalid session
-- 3DS_003: 3DS Validation Failed
-- 3DS_004: Unsupported 3DS Version
-- 3DS_005: 3DS Service Unavailable
-- 3DS_006: 3DS Authentication Failed
-- 3DS_007: 3DS Validation Timeout
-- 3DS_100: Merchant does not support 3DS
-- 3DS_500: 3DS Unknown Error
