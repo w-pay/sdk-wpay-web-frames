@@ -433,7 +433,7 @@ async function captureCardToWallet() {
 
 ## (Step 2) Card Validation Enrollment and Modal
 
-To begin the card validation, the `THREEDS_SESSION_ID` from Step 0 needs to used to initialize the `ValidateCard`
+To begin the card validation, the `THREEDS_SESSION_ID` from Step 1 needs to used to initialize the `ValidateCard`
 action. In addition, the frame control for hosting the 3DS modal needs to be nominated.
 
 ```javascript
@@ -443,7 +443,7 @@ const sdk = new FRAMES.FramesSDK({ /* */ });
 // and how to create the 3DS validate action...
 async function obtain3dsToken(THREEDS_SESSION_ID) {
     const validateCardRequestParameters = {
-        sessionId: THREEDS_SESSION_ID, // NOTE: this is from (Step 0)
+        sessionId: THREEDS_SESSION_ID, // NOTE: this is from (Step 1)
         threeDS: {
             // by default, any value other than "prod" is staging
             env: isProduction ? "prod" : "staging",
@@ -476,7 +476,7 @@ on [CyberSouce Documentation for the Enrollment Request](https://developer.cyber
 
 ## (Step 3) Retrying to Operation with the 3DS Token
 
-In the prior step (Step 1), the function `obtain3dsToken` would yield a payload which is usable in the re-attempt of the
+In the prior step (Step 2), the function `obtain3dsToken` would yield a payload which is usable in the re-attempt of the
 operation --
 
 ```javascript
@@ -548,7 +548,7 @@ async function captureCardToWallet() {
 
 ## (Step 4) Detecting and Dealing with Unsuccessful 3DS Authentication
 
-TODO: expand on best practices
+TODO: expand on best practices. 
 
 ## (Optional Step 5) Detecting 3DS Modal Pop-ups
 
