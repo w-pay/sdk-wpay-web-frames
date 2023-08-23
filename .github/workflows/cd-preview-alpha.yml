@@ -33,7 +33,7 @@ jobs:
       - name: NPM Pack
         run: |
           # sometimes files which is tracked is changed (e.g. lock file)
-          git commit -am "changed"
+          git commit -am "changed" || echo "nothing changed"
           
           # make a reasonable version number
           VERSION=$(date +"%Y.%m.%d-alpha%H%M")
