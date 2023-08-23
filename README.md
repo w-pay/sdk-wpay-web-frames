@@ -10,7 +10,8 @@ npm config list
 npm install @w-pay/sdk-wpay-web-frames
 ```
 
-If you receive an error similar to `authentication token not provided`, you will need to load up a GitHub Personal Access Token for your login. The steps are as follows:
+If you receive an error similar to `authentication token not provided`, you will need to load up a GitHub Personal
+Access Token for your login. The steps are as follows:
 
 1. Visit your [GitHub Token Settings]()
 2. Generate a new token for `read:packages`
@@ -21,234 +22,627 @@ If you receive an error similar to `authentication token not provided`, you will
 4. And enter in your GitHub username and the password would be the token generated on step 2.
 
 > ***Note:*** For backwards compatibility, NPM packages would continue to
-> be published to the [NPM Repository](https://www.npmjs.com/package/@wpay/frames). 
+> be published to the [NPM Repository](https://www.npmjs.com/package/@wpay/frames).
 > However, the dual-publishing is due to be sunset.
 
+# Getting Started -- Tokenize Card for Payments
 
-# Getting Started
+With the use of this SDK, the PCI obligations of the merchant application is minimized. Flexibility
+pertaining to styling of the card capturing elements for brand management is possible.
 
-## Example One - Card Capture
+This getting started guide is a rapid introduction on using this SDK.
 
-- Add the sdk to the page
+## (Step 1) Marking Rendering Elements
 
-   `<script src="./node_modules/@wpay/frames-sdk/dist/framesSDK.js"></script>`
+The SDK would inject the appropriate `<iframe/>` and other markers by pre-configured by the merchant.
+For a very quick introduction, presume your page would be decorated with the following `<div/>` elements.
 
+> Note - the naming convention of the node ID's is not relevant. These names are passed in later, and as
+> long as the identifiers are addressable by `document.getElementById`, it is suitable.
 
-- Add a script tag to the page, initialise the SDK and log into the payment platform.
+```html
 
-   ``` 
-   <script>
+<div id="default-card-capture-group">
+    <!-- provide an interface which would accept the card number, expiry, and cvv -->
+</div>
+
+<div id="single-card-number">
+    <!-- only the card number would be injected -->
+</div>
+<div id="single-card-expiry">
+    <!-- only the card expiry field would be injected -->
+</div>
+<div id="single-card-cvv">
+    <!-- likewise, only the CVV capture field would be rendered -->
+</div>
+
+<button id="cha-ching">Pay the Man</button>
+```
+
+## (Step 2) Initialize the Client-Side SDK
+
+Add the SDK to the page -- the method would vary greatly depending on your client-side framework
+being employed -- such as Angular, ReactJS, Vue.js, and so on. For the purposes of this quick starter,
+we would assume a vanilla HTML page is being rendered.
+
+```html
+
+<script src="./node_modules/@w-pay/sdk-wpay-web-frames/dist/framesSDK.js"></script>
+
+<script type="application/javascript">
+
+    async function bootUpFramesSdk() {
+
         const sdk = new FRAMES.FramesSDK({
-            apiKey: 'YOUR_API_KEY', 
-            authToken: 'YOUR_AUTH_TOKEN' // Format: Bearer token_value, 
-            apiBase: "https://dev.mobile-api.woolworths.com.au/wow/v1/pay/instore", 
-            logLevel: FRAMES.LogLevel.DEBUG
-        });
-   </script>
-   ```
+                                             apiKey: '<your_api_key>',
+                                             authToken: 'Bearer <session_created_associated_for_wallet>',
+                                             apiBase: "https://pt-api.wpay.com.au/wow/v1/pay/instore",
+                                             logLevel: FRAMES.LogLevel.DEBUG //optional
+                                         });
 
-- Start a new card capture action. The action will handle all interactions with your elements, including their creation, validation and submission.
+        const captureAction = sdk.createAction(FRAMES.ActionTypes.CaptureCard);
 
-    ```
-    let action = sdk.createAction(FRAMES.ActionTypes.CaptureCard);
-    action.start();
-    ```
-    This will initialise a new card capture action. This call will need to be repeated between subsequent card captures.
+        // this is important for the SDK to obtain additional metadata from the backend
+        // it is an async task -- so either await or treat it with the Promise.then...
+        await captureAction.start();
 
+        // the various options and configurations will be expanded on later!
+        const options = {};
 
-- Add the credit card capture frames to the page.
-
-    The SDK attaches new elements to `div` placeholders within your page using the element `id`.
-
-    Add an element to your page.
-
-    ```
-    <div id="cardElement"></div>
-    ```
-
-    After adding your placeholder you can now create your frames element.  When creating an element pass in the type of the element you would like to create and the id of the dom element that you would like to attach it to.
-
-    ```
-    action.createFramesControl('CardGroup', 'cardElement');
-    ```
-
-    Loading the page should now display the credit card capture element, displaying card, expiry date and CVV.
-
-- Submitting the page
-
-    Once the user has entered their credit card details, you are going to want to save the details.  To do this, add a Submit button to the page, calling the `submit` function on the action. This will run the card validation, submitting the form if succcessful.
-
-    ```
-    <button onClick="async function() { await action.submit()}">Submit</button>
-    ```
-
-    Once successfully submitted an action needs to be completed.  Do so by calling complete.
-
-    ```
-    let captureResult = await action.complete();
-
-    // The save option can be overwritten at completion time. This allows the customer
-    // to give input into whether a card should be saved or not post form rendering.
-    let captureResult = await action.complete(false);
-    ```
-
-    If you would like to clear the element(s), you can also call the `clear` function on the action.
-
-    ```
-    <button onClick="async function() { await action.clear()}">Clear</button>
-    ```
-
-## Example Two - Step Up token creation
-
-- Add the sdk to the page
-
-   `<script src="./node_modules/@wpay/frames/dist/framesSDK.js" />`
-
-
-- Add a script tag to the page, initialise the SDK and log into the payment platform.
-
-   ``` 
-   <script>
-        const sdk = new FRAMES.FramesSDK({
-            apiKey: 'YOUR_API_KEY', 
-            authToken: 'YOUR_AUTH_TOKEN' // Format: Bearer token_value, 
-            apiBase: "https://dev.mobile-api.woolworths.com.au/wow/v1/pay/instore", 
-            logLevel: FRAMES.LogLevel.DEBUG
-        });
-   </script>
-   ```
-
-- Start a new card step up action referencing your paymentInstrumentID and the scheme of the instrument (e.g. VISA)
-
-    ```
-    let action = sdk.createAction(
-        FRAMES.ActionTypes.StepUp,
-        {
-            paymentInstrumentId: <YOUR PAYMENT INSTRUMENT ID>,
-            scheme: <PAYMENT INSTRUMENT SCHEME>
-        }
-    );
-    action.start();
-    ```
-    This will initialise a new step up action. This call will need to be repeated between subsequent step up token requests.
-
-
-- Add the cvv element to the page.
-
-    The SDK attaches new elements to `div` placeholders within your page using the element `id`.
-
-    Add an element to your page.
-
-    ```
-    <div id="cvvElement"></div>
-    ```
-
-    After adding your placeholder you can now create your frames element.  When creating an element pass in the type of the element you would like to create and the id of the dom element that you would like to attach it to.
-
-    ```
-    action.createFramesControl('CardCVV', 'cvvElement');
-    ```
-
-    Loading the page should now display the credit card capture element, displaying card, expiry date and CVV.
-
-- Submitting the page
-
-    Once the user has entered their CVV, you are going to want to submit and create the step up token.  To do this, add a Submit button to the page, calling the `submit` function on the action.
-
-    ```
-    <button onClick="async function() { await action.submit()}">Submit</button>
-    ```
-
-    Once successfully submitted an action needs to be completed.  Do so by calling complete.
-
-    ```
-    let stepUpResult = await action.complete();
-
-    ```
-
-# Advanced
-
-## Multiple elements
-
-The process for using individual elements is much the same as the single grouped element, however split across multiple ekements.
-
-Instead of adding a single, control, use the action to create multiple controls.
-
-```
-action.createFramesControl('CardNo', 'cardCaptureCardNo', options);
-action.createFramesControl('CardExpiry', 'cardCaptureExpiry', options);
-action.createFramesControl('CardCVV', 'cardCaptureCVV', options);
-```
-
-Thats all you need to do.  When you submit the action, the SDK will manage the submission of all of the individual elements for you.
-
-## Error Handling
-
-Things don't always go smoothly, so sometimes there will be errors within the frames that you need to be aware of.
-
-Here is an example of subscribing to the `OnValidated` event and registering a function to handle the event (updateErrors).  
-
-**Please note**: The event needs to be registered on the placeholder element that the element is injected into.  Registering in the wrong place may mean you miss the event.
-
-Update errors might look something like this (Pure JS example):
-
-```
-async function updateErrors() {
-    if (action.errors()) { 
-        document.getElementById('cardCaptureErrors').innerHTML = "<ul>"
-
-        for (error of action.errors()) {
-            document.getElementById('cardCaptureErrors').innerHTML += `<li>${error}</li>`;
+        if (merchant_wants_to_control_each_input_field) {
+            captureAction.createFramesControl('CardNo', 'single-card-number', options);
+            captureAction.createFramesControl('CardExpiry', 'single-card-expiry', options);
+            captureAction.createFramesControl('CardCVV', 'single-card-cvv', options);
+        } else {
+            captureAction.createFramesControl('CardGroup', 'default-card-capture-group', options);
         }
 
-        document.getElementById('cardCaptureErrors').innerHTML += "</ul>"
-    } else {
-        document.getElementById('cardCaptureErrors').innerHTML = "";
+        /*
+        ///////// NOTE: ADDITIONAL CODE SAMPLES WILL BE PLACED HERE ///////////
+         */
     }
+
+
+    // only for illustration purposes that the page is starting up
+    // it would vary from framework, to framework
+    window.onload = bootUpFramesSdk;
+
+</script>
+```
+
+## (Optional Step 3) Customizing the Elements
+
+### Stateful Styling Surrounding the `<iframe/>`
+
+The internal state of the frame control is synchronized with an element surrounding the `<iframe/>` by coordinating the
+class names. This would allow a simpler method for custom drawing. By example, the DOM tree would appear something like
+the following:
+
+```html
+
+<div id="merchant-supplied-frame-like-card-no">
+    <!-- this sub-tree is controlled by the Frames SDK -->
+    <div class="woolies-element element-container error">
+        <iframe .../>
+    </div>
+</div>
+```
+
+The `.error` class would only be attached when the input failed validation for some reason. This functionality then
+allows a cheap solution for styling the elements as per the following example:
+
+```css
+.woolies-element.container {
+    border: 1px solid #d9d9d9;
+    margin-left: 5px;
+    padding: 5px;
+}
+
+.woolies-element.error {
+    border: 1px solid #D0021B;
+    background-color: #FFECEE;
 }
 ```
 
-Here is a basic mapping of the errors that are returned by the validation
+### Customizing Styling within the `<iframe/>`
+
+Several styling options and configuration can be used to customize the input fields within the custom `<iframe/>`. The
+options which may be applied for customizing the layout are:
+
+```javascript
+const options = {
+    "allowAutoComplete": true, // by default, this is false
+    "css": "", // a CSS style as if it would appear in <style type="text/css"></style> -- see advanced section later
+
+    "style": { // the ROOT level style applied to all elements
+        // key-values to appear similar to <div style="key: value"/>
+    },
+
+    // things which would target the card group "container" (not the fields)
+    "cardGroup": {
+        "style": { // key-value pairs for style on <img style="key: value; ..."/>
+        }
+    },
+
+    // controls card number field (even if card group is used)
+    "cardNo": {
+        "cardType": {
+            "layout": "right", // by default to the right
+            "style": { // key-value pairs for style on <img style="key: value; ..."/>
+            }
+        },
+        "style": {
+            "fontWeight": "bold",
+            "fontStyle": "normal"
+        }
+    },
+
+    "cardExpiry": {
+        "style": { // key-value pairs for style on <img style="key: value; ..."/>
+        }
+    },
+
+    "cardCVV": {
+        "style": { // key-value pairs for style on <img style="key: value; ..."/>
+        }
+    },
+};
 ```
-errorMap: {
-    'Card Number Required': 'Please enter a valid card number.',
-    `Invalid Card Number`: 'Please enter a valid card number.',
-    'Invalid Expiry': 'Please enter a valid expiry.',
-    'Incomplete Expiry': 'Please enter a valid expiry',
-    'Expired card': 'The expiry entered is in the past. Please enter a valid expiry.',
-    'Invalid CVV': 'Please enter a valid CVV.'
+
+A simplified and contrived example follow for illustration:
+
+```javascript
+const options = {
+    "css": `
+        input::placeholder {
+            color: blue;
+        }
+
+        input:hover::placeholder {
+            color: green;
+        }
+    `,
+    "style": {
+        "height": "40px",
+        "fontSize": "30px",
+        "fontStyle": "italic"
+    },
+
+    "cardNo": {
+        "cardType": {
+            "layout": "right",
+            "style": {
+                "width": "50px"
+            }
+        },
+        "style": {
+            "fontWeight": "bold",
+            "fontStyle": "normal"
+        }
+    },
 }
 ```
 
-### Form valid event
+## (Step 4) Capturing the Card
 
-If there are multiple elements on a page, there needs to be coordination to know if the form 
-as a whole is valid or not. The `FormValid` and `FormInvalid` events can be used instead of
-the application having to track the validation status of each element. For example,
+The last step is to capture the card, and handle any issues. Extending the JavaScript from step 2:
+
+```javascript
+const captureAction = from_where_we_left_off;
+
+document.getElementById('cha-ching').onclick = async function () {
+    // we will ask all the frame elements to send their data
+    // internally, this would call the client side captureAction.validate()
+    try {
+        await captureAction.submit();
+    } catch {
+        // if there was a problem, most likely a validation issue
+        // you can grab all the errors as an object and transform it for
+        // user display -- by for developer getting started
+        console.error({ errors: action.errors() });
+    }
+
+    const captureResult = await captureAction.complete();
+
+    // todo: illustrate capture result has an instrument id
+    console.log(captureResult);
+
+    // out of scope: make payment with Wpay using the instrument ID
+    // often implemented via a Merchant API Service
+    // see: https://developerhub.wpay.com.au/digitalpayments/docs/make-payment
+};
+```
+
+---
+
+# Getting Started with Step-Up Challenges
+
+When cards are added to the wallet, the business rules may require a CVV to be confirmed by the shopper to present a
+step-up token for processing payments.
+
+Similar to the card tokenization getting started guide (above), the general steps are:
+
+1. Mark the elements to host the CVV `<iframe/>` element.
+2. Initialize the SDK.
+3. Obtain the step-up token for further processing
+   on [making a payment with step-up tokens](https://developerhub.wpay.com.au/digitalpayments/docs/make-payment#step-up-tokens)
+   .
+
+Assuming the dear reader of this SDK read the prior getting started section, the following example would be concise
+minimal reference.
+
+```html
+
+<div id="single-card-cvv">
+    <!-- likewise, only the CVV capture field would be rendered -->
+</div>
+
+<button id="cha-ching">Pay the Man Again!</button>
+
+<script src="./node_modules/@w-pay/sdk-wpay-web-frames/dist/framesSDK.js"></script>
+
+<script type="application/javascript">
+
+    async function bootUpFramesSdk() {
+
+        const sdk = new FRAMES.FramesSDK({
+                                             apiKey: '<your_api_key>',
+                                             authToken: 'Bearer <session_created_associated_for_wallet>',
+                                             apiBase: "https://pt-api.wpay.com.au/wow/v1/pay/instore",
+                                             logLevel: FRAMES.LogLevel.DEBUG //optional
+                                         });
+
+        // TIP: use the attributes provided by the instrument list for the init
+        // values below -- https://developerhub.wpay.com.au/digitalpayments/reference/getcustomerpaymentinstruments
+        const stepUpActionOptions = {
+            paymentInstrumentId: YOUR_PAYMENT_INSTRUMENT_WHICH_YOU_ARE_STEPPING_UP,
+            scheme: '<PAYMENT INSTRUMENT SCHEME>'
+        };
+        // NOTE: the action type is different from CardCapture
+        const stepUpAction = sdk.createAction(FRAMES.ActionTypes.StepUp, stepUpActionOptions);
+
+        await stepUpAction.start();
+
+        const elementOptions = {};
+        stepUpAction.createFramesControl('CardCVV', 'single-card-cvv', elementOptions);
+
+        document.getElementById('cha-ching').onclick = async function () {
+            // we will ask all the frame elements to send their data
+            // internally, this would call the client side captureAction.validate()
+            try {
+                await stepUpAction.submit();
+            } catch {
+                // if there was a problem, most likely a validation issue
+                // you can grab all the errors as an object and transform it for
+                // user display -- by for developer getting started
+                console.error({ errors: action.errors() });
+            }
+
+            const stepUpResult = await stepUpAction.complete();
+
+            console.log(stepUpResult);
+
+            // out of scope: make payment with Wpay using the instrument ID
+            // often implemented via a Merchant API Service
+            // see: https://developerhub.wpay.com.au/digitalpayments/docs/make-payment
+        };
+    }
+
+
+    // only for illustration purposes that the page is starting up
+    // it would vary from framework, to framework
+    window.onload = bootUpFramesSdk;
+
+</script>
+```
+
+---
+
+# 3DS Card Validation / Challenge
+
+The SDK has facilities for supporting the merchant with 3DS. There are two use cases which may require 3DS
+authentication/challenges:
+
+* Adding cards to the shopper's wallet (`card capture` use-case)
+* Performing payments (`make payment` use-case)
+
+Similar to other card capture elements, the merchant will need to designate a target element to host the modal elements.
+
+> Please refer to
+>
+the [test cards published on the Developer Hub](https://developerhub.wpay.com.au/digitalpayments/docs/test-card-numbers#3ds-test-cards)
+> to simulate the variations of 3DS decisions.
+
+In general, the workflow would follow the key steps:
+
+1. Perform the step (either `make payment` or `card capture`), to which the action is denied and a "session id" is
+   issued
+2. Using the "session id," obtain the appropriate "challenge response".
+3. Re-attempt the same action as per step 1 but with the additional challenge response obtained from step 3.
+4. Profit!
+
+## (Step 1) 3DS Required on Payment or Card Capture
+
+Perform the operation as normal -- if 3DS flow is required to obtain a token, the error response type would
+indicate `3DS_001` stating "3DS token required".
+
+> Note: triggering the 3DS token being required is nuanced with many potential triggers, and is beyond the scope of this
+> document to exhaustively list the triggers according to your merchant configuration. Please contact your account
+> manager
+> for technical support to match your business requirements and use-cases.
+
+For concise details of each use case in the phase of receiving the `3DS_001`, see the subheadings for `make payment`
+and `card capture`.
+
+### (Step 1a) Make Payment requiring 3DS Token
+
+[When a payment request is made to Wpay](https://developerhub.wpay.com.au/digitalpayments/docs/make-payment#make-a-payment)
+, and a 3DS token is required to be accompanied, the transaction would fail. The following condensed snippet is a sample
+response.
+
+```json
+{
+  "type": "PAYMENT",
+  "status": "REJECTED",
+  "subTransactions": [
+    {
+      "threeDS": {
+        "sessionId": "eyJhbGciOiJI...Vf4yeS2jx7rPZQ",
+        "paymentInstrumentId": "12345"
+      },
+      "errorCode": "3DS_001",
+      "errorMessage": "3DS TOKEN REQUIRED"
+    }
+  ]
+}
+```
+
+The key elements which the merchant needs to recognize and react to in the above response, is:
+
+1. that the payment failed (`.status == "REJECTED"`);and,
+2. the reason it failed is that 3DS token needs to be provided (`.subTransactions[].errorCode == "3DS_001"`).
+
+Since the `make payment` procedure is typically called by the merchant backend, the significant variable to return to
+the user interface is the following element, which we will refer into the subsequent steps.
+
+```javascript
+// pseudo code -- note the subTransaction may have multiple elements
+// depending if split-payments is employed.
+const THREEDS_SESSION_ID = initialPaymentRequest.subTransactions[theIndex].threeDS.sessionId;
+```
+
+### (Step 1b) Upon Card Capture
+
+As you may recall, card capturing would eventually reach the critical step of `action.complete()`. The following
+pseudo-snippet has been illustrated in detecting when a 3DS session needs to commence:
+
+```javascript
+async function captureCardToWallet() {
+    const shouldSaveCard = true;
+    const captureResult = await captureAction.complete(shouldSaveCard);
+
+    if (captureResult.errorCode !== "3DS_001") {
+        return captureResult;
+    }
+
+    const THREEDS_SESSION_ID = captureResult.token;
+
+    // other code would be appended here (see Step 3b)
+}
+```
+
+## (Step 2) Card Validation Enrollment and Modal
+
+To begin the card validation, the `THREEDS_SESSION_ID` from Step 1 needs to used to initialize the `ValidateCard`
+action. In addition, the frame control for hosting the 3DS modal needs to be nominated.
+
+```javascript
+// by way of reminder on the Frames SDK reference
+const sdk = new FRAMES.FramesSDK({ /* */ });
+
+// and how to create the 3DS validate action...
+async function obtain3dsToken(THREEDS_SESSION_ID) {
+    const validateCardRequestParameters = {
+        sessionId: THREEDS_SESSION_ID, // NOTE: this is from (Step 1)
+        threeDS: {
+            // by default, any value other than "prod" is staging
+            env: isProduction ? "prod" : "staging",
+            consumerAuthenticationInformation: {
+                acsWindowSize: "01",        // note: this property is required
+                // other options applicable is adjustable as per CyberSource documentation (see below)
+            }
+        },
+    };
+
+    const validateAction = sdk.createAction(
+        FRAMES.ActionTypes.ValidateCard,
+        validateCardRequestParameters
+    );
+
+    // this will load up "Songbird" and other Cardinal 3DS support libs
+    await validateAction.start();
+
+    // specify which element to render into - in this case, the following
+    // should be accessible `document.getElementById('theTargetElementForValidateCard');
+    validateAction.createFramesControl('ValidateCard', 'theTargetElementForValidateCard');
+
+    return await validateAction.complete();
+}
+```
+
+In the `consumerAuthenticationInformation` property, the full list of options and capabilities are described
+on [CyberSouce Documentation for the Enrollment Request](https://developer.cybersource.com/api-reference-assets/index.html#payer-authentication_payer-authentication_check-payer-auth-enrollment)
+.
+
+## (Step 3) Retrying to Operation with the 3DS Token
+
+In the prior step (Step 2), the function `obtain3dsToken` would yield a payload which is usable in the re-attempt of the
+operation --
+
+```javascript
+// callee
+const threeDsTokenResult = await obtain3dsToken(THREEDS_SESSION_ID);
+
+// and what needs to be composed into the 3ds token presentation for backend.
+const THREEDS_PAYLOAD = threeDsTokenResult.challengeResponse;
+// which would eval/yield
+//      { /// THREEDS_PAYLOAD
+//         "type": "3DS-frictionless", // alternative "3DS"
+//         "instrumentId": "12345",
+//         "token": "...",
+//         "reference": "..."
+//      }
+```
+
+## (Step 3a) Making Payment with a 3DS Token
+
+The payload `THREEDS_PAYLOAD` is injected into
+the [make payment endpoint](https://developerhub.wpay.com.au/digitalpayments/docs/make-payment#make-a-payment) with the
+critical transformation being key --
 
 ```
-document.getElementById('cardElement').addEventListener(FRAMES.FramesEventType.FormValid, () => { // Do something });
-document.getElementById('cardElement').addEventListener(FRAMES.FramesEventType.FormInvalid, () => { // Do something });
+// POST /wow/v1/pay/instore/customer/payments
+
+{
+  "data": {
+    // ...
+  },
+  "meta": {
+    // ...
+    "challengeResponses": [
+      { /// THREEDS_PAYLOAD
+        "type": "3DS-frictionless",
+        "instrumentId": "12345",
+        "token": "...",
+        "reference": "..."
+      },
+      // ...  other challenges like step ups
+    ]
+  }
+}
 ```
 
-## Events - OnFocus & OnBlur
+### (Step 3b) Adding a Card with 3DS Token
 
-Sometimes you have an advanced use case like turning on and off buttons once all fields are complete which mean that you need to know when controls are visited.  Typically this type of activity would be done using onFocus or onBlur events.
+Expanding on the pseudo-example from Step 1b, the retry is earmarked below:
 
-If you would like to listen into these events you can do so by adding an event listener to 
-the placeholder element in much the same way as you do for validation. For example,
+```javascript
+async function captureCardToWallet() {
+    const shouldSaveCard = true;
+    const captureResult = await captureAction.complete(shouldSaveCard);
 
+    if (captureResult.errorCode !== "3DS_001") {
+        return captureResult;
+    }
+
+    const THREEDS_SESSION_ID = captureResult.token;
+
+    // continuation from code sample in Step 1b
+    const threeDsTokenResult = await obtain3dsToken(THREEDS_SESSION_ID);
+    const THREEDS_PAYLOAD = threeDsTokenResult.challengeResponse;
+
+    // retry with the operation with the token
+    return await captureAction.complete(shouldSaveCard, [THREEDS_PAYLOAD]);
+}
 ```
-document
-    .getElementById('cardCaptureCardNo')
-    .addEventListener(Frames.FramesEventType.OnBlur, () => { // Do something onBlur });
+
+## (Step 4) Detecting and Dealing with Unsuccessful 3DS Authentication
+
+TODO: expand on best practices. 
+
+## (Optional Step 5) Detecting 3DS Modal Pop-ups
+
+Your user experience may need to detect when the 3DS modal which banks usually challenges the customer via an
+interaction. Some user experiences may include displaying a branded loading spinner, dimming the background, and so on.
+
+> Tip: For the challenge modals to be presented in the testing environments, use the "Successful Step-Up Authentication"
+>
+cards [as published on the Developer Hub](https://developerhub.wpay.com.au/digitalpayments/docs/test-card-numbers#3ds-test-cards)
+> .
+
+The following events are emitted when the challenge UI renders and when the challenge is completed and/or dismissed.
+
+```javascript
+// your user code.
+const handleRenderEventListner = () => {
+    /* ... */
+};
+const handleCloseEventListner = () => {
+    /* ... */
+};
+
+const domElementHostingValidatedCard = document.getElementById('theTargetElementForValidateCard');
+
+domElementHostingValidatedCard.addEventListener(FRAMES.FramesCardinalEventType.OnRender, renderEventListener);
+domElementHostingValidatedCard.addEventListener(FRAMES.FramesCardinalEventType.OnClose, closeEventListener);
+
+// and don't forget to unsubscribe in case you care about memory management...
+domElementHostingValidatedCard.removeEventListener(FRAMES.FramesCardinalEventType.OnRender, renderEventListener);
+domElementHostingValidatedCard.removeEventListener(FRAMES.FramesCardinalEventType.OnClose, closeEventListener);
+```
+
+---
+
+# Advanced Capabilities
+
+## Extended Event Handling
+
+With all the DOM elements nominated for the SDK's actions to attach to, custom events are raised to the DOM element. The
+full list of potential events are listed in [framesEventType.ts](src/domain/framesEventType.ts). An example detecting
+blur is pseudo-illustrated as per below:
+
+```javascript
+// attaching and nominating the DOM elements for the SDK Actions
+const captureAction = sdk.createAction(FRAMES.ActionTypes.CaptureCard);
+captureAction.createFramesControl('CardNo', 'single-card-number');
+
+// and custom event handling
+const handleCardNumberHasFocus = () => {
+    console.log('DEMO: in focus');
+};
+const handleCardNumberWentBlur = () => {
+    console.log('DEMO: blurred');
+};
+
+const targetElement = document.getElementById('single-card-number');
+
+targetElement.addEventListener(Frames.FramesEventType.OnFocus, handleCardNumberHasFocus);
+targetElement.addEventListener(Frames.FramesEventType.OnBlur, handleCardNumberWentBlur);
+
+// and don't forget to manage memory when the event is no longer required
+targetElement.removeEventListener(Frames.FramesEventType.OnFocus, handleCardNumberHasFocus);
+targetElement.removeEventListener(Frames.FramesEventType.OnBlur, handleCardNumberWentBlur);
+```
+
+Included in the list of events is raising the form validation states of the users' inputs (e.g. `OnValidated`).
+
+## Card Verification
+
+When adding a card to the customer's wallet, the tokenization step may validate whether the card details
+are correct by performing a verification with the financial institute, to provide early validation.
+
+> Note: validation and fraud detection are different concepts and should not be used interchangeably. Validation
+> provides the ability for the user to verify their full card details are correct, thereby uplifting the customer
+> experience.
+
+```javascript
+// it can be configured as an option when creating the action
+const actionOptions = { verify: true };
+const captureAction = sdk.createAction(FRAMES.ActionTypes.CaptureCard, actionOptions);
+
+// or alternatively, specified during the `complete` method call.
+const shouldVerifyCard = true;
+const captureResult = await captureAction.complete(shouldVerifyCard);
 ```
 
 ## Inject Card Details from External Sources
 
-The merchant's app or checkout page may wish to inject card details into the card capture session. The typical use case would be for a mobile app to have implemented OCR capabilities which would allow their customer to capture the card details using the mobile camera.
+The merchant's app or checkout page may wish to inject card details into the card capture session. The typical use case
+would be for a mobile app to have implemented OCR capabilities which would allow their customer to capture the card
+details using the mobile camera.
 
-To enable this workflow, the method `injectCardDetailsFromPciScopedRuntime` may be called, and as hinted by the method name, would increase the PCI-DSS obligations the merchant's implementation.
+To enable this workflow, the method `injectCardDetailsFromPciScopedRuntime` may be called, and as hinted by the method
+name, would increase the PCI-DSS obligations the merchant's implementation.
 
 Only employ this method if the increased obligation scope has been fully understood by the implementor.
 
@@ -265,463 +659,9 @@ action.createFramesControl('CardGroup', 'cardElement');
 // and to inject the data into the frames
 await action.injectCardDetailsFromPciScopedRuntime(
     {
-      cardNo: '5353123412341234',
-      expiry: '04/20',
-      cvv: '999'
+        cardNo: '5353123412341234',
+        expiry: '04/20',
+        cvv: '999'
     });
 ```
 
-## Styling & Options
-
-In order to ensure seamless integration with your user experience, styling can either be applied to the container via CSS, or in the case you want to make styling changes inside the frame, be injected into the Frames at run time via the options config.
-
-An frame has several classes that can be used as targets for styling:
-- woolies-element
-- container
-- error (only applied when the element has been validated and reported an error)
-
-Here is an example of how one might use these classes to customise the style of the elements:
-
-```
-.woolies-element.container {
-    border: 1px solid #d9d9d9;
-    margin-left: 5px;
-    padding: 5px;
-}
-
-.woolies-element.error {
-    border: 1px solid #D0021B;
-    background-color: #FFECEE;
-}
-```
-
-If you would like to further style the internal aspects of the element such as font-family/style/weight you can do so using the options object.
-
-The options object allows you to either apply styling to all elements under the control of an action, or scope your changes to only the elements you want to change.
-
-For instance this would set the height of the frame element top 40px and apply a font size of 30 pixels to all elements:
-
-```
-let options = {
-    "height": "40px",
-    "style": {
-        "fontSize": "30px"
-    }
-}
-```
-
-If you then wanted to make the cardNo element bold, while making the other fields italic, you could do so like this:
-
-```
-let options = {
-    "height": "40px",
-    "cardNo": {
-        "style": {
-            "fontWeight": "bold",
-            "fontStyle": "normal"
-        }
-    },
-    "style": {
-        "fontSize": "30px",
-        "fontStyle": "italic"
-    }
-}
-```
-
-The cardNo element is a little unique in that it has a sub element type that is used to show an image based on card scheme.  This element can also be targeted and has an additional property allowing you to choose which side of the element it is displayed on.
-
-This example moves the card type to the right and sets the image width to 50px to fill out the space:
-
-```
-let options = {
-    "height": "40px",
-    "cardNo": {
-        "cardType": {
-            "layout": "right",
-            "style": {
-                "width": "50px"
-            }
-        },
-        "style": {
-            "fontWeight": "bold",
-            "fontStyle": "normal"
-        }
-    },
-    "style": {
-        "fontSize": "30px",
-        "fontStyle": "italic"
-    }
-}
-```
-
-Sometimes you want to make customisations that cant be inlined, such as change the placeholder text, or have a different colour on hover.  You are able to do this by injecting CSS styling into the frame using the css property.
-
-This example sets the placeholder colour to blue and changes it to green on hover:
-
-```
-let options = {
-    height: "40px",
-    "cardNo": {
-        "cardType": {
-            "layout": "right",
-            "style": {
-                "width": "50px"
-            }
-        },
-        "style": {
-            "fontWeight": "bold",
-            "fontStyle": "normal"
-        }
-    },
-    "style": {
-        "fontStyle": "italic",
-        "color": "blue",
-        "fontSize": "30px"
-    },
-    "css" : `
-        input::placeholder {
-            color: blue;
-        }
-
-        input:hover::placeholder {
-            color: green;
-        }
-    `
-}
-```
-
-## Logging
-
-If you would like to see what is going on inside of the SDK, you can enable logging using the SDK constructor.  Simply set the log level you would like to see and you should be able to see the log output in the console window.  The log level is universal so applies to both the SDK and IFrame content.
-
-### Log Levels
-
-- NONE = 0,
-- ERROR = 50,
-- INFO = 100,
-- DEBUG = 200
-
-## Capture Card Options
-
-### Card verification
-
-By default, the card verification is disabled on card capture.  If you would like to capture a card and enforce verification, provide a `verify: true` property when initialising the capture card action.
-
-e.g.
-
-```
-const action = cdk.createAction(FRAMES.ActionTypes.CaptureCard, { verify: true });
-```
-
-# 3DS2
-
-> Please note:  In order to use 3DS you merchant must have had 3DS enabled
-
-The Frames SDK offers 3DS2 verification cababilities by wrapping Cardinals (https://www.cardinalcommerce.com/) 3DS songbird library and orchestrating the 3DS verification process.  There are 2 supported flows, one for verification of cards during the capture process and a second for verification at time of payment.
-
-## Selecting an environment
-
-Cardinal is a little unique in how it does environement management, providing 2 instances of the songbird library, one for staging and a second for production use.  Both versions of the library have been included in the SDK so that there are no code changes required between environments.
-
-In order to protect production the SDK will use the staging version by default.  In order to switch the threeDS enabled actions over to production you need to provide the following in your options when creating the action.
-
-```
-{
-    threeDS: {
-        env: "prod"
-    }
-}
-```
-
-Here is an example of the prod config being used to validate a card:
-
-```
-const enrollmentRequest: any = {
-    sessionId: CARD_CAPTURE_RESPONSE_TOKEN,
-    threeDS: {
-        env: "prod"
-    }
-};
-
-const action = this.framesSDK.createAction(FRAMES.ActionTypes.ValidateCard, enrollmentRequest);
-```
-
-## Card Verification
-
-If you wish to perform 3DS2 verification as part of a card capture exercise, you can do so by specifying that 3DS is required when initializing the card capture action.
-
-- Create a new card capture action, specifying that 3DS is required.
-
-```
-const captureCardAction = this.framesSDK.createAction(
-    FRAMES.ActionTypes.ValidateCard,
-    {
-        threeDS: {
-          requires3DS: true
-        }
-    }
-) as CaptureCard;
-```
-
-- Capture card as per normal.  When you call complete, you will recieve a failure with a 3DS challenge.  For example:
-
-```
-{
-    "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJPcmdVbml0SWQiOiI2MGFmOGExZTBiYWM1ZDUwY2MyNmYzM2MiLCJSZWZlcmVuY2VJZCI6ImUxYzdjNzk4LWE1MjYtNDZhMC05ODU4LTRmNGIwMmNlNzdiOSIsImlzcyI6InBldGN1bHR1cmUiLCJQYXlsb2FkIjp7ImFjdGlvbklkIjoiYzYxZmM1OTgtZDU3ZS00MWM3LTg4YzQtMjhhODlkOTczYzEyIiwib3JkZXJJbmZvcm1hdGlvbiI6eyJhbW91bnREZXRhaWxzIjp7ImN1cnJlbmN5IjoiQVVEIn19fSwiaWF0IjoxNjI3NTE3MTc2LCJqdGkiOiIzNDMyMDBmMC0wNzQ3LTQ1NWUtODdlMi04ZTU5OTc3ZTAzMDEifQ.bghcu82uOuN6LSX_oKPj8f6WjBMhnXK3DYUkfp1F0mc",
-    "message": "3DS TOKEN REQUIRED"}
-}
-```
-
-- Create and start a validateCard action.  This will initialise the cardinal library and perform device data capture.
-
-```
-const enrollmentRequest: any = {
-    sessionId: cardCaptureResponse.token,
-    threeDS: {
-        env: "staging"
-    }
-};
-
-const action = this.framesSDK.createAction(FRAMES.ActionTypes.ValidateCard, enrollmentRequest);
-await action.start();
-```
-
-- Set the targetElement that you would like the 3DS frame to render to
-
-```
-action.createFramesControl('ValidateCard', 'yourElementId');
-```
-
-- Typically the 3DS window is displayed as a modal, however hte IFrame can be embedded anywhere.  To assist in building out your experience, we have 2 events:
-  - OnRender: Triggered once the issuer content has been embedded into the targetElement
-  - On Close: Triggered once the issuer content has been dismissed.
-
-  These events can be subscribed to in the typical fashion:
-
-  ```
-    const renderEventListener = () => {
-        // Do something on render
-        console.log('Show modal');
-    };
-
-    const closeEventListener = () => {
-        // Do something on close
-        console.log('Hide modal');
-    };
-
-    elementHandle.addEventListener(FRAMES.FramesCardinalEventType.OnRender, renderEventListener);
-    elementHandle.addEventListener(FRAMES.FramesCardinalEventType.OnClose, closeEventListener);
-  ```
-
-- Complete the validateCard action.  If successful this will return a challengeResponse that can be used to complete the captureCard action.
-
-```
-const validationResponse = await action.complete();
-```
-
-Here is an example reponse:
-  ```
-{
-    "threeDSData": {
-        "Validated": true,
-        "ActionCode": "SUCCESS",
-        "ErrorNumber": 0,
-        "ErrorDescription": "Success",
-        "Payment": {
-            "Type": "CCA",
-            "ExtendedData": {
-                "Amount": "0",
-                "CAVV": "MTIzNDU2Nzg5MDEyMzQ1Njc4OTA=",
-                "CurrencyCode": "036",
-                "ECIFlag": "05",
-                "ThreeDSVersion": "2.1.0",
-                "PAResStatus": "Y",
-                "SignatureVerification": "Y"
-            },
-            "ProcessorTransactionId": "Rq6wpFnMVE9tMpRjuIC0"
-        }
-    },
-    "challengeResponse": {
-        "type": "3DS",
-        "instrumentId": undefined,
-        "token": "Rq6wpFnMVE9tMpRjuIC0",
-        "reference": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJPcmdVbml0SWQiOiI2MGFmOGExZTBiYWM1ZDUwY2MyNmYzM2MiLCJSZWZlcmVuY2VJZCI6ImE4N2VmMWM3LWE4ZjUtNGYzNy05MjY2LTQzMzE0MzNmNjJiOSIsImlzcyI6InBldGN1bHR1cmUiLCJQYXlsb2FkIjp7ImFjdGlvbklkIjoiODQwOTE1YTQtNjkzYS00YmQ3LTk1OTMtZGZjYWM0YjE4NjQ2Iiwib3JkZXJJbmZvcm1hdGlvbiI6eyJhbW91bnREZXRhaWxzIjp7ImN1cnJlbmN5IjoiQVVEIn19fSwiaWF0IjoxNjI3NTE5MzY1LCJqdGkiOiJkZmM4MWRiOC01YTA1LTQzMTUtODBmMy00NDAyNTZiZjA2MTgifQ.BIcz8Jk6cFYYSv872M1mCISEQqAvWJKDeDXv-2qF-ko"
-    }
-}
-  ```
-
-- Complete the capture card action, providing the challengeResponse.  This should return the standard card capture response with the addition of the 3DS evidence used in its creation.
-
-```
-const cardCaptureResponse = await this.captureCardAction.complete(this.saveCard, [validationResponse.challengeResponse]);
-```
-
-- As part of good house keeping we should unsubscribe from the events we subscribed to earlier:
-
-```
-elementHandle.removeEventListener(FRAMES.FramesCardinalEventType.OnRender, renderEventListener);
-elementHandle.removeEventListener(FRAMES.FramesCardinalEventType.OnClose, closeEventListener);
-```
-
-## Payment Verification
-
-If 3DS has been requested as part of the payment flow then you will be required to provide a 3DS challenge response when attempting to make a payment.  To create the challenge response, you need to create and execute the validatePayment action.  This will orchestrate 3DS verifaction using the Cardinal Songbird library and return a chellengeResponse that can then be used when making a payment.
-
-
-
-- Create a paymentRequest using the WPay SDK passing in the config for 3DS.
->Please note, your schemaId may differ
-
-```
-const request = {
-    merchantReferenceId: 12345,
-    maxUses: 3,
-    timeToLivePayment: 300,
-    grossAmount: 2.40,
-    merchantPayload: {
-        schemaId: '0a221353-b26c-4848-9a77-4a8bcbacf228',
-        payload: { 
-            requires3DS: settings.merchant.require3DSPA 
-        }
-    }
-};
-
-return merchantSDK.payments.createPaymentRequest(request);
-```
-
-- Make a payment.  The request should fail requesting a 3DS challenge response, you will need need the session returned when creating the challengeResponse below.
-
-```
-const transaction = await customerSDK.paymentRequests.makePayment(paymentRequestId, paymentInstrumentId);
-```
-
-Here is an example of rejected transaction with 3DS challenge:
-
-```
-{
-    "type": "PAYMENT",
-    "status": "REJECTED",
-    "rollback": "NOT_REQUIRED",
-    "merchantId": "petculture",
-    "grossAmount": 12.4,
-    "instruments": [
-        {
-            "transactions": [],
-            "instrumentType": "CREDIT_CARD",
-            "paymentInstrumentId": "198821"
-        }
-    ],
-    "executionTime": "2021-07-29T01:53:33.517Z",
-    "transactionId": "9b5eaf73-30d8-4f32-aeb5-e1c4ac2a2a8c",
-    "clientReference": "9b5eaf73-30d8-4f32-aeb5-e1c4ac2a2a8c",
-    "subTransactions": [
-        {
-            "threeDS": {
-                "sessionId": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiIzNGE5MjVhNi0wNzFmLTRiZjEtODA0MS1lOGJmNjEwYzQ4ZTgiLCJpYXQiOjE2Mjc1MjM2MTcuMDk4LCJpc3MiOiJwZXRjdWx0dXJlIiwiT3JnVW5pdElkIjoiNjBhZjhhMWUwYmFjNWQ1MGNjMjZmMzNjIiwiUGF5bG9hZCI6eyJwYXltZW50SW5zdHJ1bWVudElkIjoiMTk4ODIxIiwib3JkZXJJbmZvcm1hdGlvbiI6eyJhbW91bnREZXRhaWxzIjp7ImN1cnJlbmN5IjoiQVVEIiwiYW1vdW50IjoxMi40fX19LCJPYmplY3RpZnlQYXlsb2FkIjp0cnVlLCJSZWZlcmVuY2VJZCI6IjQ1OTA3MzQ5LWU2OTEtNDFkOS05Njk3LTgxYWFiMTc4MzZlZSJ9.W9D3yDqnGDZg3QncvVmiVfe7d8LW2se4yeS2jx7rPZQ",
-                "paymentInstrumentId": "198821"
-            },
-            "errorCode": "3DS_001",
-            "errorMessage": "3DS TOKEN REQUIRED"
-        }
-    ],
-    "paymentRequestId": "34a925a6-071f-4bf1-8041-e8bf610c48e8",
-    "merchantReferenceId": "d0a118eb-613e-4899-8b71-70806abd40be"
-}
-```
-
-- Create and start the validatePayment action.  This will initialise the cardinal library and perform device data capture.
-
-```
-const enrollmentRequest: any = {
-    sessionId, (Provided in the 3DS challenge)
-    paymentInstrumentId, (The payment instrumentID you want to perform 3DS on - must match instrument used in the challenge)
-    threeDS: {
-        env: "staging",
-        consumerAuthenticationInformation: {
-          acsWindowSize: this.acsWindowSize,
-        }
-    }
-};
-
-const action = this.framesSDK.createAction(FRAMES.ActionTypes.ValidatePayment, enrollmentRequest) as ValidatePayment;
-
-await action.start();
-```
-- Set the targetElement that you would like the 3DS frame to render to
-
-```
-action.createFramesControl('ValidatePayment', 'yourElementId');
-```
-
-- Typically the 3DS window is displayed as a modal, however hte IFrame can be embedded anywhere.  To assist in building out your experience, we have 2 events:
-  - OnRender: Triggered once the issuer content has been embedded into the targetElement
-  - On Close: Triggered once the issuer content has been dismissed.
-
-  These events can be subscribed to in the typical fashion:
-
-  ```
-    const renderEventListener = () => {
-        // Do something on render
-        console.log('Show modal');
-    };
-
-    const closeEventListener = () => {
-        // Do something on close
-        console.log('Hide modal');
-    };
-
-    elementHandle.addEventListener(FRAMES.FramesCardinalEventType.OnRender, renderEventListener);
-    elementHandle.addEventListener(FRAMES.FramesCardinalEventType.OnClose, closeEventListener);
-  ```
-
-- Complete the action.  If successful this will return a 3DS challenge response.
-
-```
-const validationResponse = await action.complete();
-```
-
-- Make the payment providing the challengeResponse in the request.  The payment should now go through successfully.
-
-```
-const transaction = await this.customerSDK.paymentRequests.makePayment(paymentRequestId, paymentInstrumentId, [], undefined, undefined, undefined, [validationResponse.challengeResponse]);
-```
-
-- As part of good house keeping we should unsubscribe from the events we subscribed to earlier:
-
-```
-elementHandle.removeEventListener(FRAMES.FramesCardinalEventType.OnRender, renderEventListener);
-elementHandle.removeEventListener(FRAMES.FramesCardinalEventType.OnClose, closeEventListener);
-```
-
-### Additional 3DS config
-
-At times you may want to leverage additional config items made available by cybersource, such as flags to force 3DS step up or specify a window size.  These additional config values can be found in the ```consumerAuthenticationInformation``` block.
-
-Here is an example of the configuration you would use when creating a validateCard action to use the ```consumerAuthenticationInformation``` to set the window size:
-
-```
-{
-    sessionId: "YOUR_SESSION_ID",
-    threeDS: {
-        consumerAuthenticationInformation: {
-            acsWindowSize: "01",
-        }
-    }
-}
-```
-
-For a full list of options (and descriptions), check out the cybersource documentation for the "Check Payer Auth Enrollment" endpoint.  The request payload contains the property ```consumerAuthenticationInformation``` which is the property exposed above.
-
-Cybersource docs - https://developer.cybersource.com/api-reference-assets/index.html#payer-authentication_payer-authentication_check-payer-auth-enrollment
-
-## 3DS ERROR Codes
-
-- 3DS_001: 3DS Token Required
-- 3DS_002: Invalid session
-- 3DS_003: 3DS Validation Failed
-- 3DS_004: Unsupported 3DS Version
-- 3DS_005: 3DS Service Unavailable
-- 3DS_006: 3DS Authentication Failed
-- 3DS_007: 3DS Validation Timeout
-- 3DS_100: Merchant does not support 3DS
-- 3DS_500: 3DS Unknown Error
