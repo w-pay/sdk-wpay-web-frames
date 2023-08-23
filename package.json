@@ -4,7 +4,7 @@
     "type": "git",
     "url": "https://github.com/w-pay/sdk-wpay-web-frames.git"
   },
-  "version": "2.2.0",
+  "version": "2.2.1",
   "description": "Development kit to assist in building clients that use the woolies API",
   "publishConfig": {
     "@w-pay:registry":"https://npm.pkg.github.com/"
