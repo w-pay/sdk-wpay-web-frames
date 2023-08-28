@@ -21,9 +21,8 @@ Access Token for your login. The steps are as follows:
    ```
 4. And enter in your GitHub username and the password would be the token generated on step 2.
 
-> ***Note:*** For backwards compatibility, NPM packages would continue to
-> be published to the [NPM Repository](https://www.npmjs.com/package/@wpay/frames).
-> However, the dual-publishing is due to be sunset.
+> ***Important Notification:*** NPM packages are no longer published to the NPM Registry.
+> Please ensure that your `.npmrc` for `@w-pay` is directed to the GitHub Packages Registry.
 
 # Getting Started -- Tokenize Card for Payments
 
@@ -548,7 +547,7 @@ async function captureCardToWallet() {
 
 ## (Step 4) Detecting and Dealing with Unsuccessful 3DS Authentication
 
-TODO: expand on best practices. 
+TODO: expand on best practices.
 
 ## (Optional Step 5) Detecting 3DS Modal Pop-ups
 
